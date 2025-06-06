@@ -34,7 +34,8 @@ const egsunit: EGSUnitInfo = {
         postal_zone: "11417"
     },
     branch_name: "My Branch Name",
-    branch_industry: "Food"
+    branch_industry: "Food",
+    buyer_name: "Buyer Name"
 };
 
 // Sample Invoice

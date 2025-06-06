@@ -33,6 +33,8 @@ export interface EGSUnitInfo {
     branch_industry: string,
     location: EGSUnitLocation,
 
+    buyer_name: string,
+
     private_key?: string,
     csr?: string,
     compliance_certificate?: string,
