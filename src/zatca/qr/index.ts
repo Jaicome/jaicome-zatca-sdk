@@ -1,6 +1,3 @@
-import moment from "moment";
-
-
 import { XMLDocument } from "../../parser";
 import { getInvoiceHash } from "../signing";
 
@@ -38,8 +35,7 @@ export const generateQR = ({invoice_xml, digital_signature, public_key, certific
     // Detect if simplified invoice or not (not used currently assuming all simplified tax invoice)
     const invoice_type = invoice_xml.get("Invoice/cbc:InvoiceTypeCode")?.[0]["@_name"].toString();
 
-    const datetime = `${issue_date} ${issue_time}`;
-    const formatted_datetime = moment(datetime).format("YYYY-MM-DDTHH:mm:ss")+"Z";
+    const formatted_datetime = `${issue_date}T${issue_time}`
     
     const qr_tlv = TLV([
         seller_name,
@@ -74,8 +70,7 @@ export const generateQR = ({invoice_xml, digital_signature, public_key, certific
     const issue_date = invoice_xml.get("Invoice/cbc:IssueDate")?.[0];
     const issue_time = invoice_xml.get("Invoice/cbc:IssueTime")?.[0];
 
-    const datetime = `${issue_date} ${issue_time}`;
-    const formatted_datetime = moment(datetime).format("YYYY-MM-DDTHH:mm:ss")+"Z";
+    const formatted_datetime = `${issue_date}T${issue_time}`;
     
     const qr_tlv = TLV([
         seller_name,
