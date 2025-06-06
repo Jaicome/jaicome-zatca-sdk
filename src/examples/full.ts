@@ -37,14 +37,17 @@ const egsunit: EGSUnitInfo = {
     branch_industry: "Food"
 };
 
+// UTC date and time
+const currentDate = new Date().toISOString();
+
 // Sample Invoice
 const invoice = new ZATCASimplifiedTaxInvoice({
     props: {
         egs_info: egsunit,
         invoice_counter_number: 1,
         invoice_serial_number: "EGS1-886431145-1",
-        issue_date: "2022-03-13",
-        issue_time: "14:40:40",
+        issue_date: `${currentDate.split('T')[0]}`,
+        issue_time: `${currentDate.split('T')[1].slice(0, 8)}Z`,
         previous_invoice_hash: "NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==",
         line_items: [
             line_item,
