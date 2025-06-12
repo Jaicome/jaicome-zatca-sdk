@@ -4,6 +4,11 @@ import {
   ZATCAInvoiceTypes,
 } from "../zatca/templates/simplified_tax_invoice_template";
 import { ZATCAInvoice } from "../zatca/ZATCASimplifiedTaxInvoice";
+import * as fs from "fs";
+
+const now = new Date();
+const issueDate = now.toISOString().split("T")[0];
+const issueTime = now.toISOString().split("T")[1].slice(0, 8);
 
 // Sample line items
 const line_item_1: ZATCAInvoiceLineItem = {
@@ -74,55 +79,89 @@ const invoice = new ZATCAInvoice({
     invoice_type: ZATCAInvoiceTypes.INVOICE,
     invoice_code: "0200000",
     invoice_serial_number: "EGS1-886431145-101",
-    issue_date: "2024-02-29",
-    issue_time: "11:40:40",
+    issue_date: issueDate,
+    issue_time: `${issueTime}Z`,
     previous_invoice_hash: "zDnQnE05P6rFMqF1ai21V5hIRlUq/EXvrpsaoPkWRVI=",
     line_items: [line_item_1, line_item_2, line_item_3],
     actual_delivery_date: "2024-02-29",
   },
   acceptWarning: true,
 });
+const invoiceXMLString = invoice.toString();
+fs.writeFileSync("test_invoice.xml", invoiceXMLString, "utf8");
+console.log("✅ Invoice XML (unsigned) saved as test_invoice.xml");
 
 const main = async () => {
   try {
-    // TEMP_FOLDER: Use .env or set directly here (Default: /tmp/)
-    // Enable for windows
-    // process.env.TEMP_FOLDER = `${require("os").tmpdir()}\\`;
+    console.log("Starting ZATCA e-invoice process...");
 
-    // Init a new EGS
+    // 1. Initialize EGS unit
     const egs = new EGS(egsunit);
 
-    // New Keys & CSR for the EGS
+    // 2. Generate Keys & CSR
     await egs.generateNewKeysAndCSR(false, "solution_name");
+    console.log("Keys and CSR generated successfully");
 
-    // Issue a new compliance cert for the EGS
+    // 3. Issue compliance certificate
     const compliance_request_id = await egs.issueComplianceCertificate(
       "123345"
     );
-
-    // Sign invoice
-    const { signed_invoice_string, invoice_hash, qr } = egs.signInvoice(
-      invoice,
-      true
-    );
-
-    // Check invoice compliance
     console.log(
-      await egs.checkInvoiceCompliance(signed_invoice_string, invoice_hash)
-    );
-
-    // Issue production certificate
-    const production_request_id = await egs.issueProductionCertificate(
+      "Compliance certificate issued with request ID:",
       compliance_request_id
     );
 
-    // Report invoice production
-    // Note: This request currently fails because ZATCA sandbox returns a constant fake production certificate
-    let response = await egs.reportInvoice(signed_invoice_string, invoice_hash);
-    console.log(JSON.stringify(response));
+    // 4. Sign invoice and get the signed XML
+    const { signed_invoice_string, invoice_hash, qr } =
+      egs.signInvoice(invoice);
+    fs.writeFileSync("test_invoice_signed.xml", signed_invoice_string, "utf8");
+    console.log("✅ Signed Invoice XML saved as test_invoice_signed.xml");
+    console.log("Invoice hash:", invoice_hash);
+
+    // 5. Check invoice compliance
+    const complianceResult = await egs.checkInvoiceCompliance(
+      signed_invoice_string,
+      invoice_hash
+    );
+    console.log(
+      "Compliance check result:",
+      JSON.stringify(complianceResult, null, 2)
+    );
+    if (complianceResult.validationResults?.warningMessages) {
+      console.log("\nWarning Messages:");
+      complianceResult.validationResults.warningMessages.forEach(
+        (warning: any, index: number) => {
+          console.log(`${index + 1}. ${JSON.stringify(warning, null, 2)}`);
+        }
+      );
+    }
+
+    // 6. Issue production certificate
+    const production_request_id = await egs.issueProductionCertificate(
+      compliance_request_id
+    );
+    console.log(
+      "Production certificate issued with request ID:",
+      production_request_id
+    );
+
+    // 7. Report invoice
+    let reportedInvoice = await egs.reportInvoice(
+      signed_invoice_string,
+      invoice_hash
+    );
+    console.log("Invoice reporting status:", reportedInvoice?.reportingStatus);
+
+    console.log("Process completed successfully!");
   } catch (error: any) {
-    console.log(error.message ?? error);
-    console.log(JSON.stringify(error.response?.data));
+    console.error("Error occurred in the process:");
+    console.error("Error message:", error.message);
+    if (error.response) {
+      console.error("API Response data:", error.response.data);
+      console.error("API Response status:", error.response.status);
+      console.error("API Response headers:", error.response.headers);
+    }
+    console.error("Full error object:", JSON.stringify(error, null, 2));
   }
 };
 
