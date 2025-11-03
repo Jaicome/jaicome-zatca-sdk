@@ -82,8 +82,7 @@ const invoice = new ZATCAInvoice({
     invoice_serial_number: "EGS1-886431145-101",
     issue_date: issueDate,
     issue_time: `${issueTime}Z`,
-    previous_invoice_hash:
-      "0000000000000000000000000000000000000000000000000000000000000000",
+    previous_invoice_hash: "NA==",
     line_items: [line_item_1, line_item_2, line_item_3],
     actual_delivery_date: "2024-02-29",
   },
@@ -98,7 +97,7 @@ const main = async () => {
     console.log("Starting ZATCA e-invoice process...");
 
     // 1. Initialize EGS unit
-    const egs = new EGS(egsunit);
+    const egs = new EGS(egsunit, "simulation");
 
     // 2. Generate Keys & CSR
     await egs.generateNewKeysAndCSR(false, "solution_name");
@@ -106,7 +105,7 @@ const main = async () => {
 
     // 3. Issue compliance certificate
     const compliance_request_id = await egs.issueComplianceCertificate(
-      "123345"
+      "746141"
     );
     console.log(
       "Compliance certificate issued with request ID:",
@@ -116,7 +115,7 @@ const main = async () => {
     // 4. Sign invoice and get the signed XML
     const { signed_invoice_string, invoice_hash, qr } =
       egs.signInvoice(invoice);
-    fs.writeFileSync("test_invoice_signed.xml", signed_invoice_string, "utf8");
+    fs.writeFileSync("invoice.xml", signed_invoice_string, "utf8");
     console.log("✅ Signed Invoice XML saved as test_invoice_signed.xml");
     console.log("Invoice hash:", invoice_hash);
 
