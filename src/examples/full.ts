@@ -47,9 +47,9 @@ const egsunit: EGSUnitInfo = {
   uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
   custom_id: "EGS2",
   model: "IOS",
-  CRN_number: "454634645645654",
-  VAT_name: "Wesam Alzahir",
-  VAT_number: "399999999900003",
+  CRN_number: "7032256278",
+  VAT_name: "شركة جاي كوم لتقنية المعلومات",
+  VAT_number: "311497191800003",
   location: {
     city: "Khobar",
     city_subdivision: "West",
@@ -65,7 +65,8 @@ const egsunit: EGSUnitInfo = {
     building: "00",
     postal_zone: "00000",
     street: "__",
-    vat_number: "300000000000003",
+    vat_number: "311498192800003",
+    customer_crn_number: "7052156278", // 10-digit CRN for the buyer
   },
   branch_name: "My Branch Name",
   branch_industry: "Food",
@@ -81,7 +82,8 @@ const invoice = new ZATCAInvoice({
     invoice_serial_number: "EGS1-886431145-101",
     issue_date: issueDate,
     issue_time: `${issueTime}Z`,
-    previous_invoice_hash: "zDnQnE05P6rFMqF1ai21V5hIRlUq/EXvrpsaoPkWRVI=",
+    previous_invoice_hash:
+      "0000000000000000000000000000000000000000000000000000000000000000",
     line_items: [line_item_1, line_item_2, line_item_3],
     actual_delivery_date: "2024-02-29",
   },
