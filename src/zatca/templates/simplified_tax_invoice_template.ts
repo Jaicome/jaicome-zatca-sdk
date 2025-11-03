@@ -32,8 +32,7 @@ const template = /* XML */ `
     <cac:AdditionalDocumentReference>
         <cbc:ID>ICV</cbc:ID>
         <cbc:UUID>{{{invoice_counter_number}}}</cbc:UUID>
-    </cac:AdditionalDocumentReference>
-    <cac:AdditionalDocumentReference>
+    </cac:AdditionalDocumentReference><cac:AdditionalDocumentReference>
         <cbc:ID>PIH</cbc:ID>
         <cac:Attachment>
             <cbc:EmbeddedDocumentBinaryObject mimeCode="text/plain">{{{previous_invoice_hash}}}</cbc:EmbeddedDocumentBinaryObject>
