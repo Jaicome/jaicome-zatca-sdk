@@ -1,16 +1,16 @@
 import * as fs from "fs";
 import {
-  EGS,
-  REQUIRED_COMPLIANCE_STEPS,
   type ComplianceCheckPayload,
+  EGS,
   type EGSUnitInfo,
+  REQUIRED_COMPLIANCE_STEPS,
   type ZATCAComplianceStep,
 } from "../zatca/egs";
 import {
-  ZATCAPaymentMethods,
-  type ZATCAInvoiceProps,
   type ZATCAInvoiceLineItem,
+  type ZATCAInvoiceProps,
   ZATCAInvoiceTypes,
+  ZATCAPaymentMethods,
 } from "../zatca/templates/simplified_tax_invoice_template";
 import { ZATCAInvoice } from "../zatca/ZATCASimplifiedTaxInvoice";
 
@@ -163,9 +163,8 @@ const main = async () => {
     console.log("Keys and CSR generated successfully");
 
     // 3. Issue compliance certificate
-    const otp = process.env.ZATCA_OTP || "276351";
-    const compliance_request_id =
-      await egs.issueComplianceCertificate(otp);
+    const otp = "555453";
+    const compliance_request_id = await egs.issueComplianceCertificate(otp);
     console.log(
       "Compliance certificate issued with request ID:",
       compliance_request_id,
@@ -203,17 +202,12 @@ const main = async () => {
       previousHash = invoice_hash;
       previousSerial = serialByStep[step];
 
-      fs.writeFileSync(
-        `invoice_${step}.xml`,
-        signed_invoice_string,
-        "utf8",
-      );
+      fs.writeFileSync(`invoice_${step}.xml`, signed_invoice_string, "utf8");
       console.log(`✅ Signed invoice for ${step} generated`);
     });
 
-    const complianceResults = await egs.runComplianceChecksForProduction(
-      complianceChecks,
-    );
+    const complianceResults =
+      await egs.runComplianceChecksForProduction(complianceChecks);
     REQUIRED_COMPLIANCE_STEPS.forEach((step) => {
       const stepResult = complianceResults[step];
       console.log(
@@ -239,7 +233,8 @@ const main = async () => {
       ),
       acceptWarning: true,
     });
-    const { signed_invoice_string, invoice_hash } = egs.signInvoice(reportInvoice);
+    const { signed_invoice_string, invoice_hash } =
+      egs.signInvoice(reportInvoice);
 
     const reportedInvoice = await egs.reportInvoice(
       signed_invoice_string,

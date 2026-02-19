@@ -50,6 +50,14 @@ All tha main futures required to on-board a new EGS. Create, sign, and report a 
 npm install zatca-xml-js
 ```
 
+# New SDK (Recommended)
+The package is now being evolved as a scoped monorepo for better portability and security. We recommend migrating to the new packages for all new projects.
+
+*   **[@jaicome/zatca-core](https://github.com/Repzo/zatca-xml-js/tree/main/packages/zatca-core)**: Universal logic for building and parsing invoices. Compatible with browsers, React Native, and Node.js.
+*   **[@jaicome/zatca-server](https://github.com/Repzo/zatca-xml-js/tree/main/packages/zatca-server)**: Node.js specific logic for signing, EGS on-boarding, and ZATCA HTTP API integration.
+
+Check out the [Migration Guide](/docs/MIGRATION.md) and [Runtime Support](/docs/RUNTIME_SUPPORT.md) documentation for more details.
+
 # Usage
 View full example at <a href="/src/examples">examples</a>
 ```typescript
