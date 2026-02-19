@@ -55,6 +55,28 @@ export interface EGSUnitInfo {
     production_api_secret?: string,
 }
 
+export type ZATCAComplianceStep =
+    | "standard-compliant"
+    | "standard-credit-note-compliant"
+    | "standard-debit-note-compliant"
+    | "simplified-compliant"
+    | "simplified-credit-note-compliant"
+    | "simplified-debit-note-compliant";
+
+export interface ComplianceCheckPayload {
+    signed_invoice_string: string,
+    invoice_hash: string,
+}
+
+export const REQUIRED_COMPLIANCE_STEPS: readonly ZATCAComplianceStep[] = [
+    "standard-compliant",
+    "standard-credit-note-compliant",
+    "standard-debit-note-compliant",
+    "simplified-compliant",
+    "simplified-credit-note-compliant",
+    "simplified-debit-note-compliant",
+];
+
 const OpenSSL = (cmd: string[]): Promise<string> => {
     return new Promise<string>((resolve, reject) => {
         try {
@@ -226,6 +248,32 @@ export class EGS {
             invoice_hash,
             this.egs_info.uuid
         );
+    }
+
+    async runComplianceChecksForProduction(
+        checks: Partial<Record<ZATCAComplianceStep, ComplianceCheckPayload>>,
+        required_steps: readonly ZATCAComplianceStep[] = REQUIRED_COMPLIANCE_STEPS,
+    ): Promise<Record<ZATCAComplianceStep, any>> {
+        const missing_steps = required_steps.filter((step) => !checks[step]);
+        if (missing_steps.length > 0) {
+            throw new Error(`Missing compliance check payloads for steps: [${missing_steps.join(",")}]`);
+        }
+
+        const responses = {} as Record<ZATCAComplianceStep, any>;
+
+        for (const step of required_steps) {
+            const payload = checks[step];
+            if (!payload) {
+                continue;
+            }
+
+            responses[step] = await this.checkInvoiceCompliance(
+                payload.signed_invoice_string,
+                payload.invoice_hash,
+            );
+        }
+
+        return responses;
     }
 
 
