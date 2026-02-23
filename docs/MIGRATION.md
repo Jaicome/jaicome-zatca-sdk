@@ -5,13 +5,48 @@ This guide explains how to migrate from the legacy `zatca-xml-js` package to the
 1. **@jaicome/zatca-core**: Portable logic for building and parsing invoices. Works in browsers, React Native, and Node.js.
 2. **@jaicome/zatca-server**: Node.js specific logic for signing, EGS lifecycle, and ZATCA HTTP API integration.
 
-> **Package-only policy**: The root `zatca-xml-js` legacy API has been removed. Direct imports from `zatca-xml-js` (including `zatca-xml-js/src/` paths) are no longer supported. Only `@jaicome/zatca-core` and `@jaicome/zatca-server` are supported going forward.
+> **Root API removed**: The root `zatca-xml-js` legacy API has been removed. Direct imports from `zatca-xml-js` (including `zatca-xml-js/src/` paths) no longer work. Only `@jaicome/zatca-core` and `@jaicome/zatca-server` are supported.
+
+## Breaking Changes
+
+The following files were deleted as part of this breaking release:
+
+- `src/index.ts` — root barrel export
+- `src/compat/index.ts` — compatibility shim
+- `src/zatca/` — invoice and signing logic
+- `src/parser/` — XML parsing utilities
+- `src/logger/` — logging helpers
+- `src/samples/` — sample data
+- `src/tests/` — test fixtures
+
+The root `package.json` no longer has `main`, `files`, or `typings` fields. The root package is `"private": true` and is not published to npm.
+
+## Symbol Mapping
+
+Every symbol previously importable from `zatca-xml-js` has a direct replacement.
+
+| Old Import (REMOVED) | New Import |
+|---|---|
+| `import { EGS } from "zatca-xml-js"` | `import { EGS } from "@jaicome/zatca-server"` |
+| `import { ZATCAInvoice } from "zatca-xml-js"` | `import { ZATCAInvoice } from "@jaicome/zatca-core"` |
+| `import { ZATCAInvoiceTypes } from "zatca-xml-js"` | `import { ZATCAInvoiceTypes } from "@jaicome/zatca-core"` |
+| `import { ZATCAPaymentMethods } from "zatca-xml-js"` | `import { ZATCAPaymentMethods } from "@jaicome/zatca-core"` |
+| `import { generatePhaseOneQR } from "zatca-xml-js"` | `import { generatePhaseOneQR } from "@jaicome/zatca-core"` |
+| `import { REQUIRED_COMPLIANCE_STEPS } from "zatca-xml-js"` | `import { REQUIRED_COMPLIANCE_STEPS } from "@jaicome/zatca-server"` |
+| `import { ZATCAComplianceStep } from "zatca-xml-js"` | `import { ZATCAComplianceStep } from "@jaicome/zatca-server"` |
+| `import { ComplianceCheckPayload } from "zatca-xml-js"` | `import { ComplianceCheckPayload } from "@jaicome/zatca-server"` |
+| `import { ZATCAInvoiceLineItem } from "zatca-xml-js"` | `import { ZATCAInvoiceLineItem } from "@jaicome/zatca-core"` |
+| `import { ZATCAInvoiceProps } from "zatca-xml-js"` | `import { ZATCAInvoiceProps } from "@jaicome/zatca-core"` |
+| `import { EGSUnitInfo } from "zatca-xml-js"` | `import { EGSUnitInfo } from "@jaicome/zatca-core"` or `"@jaicome/zatca-server"` |
+| `import { EGSUnitLocation } from "zatca-xml-js"` | `import { EGSUnitLocation } from "@jaicome/zatca-core"` or `"@jaicome/zatca-server"` |
+| `import { EGSUnitCustomerInfo } from "zatca-xml-js"` | `import { EGSUnitCustomerInfo } from "@jaicome/zatca-core"` or `"@jaicome/zatca-server"` |
+| `import { ... } from "zatca-xml-js/src/compat"` | Use `@jaicome/zatca-core` and `@jaicome/zatca-server` directly |
 
 ## Quick Comparison
 
 ### Imports
 
-**Legacy (Old)**
+**Legacy (Old — REMOVED)**
 ```typescript
 import { 
   EGS, 
@@ -50,7 +85,7 @@ The `ZATCASimplifiedTaxInvoice` class is renamed to `ZATCAInvoice`. It is now pa
 ### 3. Adopt the Injected Signer Pattern
 In the legacy version, `EGS` handled signing synchronously. The new SDK uses an injected `Signer` pattern. This allows the core package to remain portable while signing happens where the private keys are safe.
 
-**Legacy Signing**
+**Legacy Signing (REMOVED)**
 ```typescript
 const egs = new EGS(egsunit);
 const { signed_invoice_string } = egs.signInvoice(invoice);
