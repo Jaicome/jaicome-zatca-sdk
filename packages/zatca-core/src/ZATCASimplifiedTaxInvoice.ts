@@ -1,12 +1,12 @@
-import { XMLDocument } from "./parser";
-import { Calc } from "./calc";
-import { Signer, SignatureResult } from "./contracts/signer";
+import { XMLDocument } from "./parser/index.js";
+import { Calc } from "./calc.js";
+import { Signer, SignatureResult } from "./contracts/signer.js";
 import defaultSimplifiedTaxInvoice, {
   ZATCAInvoiceLineItem,
   ZATCAInvoiceProps,
   ZATCAInvoiceTypes,
   ZATCAPaymentMethods,
-} from "./templates/simplified_tax_invoice_template";
+} from "./templates/simplified_tax_invoice_template.js";
 
 export {
   ZATCAInvoiceLineItem,

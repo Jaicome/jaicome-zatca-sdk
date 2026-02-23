@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { buildInvoice } from "../api";
-import { ZodValidationError } from "../schemas";
-import { ZATCAInvoiceTypes, ZATCAPaymentMethods } from "../ZATCASimplifiedTaxInvoice";
-import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice";
+import { buildInvoice } from "../api.js";
+import { ZodValidationError } from "../schemas/index.js";
+import { ZATCAInvoiceTypes, ZATCAPaymentMethods } from "../ZATCASimplifiedTaxInvoice.js";
+import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice.js";
 
 function makeBaseProps(): ZATCAInvoiceProps {
 	return {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { EGS } from "../egs";
-import { ZodValidationError } from "../schemas";
-import type { EGSUnitInfo } from "../egs";
+import { EGS } from "../egs/index.js";
+import { ZodValidationError } from "../schemas/index.js";
+import type { EGSUnitInfo } from "../egs/index.js";
 
 const validEGSUnit: EGSUnitInfo = {
 	uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",

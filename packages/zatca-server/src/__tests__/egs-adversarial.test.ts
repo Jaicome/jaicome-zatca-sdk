@@ -4,8 +4,8 @@ import os from "node:os";
 import path from "node:path";
 import type { ZATCAInvoice } from "@jaicome/zatca-core";
 import { describe, expect, it } from "vitest";
-import { EGS, type EGSUnitInfo } from "../egs";
-import { ZodValidationError } from "../schemas";
+import { EGS, type EGSUnitInfo } from "../egs/index.js";
+import { ZodValidationError } from "../schemas/index.js";
 
 const validEGSUnit: EGSUnitInfo = {
 	uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",

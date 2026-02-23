@@ -1,8 +1,8 @@
 import {
   ZATCAInvoiceLineItem,
   ZATCAInvoiceProps,
-} from "./ZATCASimplifiedTaxInvoice";
-import { XMLDocument } from "./parser";
+} from "./ZATCASimplifiedTaxInvoice.js";
+import { XMLDocument } from "./parser/index.js";
 import Decimal from "decimal.js";
 
 interface CACTaxableAmount {

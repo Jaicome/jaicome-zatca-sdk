@@ -14,7 +14,7 @@ import {
     defaultUBLExtensionsSignedProperties,
     defaultUBLExtensionsSignedPropertiesForSigning,
 } from "@jaicome/zatca-core";
-import { generateQR } from "../qr";
+import { generateQR } from "../qr/index.js";
 
 /**
  * Removes (UBLExtensions (Signing), Signature Envelope, and QR data) Elements. Then canonicalizes the XML to c14n.

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { XMLDocument } from "../parser";
-import { buildInvoice } from "../api";
-import { ZATCAInvoiceTypes, ZATCAPaymentMethods } from "../ZATCASimplifiedTaxInvoice";
-import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice";
-import { valid_simplified_invoice_xml_sample } from "../samples";
+import { XMLDocument } from "../parser/index.js";
+import { buildInvoice } from "../api.js";
+import { ZATCAInvoiceTypes, ZATCAPaymentMethods } from "../ZATCASimplifiedTaxInvoice.js";
+import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice.js";
+import { valid_simplified_invoice_xml_sample } from "../samples/index.js";
 
 const now = new Date();
 const issueDate = now.toISOString().split("T")[0];

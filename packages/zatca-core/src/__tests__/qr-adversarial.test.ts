@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
 	type ZATCAInvoiceProps,
 	ZATCAInvoiceTypes,
-} from "../ZATCASimplifiedTaxInvoice";
-import { buildInvoice, generatePhaseOneQR } from "../api";
+} from "../ZATCASimplifiedTaxInvoice.js";
+import { buildInvoice, generatePhaseOneQR } from "../api.js";
 
 // TLV binary format: [tag (1 byte)] [length (1 byte)] [value (length bytes)]
 function parseTLVTags(

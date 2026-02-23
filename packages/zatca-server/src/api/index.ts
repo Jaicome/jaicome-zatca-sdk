@@ -1,5 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig, AxiosResponse } from "axios";
-import { cleanUpCertificateString } from "../signing";
+import { cleanUpCertificateString } from "../signing/index.js";
 
 const debugLog = (message: string, data?: any, isError: boolean = false) => {
   const timestamp = new Date().toISOString();

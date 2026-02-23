@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { buildInvoice } from "../api";
-import { ZodValidationError } from "../schemas";
+import { buildInvoice } from "../api.js";
+import { ZodValidationError } from "../schemas/index.js";
 import {
 	ZATCAPaymentMethods,
 	ZATCAInvoiceTypes,
 	type ZATCAInvoiceLineItem,
 	type ZATCAInvoiceProps,
-} from "../ZATCASimplifiedTaxInvoice";
+} from "../ZATCASimplifiedTaxInvoice.js";
 
 type SimplifiedCashInvoiceProps = Extract<
 	ZATCAInvoiceProps,

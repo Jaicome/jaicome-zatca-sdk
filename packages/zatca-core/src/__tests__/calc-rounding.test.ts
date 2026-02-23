@@ -1,12 +1,12 @@
 import Decimal from "decimal.js";
 import { afterAll, afterEach, describe, expect, it } from "vitest";
-import { buildInvoice } from "../api";
+import { buildInvoice } from "../api.js";
 import {
 	ZATCAInvoice,
 	type ZATCAInvoiceProps,
 	ZATCAInvoiceTypes,
 	ZATCAPaymentMethods,
-} from "../ZATCASimplifiedTaxInvoice";
+} from "../ZATCASimplifiedTaxInvoice.js";
 
 const ORIGINAL_DECIMAL_ROUNDING = Decimal.rounding;
 

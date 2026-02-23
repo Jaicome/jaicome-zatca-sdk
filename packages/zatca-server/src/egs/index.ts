@@ -4,8 +4,8 @@ import fs from "fs";
 
 import { ZATCAInvoice } from "@jaicome/zatca-core";
 import { EGSUnitInfoSchema, ZodValidationError } from "@jaicome/zatca-core";
-import API from "../api";
-import { generateSignedXMLString } from "../signing";
+import API from "../api/index.js";
+import { generateSignedXMLString } from "../signing/index.js";
 
 const CSR_TEMPLATE = `
 # ------------------------------------------------------------------

@@ -4,15 +4,15 @@ import {
 	generatePhaseOneQR,
 	parseInvoice,
 	prepareSigningInput,
-} from "../api";
-import { ZodValidationError } from "../schemas";
-import { valid_simplified_invoice_xml_sample } from "../samples";
-import { base64ToUint8Array } from "../utils";
-import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice";
+} from "../api.js";
+import { ZodValidationError } from "../schemas/index.js";
+import { valid_simplified_invoice_xml_sample } from "../samples/index.js";
+import { base64ToUint8Array } from "../utils/index.js";
+import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice.js";
 import {
 	ZATCAInvoiceTypes,
 	ZATCAPaymentMethods,
-} from "../ZATCASimplifiedTaxInvoice";
+} from "../ZATCASimplifiedTaxInvoice.js";
 
 const now = new Date();
 const issueDate = now.toISOString().split("T")[0];

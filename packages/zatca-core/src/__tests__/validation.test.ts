@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { buildInvoice, prepareSigningInput } from "../api";
-import { ZodValidationError } from "../schemas";
-import { ZATCAInvoiceTypes, ZATCAPaymentMethods } from "../ZATCASimplifiedTaxInvoice";
-import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice";
+import { buildInvoice, prepareSigningInput } from "../api.js";
+import { ZodValidationError } from "../schemas/index.js";
+import { ZATCAInvoiceTypes, ZATCAPaymentMethods } from "../ZATCASimplifiedTaxInvoice.js";
+import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice.js";
 
 const now = new Date();
 const issueDate = now.toISOString().split("T")[0];
