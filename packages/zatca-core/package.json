@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
-    "test": "vitest --exclude lib/**"
+    "test": "vitest run --exclude 'lib/**'"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.184",

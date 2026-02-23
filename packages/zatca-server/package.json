@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
-    "test": "vitest"
+    "test": "vitest run"
   },
   "devDependencies": {
     "@types/node": "^18.7.16",

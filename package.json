@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces",
+    "clean": "rm -rf lib packages/*/lib",
     "example": "tsc --project tsconfig.build.json && node lib/examples/full.js",
     "test": "npm run test --workspaces",
     "lint": "npx prettier@2.8.8 --write .",
