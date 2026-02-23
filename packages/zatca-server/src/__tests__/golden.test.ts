@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
 import { generateKeyPairSync } from "crypto";
+import { describe, expect, it } from "vitest";
+
 import {
 	buildInvoice,
 	generatePhaseOneQR,
@@ -7,10 +8,7 @@ import {
 	ZATCAPaymentMethods,
 } from "@jaicome/zatca-core";
 import type { ZATCAInvoiceProps } from "@jaicome/zatca-core";
-import {
-	generateSignedXMLString,
-	getInvoiceHash,
-} from "@jaicome/zatca-server";
+import { generateSignedXMLString, getInvoiceHash } from "@jaicome/zatca-server";
 
 const SAMPLE_ZATCA_TEST_CERT_BODY =
 	"MIID9jCCA5ugAwIBAgITbwAAeCy9aKcLA99HrAABAAB4LDAKBggqhkjOPQQDAjBjMRUwEwYKCZImiZPyLGQBGRYFbG9jYWwxEzARBgoJkiaJk/IsZAEZFgNnb3YxFzAVBgoJkiaJk/IsZAEZFgdleHRnYXp0MRwwGgYDVQQDExNUU1pFSU5WT0lDRS1TdWJDQS0xMB4XDTIyMDQxOTIwNDkwOVoXDTI0MDQxODIwNDkwOVowWTELMAkGA1UEBhMCU0ExEzARBgNVBAoTCjMxMjM0NTY3ODkxDDAKBgNVBAsTA1RTVDEnMCUGA1UEAxMeVFNULS05NzA1NjAwNDAtMzEyMzQ1Njc4OTAwMDAzMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEYYMMoOaFYAhMO/steotfZyavr6p11SSlwsK9azmsLY7b1b+FLhqMArhB2dqHKboxqKNfvkKDePhpqjui5hcn0aOCAjkwggI1MIGaBgNVHREEgZIwgY+kgYwwgYkxOzA5BgNVBAQMMjEtVFNUfDItVFNUfDMtNDdmMTZjMjYtODA2Yi00ZTE1LWIyNjktN2E4MDM4ODRiZTljMR8wHQYKCZImiZPyLGQBAQwPMzEyMzQ1Njc4OTAwMDAzMQ0wCwYDVQQMDAQxMTAwMQwwCgYDVQQaDANUU1QxDDAKBgNVBA8MA1RTVDAdBgNVHQ4EFgQUO5ZiU7NakU3eejVa3I2S1B2sDwkwHwYDVR0jBBgwFoAUdmCM+wagrGdXNZ3PmqynK5k1tS8wTgYDVR0fBEcwRTBDoEGgP4Y9aHR0cDovL3RzdGNybC56YXRjYS5nb3Yuc2EvQ2VydEVucm9sbC9UU1pFSU5WT0lDRS1TdWJDQS0xLmNybDCBrQYIKwYBBQUHAQEEgaAwgZ0wbgYIKwYBBQUHMAGGYmh0dHA6Ly90c3RjcmwuemF0Y2EuZ292LnNhL0NlcnRFbnJvbGwvVFNaRWludm9pY2VTQ0ExLmV4dGdhenQuZ292LmxvY2FsX1RTWkVJTlZPSUNFLVN1YkNBLTEoMSkuY3J0MCsGCCsGAQUFBzABhh9odHRwOi8vdHN0Y3JsLnphdGNhLmdvdi5zYS9vY3NwMA4GA1UdDwEB/wQEAwIHgDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwMwJwYJKwYBBAGCNxUKBBowGDAKBggrBgEFBQcDAjAKBggrBgEFBQcDAzAKBggqhkjOPQQDAgNJADBGAiEA7mHT6yg85jtQGWp3M7tPT7Jk2+zsvVHGs3bU5Z7YE68CIQD60ebQamYjYvdebnFjNfx4X4dop7LsEBFCNSsLY0IFaQ==";
@@ -18,7 +16,6 @@ const SAMPLE_ZATCA_TEST_CERT_BODY =
 const SAMPLE_CERT_PEM = `-----BEGIN CERTIFICATE-----\n${SAMPLE_ZATCA_TEST_CERT_BODY}\n-----END CERTIFICATE-----`;
 
 function makeFixtureProps(invoice_counter_number: number = 1): ZATCAInvoiceProps {
-
 	return {
 		egs_info: {
 			uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
@@ -40,7 +37,6 @@ function makeFixtureProps(invoice_counter_number: number = 1): ZATCAInvoiceProps
 		},
 		invoice_counter_number,
 		invoice_serial_number: "EGS1-GOLDEN-001",
-		// Use a fixed date/time so hash determinism tests are not time-sensitive
 		issue_date: "2024-01-15",
 		issue_time: "10:00:00",
 		previous_invoice_hash:
@@ -137,7 +133,6 @@ describe("Golden — QR Payload Validity Invariant", () => {
 		let offset = 0;
 		let tagCount = 0;
 		while (offset + 2 <= decoded.length) {
-			// tag (1 byte) + length (1 byte)
 			const length = decoded[offset + 1];
 			offset += 2 + length;
 			tagCount++;
@@ -265,11 +260,6 @@ describe("Golden — Perturbation Test (hash sensitivity)", () => {
 		const qr_a = generatePhaseOneQR(invoice_a);
 		const qr_b = generatePhaseOneQR(invoice_b);
 
-		// QR does not embed the counter number directly, but the seller/VAT fields are
-		// identical. In this case QR should be equal since QR only encodes
-		// seller name, VAT, date, total, vat total – not the counter.
-		// This confirms QR is independent of counter (expected behaviour).
-		// We verify they are structurally valid regardless:
 		expect(qr_a).toMatch(/^[A-Za-z0-9+/]+=*$/);
 		expect(qr_b).toMatch(/^[A-Za-z0-9+/]+=*$/);
 	});

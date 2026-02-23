@@ -27,6 +27,12 @@ const constructLineItemTotals = (
   line_item: ZATCAInvoiceLineItem,
   acceptWarning: boolean
 ) => {
+  if (line_item.quantity < 0) {
+    throw new Error(`Invalid line item: quantity must be non-negative, got ${line_item.quantity}`);
+  }
+  if (line_item.tax_exclusive_price < 0) {
+    throw new Error(`Invalid line item: tax_exclusive_price must be non-negative, got ${line_item.tax_exclusive_price}`);
+  }
   let line_discounts = 0;
   let cacAllowanceCharges: any[] = [];
   let cacClassifiedTaxCategories: any[] = [];
@@ -43,7 +49,10 @@ const constructLineItemTotals = (
   };
   cacClassifiedTaxCategories.push(VAT);
 
-  line_item.discounts?.map((discount) => {
+  line_item.discounts?.forEach((discount) => {
+    if (discount.amount < 0) {
+      throw new Error(`Invalid discount: amount must be non-negative, got ${discount.amount}`);
+    }
     line_discounts += discount.amount;
     cacAllowanceCharges.push({
       "cbc:ChargeIndicator": "false",
@@ -60,14 +69,17 @@ const constructLineItemTotals = (
   });
 
   line_discounts = Number(new Decimal(line_discounts).toFixed(14));
-  let line_extension_amount = Number(
+  let line_extension_amount = new Decimal(
     roundingNumber(
       acceptWarning,
       line_item.quantity * (line_item.tax_exclusive_price - line_discounts)
     )
   );
-  let line_item_total_taxes = Number(
-    roundingNumber(acceptWarning, line_extension_amount * line_item.VAT_percent)
+  let line_item_total_taxes = new Decimal(
+    roundingNumber(
+      acceptWarning,
+      line_extension_amount.toNumber() * line_item.VAT_percent
+    )
   );
 
   cacTaxTotal = {
@@ -78,7 +90,7 @@ const constructLineItemTotals = (
     "cbc:RoundingAmount": {
       "@_currencyID": "SAR",
       "#text": new Decimal(
-        line_extension_amount + line_item_total_taxes
+        line_extension_amount.plus(line_item_total_taxes)
       ).toFixed(2),
     },
   };
@@ -133,9 +145,9 @@ const constructLineItem = (
       },
     },
     line_item_totals: {
-      taxes_total: line_item_total_taxes,
+      taxes_total: line_item_total_taxes.toNumber(),
       discounts_total: line_discounts,
-      extension_amount: line_extension_amount,
+      extension_amount: line_extension_amount.toNumber(),
     },
   };
 };
@@ -147,7 +159,7 @@ const constructTaxTotal = (
   const cacTaxSubtotal: any[] = [];
   const zeroTaxSubtotal: any[] = [];
 
-  const without_tax_items = line_items.filter((item) => item.VAT_percent == 0);
+  const without_tax_items = line_items.filter((item) => item.VAT_percent === 0);
   const modifiedZeroTaxSubTotal = (items: ZATCAInvoiceLineItem[]) => {
     let zeroTaxObj: {
       [key: string]: {
@@ -159,7 +171,7 @@ const constructTaxTotal = (
     } = {};
 
     items.forEach((item) => {
-      if (item.VAT_percent != 0) return;
+      if (item.VAT_percent !== 0) return;
       let total_line_item_discount =
         item.discounts?.reduce((p, c) => p + c.amount, 0) || 0;
 
@@ -240,12 +252,12 @@ const constructTaxTotal = (
     tax_amount: number,
     tax_percent: number
   ) => {
-    if (tax_percent == 0) return;
-    if (tax_percent == 0.05) {
+    if (tax_percent === 0) return;
+    if (tax_percent === 0.05) {
       fiveTaxSubTotal.taxable_amount += taxable_amount;
       fiveTaxSubTotal.tax_amount += tax_amount;
       fiveTaxSubTotal.exist = true;
-    } else if (tax_percent == 0.15) {
+    } else if (tax_percent === 0.15) {
       fifteenTaxSubTotal.taxable_amount += taxable_amount;
       fifteenTaxSubTotal.tax_amount += tax_amount;
       fifteenTaxSubTotal.exist = true;
@@ -254,14 +266,14 @@ const constructTaxTotal = (
 
   let taxes_total = 0;
 
-  line_items.map((line_item) => {
+  line_items.forEach((line_item) => {
     let total_line_item_discount =
       line_item.discounts?.reduce((p, c) => p + c.amount, 0) || 0;
 
     total_line_item_discount = Number(
       new Decimal(total_line_item_discount).toFixed(14)
     );
-    const taxable_amount = Number(
+    const taxable_amount = new Decimal(
       roundingNumber(
         acceptWarning,
         (line_item.tax_exclusive_price - total_line_item_discount) *
@@ -269,19 +281,38 @@ const constructTaxTotal = (
       )
     );
 
-    let tax_amount = Number(
-      roundingNumber(acceptWarning, line_item.VAT_percent * taxable_amount)
+    let tax_amount = new Decimal(
+      roundingNumber(
+        acceptWarning,
+        line_item.VAT_percent * taxable_amount.toNumber()
+      )
     );
 
-    addTaxSubtotal(taxable_amount, tax_amount, line_item.VAT_percent);
-    taxes_total += parseFloat(new Decimal(tax_amount).toString());
+    addTaxSubtotal(
+      taxable_amount.toNumber(),
+      tax_amount.toNumber(),
+      line_item.VAT_percent
+    );
+    taxes_total += tax_amount.toNumber();
 
-    line_item.other_taxes?.map((tax) => {
-      tax_amount = tax.percent_amount * taxable_amount;
-      addTaxSubtotal(taxable_amount, tax_amount, tax.percent_amount);
-      taxes_total += parseFloat(tax_amount.toString());
+    line_item.other_taxes?.forEach((tax) => {
+      const other_tax_amount = new Decimal(
+        roundingNumber(
+          acceptWarning,
+          tax.percent_amount * taxable_amount.toNumber()
+        )
+      );
+      addTaxSubtotal(
+        taxable_amount.toNumber(),
+        other_tax_amount.toNumber(),
+        tax.percent_amount
+      );
+      taxes_total += other_tax_amount.toNumber();
     });
   });
+
+  // BR-CO-15: Apply document-level rounding once after accumulating all line-level VAT amounts
+  taxes_total = parseFloat(new Decimal(taxes_total).toFixed(2));
 
   if (fifteenTaxSubTotal.exist) {
     cacTaxSubtotal.push({
@@ -407,7 +438,17 @@ export const Calc = (
 
   let invoice_line_items: any[] = [];
 
-  line_items.map((line_item) => {
+  // Validate inputs before computation
+  line_items.forEach((item) => {
+    if (item.quantity < 0) {
+      throw new Error(`Invalid line item: quantity must be non-negative, got ${item.quantity}`);
+    }
+    if (item.tax_exclusive_price < 0) {
+      throw new Error(`Invalid line item: tax_exclusive_price must be non-negative, got ${item.tax_exclusive_price}`);
+    }
+  });
+
+  line_items.forEach((line_item) => {
     line_item.tax_exclusive_price = Number(
       new Decimal(line_item.tax_exclusive_price).toFixed(14)
     );
@@ -422,7 +463,7 @@ export const Calc = (
   });
 
   if (
-    (props.invoice_type == "381" || props.invoice_type == "383") &&
+    (props.invoice_type === "381" || props.invoice_type === "383") &&
     props.cancelation
   ) {
     invoice_xml.set("Invoice/cac:PaymentMeans", false, {
@@ -444,7 +485,7 @@ export const Calc = (
     )
   );
 
-  invoice_line_items.map((line_item) => {
+  invoice_line_items.forEach((line_item) => {
     invoice_xml.set("Invoice/cac:InvoiceLine", false, line_item);
   });
 };

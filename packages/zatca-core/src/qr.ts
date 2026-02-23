@@ -15,14 +15,39 @@ function encodeTLVTag(tag: number, value: string): Uint8Array {
 }
 
 function getInvoiceTagValue(invoiceXml: XMLDocument, path: string): string {
+  const normalizeValue = (value: unknown): string => {
+    const unwrappedValue = Array.isArray(value) ? value[0] : value;
+    if (unwrappedValue == null) {
+      return "";
+    }
+    if (typeof unwrappedValue === "object" && "#text" in unwrappedValue) {
+      return String((unwrappedValue as Record<string, unknown>)["#text"] ?? "");
+    }
+    return String(unwrappedValue);
+  };
+
   const value = invoiceXml.get(path)?.[0];
   if (value == null) {
-    return "";
+    const segments = path.split("/");
+    if (segments.length < 2) {
+      return "";
+    }
+
+    let current: unknown = invoiceXml.get(segments[0])?.[0];
+    for (let index = 1; index < segments.length; index++) {
+      if (Array.isArray(current)) {
+        current = current[0];
+      }
+      if (current == null || typeof current !== "object") {
+        return "";
+      }
+      current = (current as Record<string, unknown>)[segments[index]];
+    }
+
+    return normalizeValue(current);
   }
-  if (typeof value === "object" && "#text" in value) {
-    return String(value["#text"] ?? "");
-  }
-  return String(value);
+
+  return normalizeValue(value);
 }
 
 export function generatePhaseOneQRFromXml(invoiceXml: XMLDocument): string {

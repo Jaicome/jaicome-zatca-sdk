@@ -142,6 +142,7 @@ export interface GenerateSignedXMLStringParams {
 export interface SignedXMLResult {
     signed_invoice_string: string;
     invoice_hash: string;
+    signature_value: string;
     qr: string;
 }
 
@@ -219,7 +220,7 @@ export const generateSignedXMLString = ({
     let signed_invoice_string: string = signed_invoice.toString({ no_header: false });
     signed_invoice_string = signedPropertiesIndentationFix(signed_invoice_string);
 
-    return { signed_invoice_string, invoice_hash, qr };
+    return { signed_invoice_string, invoice_hash, signature_value: digital_signature, qr };
 };
 
 /**
@@ -252,20 +253,15 @@ export class NodeSigner implements Signer {
     async sign(input: SigningInput): Promise<SignatureResult> {
         const invoice_xml = new XMLDocument(input.invoiceXml);
 
-        const { signed_invoice_string, invoice_hash } = generateSignedXMLString({
+        const { signed_invoice_string, invoice_hash, signature_value } = generateSignedXMLString({
             invoice_xml,
             certificate_string: this.certificate_string,
             private_key_string: input.privateKeyReference,
         });
 
-        const digital_signature = createInvoiceDigitalSignature(
-            invoice_hash,
-            input.privateKeyReference
-        );
-
         return {
             signedXml: signed_invoice_string,
-            signatureValue: digital_signature,
+            signatureValue: signature_value,
             signingCertificate: cleanUpCertificateString(this.certificate_string),
             invoiceHash: invoice_hash,
         };
