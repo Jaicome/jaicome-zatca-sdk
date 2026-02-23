@@ -1,8 +1,11 @@
-import { describe, expect, it } from "vitest";
-import { EGS } from "../egs";
-import { ZodValidationError } from "../schemas";
-import type { EGSUnitInfo } from "../egs";
+import { execFileSync } from "node:child_process";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import type { ZATCAInvoice } from "@jaicome/zatca-core";
+import { describe, expect, it } from "vitest";
+import { EGS, type EGSUnitInfo } from "../egs";
+import { ZodValidationError } from "../schemas";
 
 const validEGSUnit: EGSUnitInfo = {
 	uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
@@ -14,6 +17,18 @@ const validEGSUnit: EGSUnitInfo = {
 	branch_name: "Main",
 	branch_industry: "Software",
 };
+
+function inspectCsrText(csr: string): string {
+	const csrPath = path.join(os.tmpdir(), `egs-adversarial-${Date.now()}.csr`);
+	try {
+		fs.writeFileSync(csrPath, csr);
+		return execFileSync("openssl", ["req", "-in", csrPath, "-noout", "-text"], {
+			encoding: "utf8",
+		});
+	} finally {
+		fs.unlink(csrPath, () => {});
+	}
+}
 
 describe("EGS constructor — required field validation", () => {
 	it("throws ZodValidationError when uuid is empty", () => {
@@ -192,5 +207,32 @@ describe("EGS environment selection", () => {
 
 	it("constructor accepts 'production' environment without throwing", () => {
 		expect(() => new EGS(validEGSUnit, "production")).not.toThrow();
+	});
+});
+
+describe("CSR production flag behavior", () => {
+	it("uses PREZATCA-Code-Signing OID value when production=false", async () => {
+		const egs = new EGS(validEGSUnit);
+		await egs.generateNewKeysAndCSR(false, "SDK-Test");
+		const csr = egs.get().csr;
+
+		expect(typeof csr).toBe("string");
+		expect(csr).toContain("BEGIN CERTIFICATE REQUEST");
+
+		const csrText = inspectCsrText(csr as string);
+		expect(csrText).toContain("PREZATCA-Code-Signing");
+	});
+
+	it("uses ZATCA-Code-Signing OID value when production=true", async () => {
+		const egs = new EGS(validEGSUnit);
+		await egs.generateNewKeysAndCSR(true, "SDK-Test");
+		const csr = egs.get().csr;
+
+		expect(typeof csr).toBe("string");
+		expect(csr).toContain("BEGIN CERTIFICATE REQUEST");
+
+		const csrText = inspectCsrText(csr as string);
+		expect(csrText).toContain("ZATCA-Code-Signing");
+		expect(csrText).not.toContain("PREZATCA-Code-Signing");
 	});
 });

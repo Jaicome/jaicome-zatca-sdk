@@ -160,6 +160,11 @@ describe("signing adversarial coverage", () => {
 			expect(() => getCertificateHash("")).not.toThrow();
 			expect(getCertificateHash("")).toMatch(/^[A-Za-z0-9+/]+=*$/);
 		});
+
+		it.fails("still fails: certificate hash should decode to 32 bytes", () => {
+			const hash = getCertificateHash(SAMPLE_ZATCA_TEST_CERT_BODY);
+			expect(Buffer.from(hash, "base64")).toHaveLength(32);
+		});
 	});
 
 	describe("getCertificateInfo", () => {
@@ -282,6 +287,27 @@ describe("signing adversarial coverage", () => {
 
 			const result = await signer.sign(signingInput);
 			expect(result.signedXml).toContain("<ds:SignatureValue>");
+		});
+
+		it("returns signatureValue that matches embedded XML signature", async () => {
+			const { privateKey } = generateKeyPairSync("ec", {
+				namedCurve: "prime256v1",
+				privateKeyEncoding: { type: "sec1", format: "pem" },
+				publicKeyEncoding: { type: "spki", format: "pem" },
+			});
+			const signer = new NodeSigner(SAMPLE_CERT_PEM);
+			const signingInput = {
+				...prepareSigningInput(buildInvoiceForSigning()),
+				privateKeyReference: privateKey,
+			};
+
+			const result = await signer.sign(signingInput);
+			const match = result.signedXml.match(
+				/<ds:SignatureValue>([^<]+)<\/ds:SignatureValue>/,
+			);
+
+			expect(match).not.toBeNull();
+			expect(match?.[1]).toBe(result.signatureValue);
 		});
 
 		it("rejects when private key is invalid", async () => {
