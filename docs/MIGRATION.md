@@ -74,14 +74,5 @@ Do not import `@jaicome/zatca-server` from a browser or React Native app. It use
 
 For signing in a browser app, send the unsigned XML to your server. Your server can then use `@jaicome/zatca-server` to sign it and return the result.
 
-## Transitional Compatibility Shim
-For brownfield migrations where you cannot update all code at once, use the compatibility shim.
-
-```typescript
-import { EGS, ZATCAInvoice } from "zatca-xml-js/src/compat";
-```
-
-Note that this shim is deprecated and will be removed in a future release. It is intended only as a temporary bridge.
-
 ## Security Statement
 Private key material must never leave the server environment. The `@jaicome/zatca-server` package is designed to handle sensitive cryptographic operations safely in a backend context. Never expose private keys or the server package to client-side code.

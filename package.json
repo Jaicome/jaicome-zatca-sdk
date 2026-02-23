@@ -3,10 +3,6 @@
   "version": "0.1.5",
   "description": "An implementation of Saudi Arabia ZATCA's E-Invoicing requirements, processes, and standards.",
   "private": true,
-  "main": "lib/index.js",
-  "files": [
-    "lib/**/*"
-  ],
   "workspaces": [
     "packages/*"
   ],
@@ -42,7 +38,6 @@
     "type": "git",
     "url": "https://github.com/Repzo/zatca-xml-js"
   },
-  "typings": "lib/index.d.ts",
   "keywords": [
     "zatca",
     "xml",
