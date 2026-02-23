@@ -161,7 +161,7 @@ describe("signing adversarial coverage", () => {
 			expect(getCertificateHash("")).toMatch(/^[A-Za-z0-9+/]+=*$/);
 		});
 
-		it.fails("still fails: certificate hash should decode to 32 bytes", () => {
+		it("certificate hash decodes to 32 bytes (SHA-256)", () => {
 			const hash = getCertificateHash(SAMPLE_ZATCA_TEST_CERT_BODY);
 			expect(Buffer.from(hash, "base64")).toHaveLength(32);
 		});
