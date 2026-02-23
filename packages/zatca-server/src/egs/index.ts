@@ -2,9 +2,11 @@ import { spawn } from "child_process";
 import { v4 as uuidv4 } from 'uuid';
 import fs from "fs";
 
+import { Result } from "better-result";
 import { ZATCAInvoice } from "@jaicome/zatca-core";
 import { EGSUnitInfoSchema, ZodValidationError } from "@jaicome/zatca-core";
 import API from "../api/index.js";
+import type { ZatcaApiError, InvoiceResponse } from "../api/index.js";
 import { generateSignedXMLString } from "../signing/index.js";
 
 const CSR_TEMPLATE = `
@@ -250,46 +252,48 @@ export class EGS {
         this.egs_info.csr = new_csr;
     }
 
-    async issueComplianceCertificate(OTP: string): Promise<string> {
+    async issueComplianceCertificate(OTP: string): Promise<Result<string, ZatcaApiError>> {
         if (!this.egs_info.csr) throw new Error("EGS needs to generate a CSR first.");
 
         const issued_data = await this.api.compliance().issueCertificate(this.egs_info.csr, OTP);
-        this.egs_info.compliance_certificate = issued_data.issued_certificate;
-        this.egs_info.compliance_api_secret = issued_data.api_secret;
+        if (issued_data.isErr()) return issued_data as Result<string, ZatcaApiError>;
+        this.egs_info.compliance_certificate = issued_data.value.issued_certificate;
+        this.egs_info.compliance_api_secret = issued_data.value.api_secret;
 
-        return issued_data.request_id;
+        return Result.ok(issued_data.value.request_id);
     }
 
-    async issueProductionCertificate(compliance_request_id: string): Promise<string> {
+    async issueProductionCertificate(compliance_request_id: string): Promise<Result<string, ZatcaApiError>> {
         if(!this.egs_info.compliance_certificate || !this.egs_info.compliance_api_secret) throw new Error("EGS is missing a certificate/private key/api secret to request a production certificate.")
 
         const issued_data = await this.api.production(this.egs_info.compliance_certificate, this.egs_info.compliance_api_secret).issueCertificate(compliance_request_id);
-        this.egs_info.production_certificate = issued_data.issued_certificate;
-        this.egs_info.production_api_secret = issued_data.api_secret;
+        if (issued_data.isErr()) return issued_data as Result<string, ZatcaApiError>;
+        this.egs_info.production_certificate = issued_data.value.issued_certificate;
+        this.egs_info.production_api_secret = issued_data.value.api_secret;
         
-        return issued_data.request_id;
+        return Result.ok(issued_data.value.request_id);
     }
 
-    async checkInvoiceCompliance(signed_invoice_string: string, invoice_hash: string): Promise<any> {
+    async checkInvoiceCompliance(signed_invoice_string: string, invoice_hash: string): Promise<Result<InvoiceResponse, ZatcaApiError>> {
         if(!this.egs_info.compliance_certificate || !this.egs_info.compliance_api_secret) throw new Error("EGS is missing a certificate/private key/api secret to check the invoice compliance.")
 
         return await this.api.compliance(this.egs_info.compliance_certificate, this.egs_info.compliance_api_secret).checkInvoiceCompliance(
             signed_invoice_string,
             invoice_hash,
             this.egs_info.uuid
-        );
+        ) as Result<InvoiceResponse, ZatcaApiError>;
     }
 
     async runComplianceChecksForProduction(
         checks: Partial<Record<ZATCAComplianceStep, ComplianceCheckPayload>>,
         required_steps: readonly ZATCAComplianceStep[] = REQUIRED_COMPLIANCE_STEPS,
-    ): Promise<Record<ZATCAComplianceStep, any>> {
+    ): Promise<Result<Record<ZATCAComplianceStep, InvoiceResponse>, ZatcaApiError>> {
         const missing_steps = required_steps.filter((step) => !checks[step]);
         if (missing_steps.length > 0) {
             throw new Error(`Missing compliance check payloads for steps: [${missing_steps.join(",")}]`);
         }
 
-        const responses = {} as Record<ZATCAComplianceStep, any>;
+        const responses = {} as Record<ZATCAComplianceStep, InvoiceResponse>;
 
         for (const step of required_steps) {
             const payload = checks[step];
@@ -297,33 +301,35 @@ export class EGS {
                 continue;
             }
 
-            responses[step] = await this.checkInvoiceCompliance(
+            const r = await this.checkInvoiceCompliance(
                 payload.signed_invoice_string,
                 payload.invoice_hash,
             );
+            if (r.isErr()) return r;
+            responses[step] = r.value;
         }
 
-        return responses;
+        return Result.ok(responses);
     }
 
-    async reportInvoice(signed_invoice_string: string, invoice_hash: string): Promise<any> {
+    async reportInvoice(signed_invoice_string: string, invoice_hash: string): Promise<Result<InvoiceResponse, ZatcaApiError>> {
         if(!this.egs_info.production_certificate || !this.egs_info.production_api_secret) throw new Error("EGS is missing a certificate/private key/api secret to report the invoice.")
 
         return await this.api.production(this.egs_info.production_certificate, this.egs_info.production_api_secret).reportInvoice(
             signed_invoice_string,
             invoice_hash,
             this.egs_info.uuid
-        );
+        ) as Result<InvoiceResponse, ZatcaApiError>;
     }
 
-    async clearanceInvoice(signed_invoice_string: string, invoice_hash: string): Promise<any> {
+    async clearanceInvoice(signed_invoice_string: string, invoice_hash: string): Promise<Result<InvoiceResponse, ZatcaApiError>> {
         if(!this.egs_info.production_certificate || !this.egs_info.production_api_secret) throw new Error("EGS is missing a certificate/private key/api secret to report the invoice.")
 
         return await this.api.production(this.egs_info.production_certificate, this.egs_info.production_api_secret).clearanceInvoice(
             signed_invoice_string,
             invoice_hash,
             this.egs_info.uuid
-        );
+        ) as Result<InvoiceResponse, ZatcaApiError>;
     }
 
     signInvoice(invoice: ZATCAInvoice, production?: boolean): {signed_invoice_string: string, invoice_hash: string, qr: string} {
