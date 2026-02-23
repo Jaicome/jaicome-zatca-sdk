@@ -1,3 +1,5 @@
+import * as fs from "node:fs";
+import * as path from "node:path";
 import {
   ZATCAInvoice,
   type ZATCAInvoiceLineItem,
@@ -13,11 +15,12 @@ import {
   REQUIRED_COMPLIANCE_STEPS,
   type ZATCAComplianceStep,
 } from "@jaicome/zatca-server";
-import * as fs from "fs";
 
 const now = new Date();
 const issueDate = now.toISOString().split("T")[0];
 const issueTime = now.toISOString().split("T")[1].slice(0, 8);
+const outputDir = path.resolve(process.cwd(), "tmp");
+fs.mkdirSync(outputDir, { recursive: true });
 const GENESIS_PREVIOUS_INVOICE_HASH =
   "NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==";
 
@@ -149,8 +152,12 @@ const baseInvoice = new ZATCAInvoice({
   acceptWarning: true,
 });
 const invoiceXMLString = baseInvoice.getXML().toString({ no_header: false });
-fs.writeFileSync("test_invoice.xml", invoiceXMLString, "utf8");
-console.log("✅ Invoice XML (unsigned) saved as test_invoice.xml");
+fs.writeFileSync(
+  path.join(outputDir, "test_invoice.xml"),
+  invoiceXMLString,
+  "utf8",
+);
+console.log("✅ Invoice XML (unsigned) saved in tmp/test_invoice.xml");
 
 const main = async () => {
   try {
@@ -164,7 +171,7 @@ const main = async () => {
     console.log("Keys and CSR generated successfully");
 
     // 3. Issue compliance certificate
-    const otp = "716400";
+    const otp = "086338";
     const compliance_request_id = await egs.issueComplianceCertificate(otp);
     console.log(
       "Compliance certificate issued with request ID:",
@@ -212,7 +219,11 @@ const main = async () => {
       previousHash = invoice_hash;
       previousSerial = serialByStep[step];
 
-      fs.writeFileSync(`invoice_${step}.xml`, signed_invoice_string, "utf8");
+      fs.writeFileSync(
+        path.join(outputDir, `invoice_${step}.xml`),
+        signed_invoice_string,
+        "utf8",
+      );
       console.log(`✅ Signed invoice for ${step} generated`);
     }
 
