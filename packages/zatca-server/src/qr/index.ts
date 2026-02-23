@@ -1,6 +1,6 @@
 import moment from "moment";
 
-import { XMLDocument } from "@jaicome/zatca-core";
+import { generatePhaseOneQRFromXml, type XMLDocument } from "@jaicome/zatca-core";
 import { getInvoiceHash } from "../signing";
 
 interface QRParams {
@@ -50,33 +50,12 @@ export const generateQR = ({
     return qr_tlv.toString("base64");
 };
 
+/**
+ * @deprecated Use generatePhaseOneQR from @jaicome/zatca-core instead.
+ * This function now delegates to the cross-platform implementation in @jaicome/zatca-core.
+ */
 export const generatePhaseOneQR = ({ invoice_xml }: { invoice_xml: XMLDocument }): string => {
-    const seller_name = invoice_xml.get(
-        "Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity/cbc:RegistrationName"
-    )?.[0];
-    const VAT_number = invoice_xml
-        .get("Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyTaxScheme/cbc:CompanyID")?.[0]
-        .toString();
-    const invoice_total = invoice_xml
-        .get("Invoice/cac:LegalMonetaryTotal/cbc:TaxInclusiveAmount")?.[0]["#text"].toString();
-    const VAT_total = invoice_xml
-        .get("Invoice/cac:TaxTotal")?.[0]["cbc:TaxAmount"]["#text"].toString();
-
-    const issue_date = invoice_xml.get("Invoice/cbc:IssueDate")?.[0];
-    const issue_time = invoice_xml.get("Invoice/cbc:IssueTime")?.[0];
-
-    const datetime = `${issue_date} ${issue_time}`;
-    const formatted_datetime = moment(datetime).format("YYYY-MM-DDTHH:mm:ss");
-
-    const qr_tlv = TLV([
-        seller_name,
-        VAT_number,
-        formatted_datetime,
-        invoice_total,
-        VAT_total,
-    ]);
-
-    return qr_tlv.toString("base64");
+    return generatePhaseOneQRFromXml(invoice_xml);
 };
 
 const TLV = (tags: any[]): Buffer => {
