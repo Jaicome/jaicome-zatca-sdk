@@ -6,10 +6,20 @@ This document provides a schema-driven reference for the public APIs of `@jaicom
 
 The core package contains universal logic for building and parsing invoices, compatible with Node.js, browsers, and React Native.
 
+### Classes
+
+#### `ZATCAInvoice`
+- **Description**: The canonical way to create and sign an invoice. Accepts props and an optional signer at construction time.
+- **Constructor**: `new ZATCAInvoice({ props: ZATCAInvoiceProps, signer?: Signer, acceptWarning?: boolean })`
+- **Input Validation**: ✅ Validated against `ZATCAInvoicePropsSchema`.
+- **Methods**:
+  - `sign(certificate_string: string, private_key_string: string): Promise<SignatureResult>` — Signs the invoice and returns `{ signedXml, invoiceHash }`.
+  - `getXML(): Promise<string>` — Returns the unsigned XML string.
+
 ### Functions
 
 #### `buildInvoice(props: ZATCAInvoiceProps, signer?: Signer): ZATCAInvoice`
-- **Description**: The primary entry point for creating a new invoice.
+- **Description**: Lower-level utility that constructs a `ZATCAInvoice` instance. Prefer the `new ZATCAInvoice({ props, signer })` constructor pattern for new code — it is more explicit and supports `acceptWarning`.
 - **Input Validation**: ✅ Validated against `ZATCAInvoicePropsSchema`.
 - **Parameters**:
   - `props`: Configuration object for the invoice.

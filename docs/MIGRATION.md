@@ -5,6 +5,8 @@ This guide explains how to migrate from the legacy `zatca-xml-js` package to the
 1. **@jaicome/zatca-core**: Portable logic for building and parsing invoices. Works in browsers, React Native, and Node.js.
 2. **@jaicome/zatca-server**: Node.js specific logic for signing, EGS lifecycle, and ZATCA HTTP API integration.
 
+> **Package-only policy**: The root `zatca-xml-js` legacy API has been removed. Direct imports from `zatca-xml-js` (including `zatca-xml-js/src/` paths) are no longer supported. Only `@jaicome/zatca-core` and `@jaicome/zatca-server` are supported going forward.
+
 ## Quick Comparison
 
 ### Imports
@@ -22,8 +24,7 @@ import {
 ```typescript
 // Core logic (Universal)
 import { 
-  ZATCAInvoice, 
-  buildInvoice 
+  ZATCAInvoice
 } from "@jaicome/zatca-core";
 
 // Server logic (Node.js only)
@@ -55,17 +56,18 @@ const egs = new EGS(egsunit);
 const { signed_invoice_string } = egs.signInvoice(invoice);
 ```
 
-**New Signing (Node.js)**
+**New Signing (Node.js — server-side path)**
 ```typescript
-import { buildInvoice } from "@jaicome/zatca-core";
 import { NodeSigner } from "@jaicome/zatca-server";
+import { ZATCAInvoice } from "@jaicome/zatca-core";
 
-const signer = new NodeSigner(certificatePem);
-const invoice = buildInvoice(props, signer);
-
-// Signing is now handled within the build process if a signer is provided
-const xml = await invoice.getXML(); 
+const signer = new NodeSigner(certificate_string);
+const invoice = new ZATCAInvoice({ props, signer, acceptWarning: true });
+const result = await invoice.sign(certificate_string, private_key_string);
+// result.signedXml, result.invoiceHash
 ```
+
+`NodeSigner` implements the `Signer` interface from `@jaicome/zatca-core`. Injecting it at construction time keeps the core package free of Node.js dependencies while still enabling full cryptographic signing on the server.
 
 ### 4. Browser and React Native Apps
 If you are building a frontend app, you must only import `@jaicome/zatca-core`. 
