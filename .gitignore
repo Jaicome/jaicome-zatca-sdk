@@ -107,5 +107,8 @@ dist
 /lib
 /testing_lib
 /src/tests
+packages/zatca-core/lib
+packages/zatca-server/lib
 .DS_STORE
 package-lock.json
+.sisyphus

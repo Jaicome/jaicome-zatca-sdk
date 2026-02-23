@@ -2,22 +2,25 @@
   "name": "zatca-xml-ts",
   "version": "0.1.5",
   "description": "An implementation of Saudi Arabia ZATCA's E-Invoicing requirements, processes, and standards.",
-  "main": "lib/index.js",
-  "files": [
-    "lib/**/*"
+  "private": true,
+  "workspaces": [
+    "packages/*"
   ],
   "scripts": {
-    "build": "tsc --project tsconfig.build.json",
-    "example": "tsc --project tsconfig.build.json && node lib/examples/full.js",
-    "prepare": "npm run build",
-    "lint": "npx prettier@2.8.8 --write ."
+    "build": "npm run build --workspaces",
+    "clean": "rm -rf lib packages/*/lib",
+    "example": "tsc --project tsconfig.build.json && node lib/full.js",
+    "test": "npm run test --workspaces",
+    "lint": "npx prettier@2.8.8 --write .",
+    "check-boundaries": "bash scripts/check-boundaries.sh"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.184",
     "@types/node": "^18.7.16",
     "@types/uuid": "^8.3.4",
     "@types/xmldom": "^0.1.31",
-    "typescript": "^4.8.3"
+    "typescript": "^4.8.3",
+    "vitest": "^1.0.0"
   },
   "dependencies": {
     "@fidm/x509": "^1.2.1",
@@ -36,7 +39,6 @@
     "type": "git",
     "url": "https://github.com/Repzo/zatca-xml-js"
   },
-  "typings": "lib/index.d.ts",
   "keywords": [
     "zatca",
     "xml",

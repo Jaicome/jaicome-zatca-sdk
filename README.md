@@ -46,37 +46,41 @@ All tha main futures required to on-board a new EGS. Create, sign, and report a 
     - Reporting.
 
 # Installation
+> **Package-only policy**: The root `zatca-xml-js` package is no longer published. Use `@jaicome/zatca-core` and `@jaicome/zatca-server` for all new projects.
+
+```bash
+npm install @jaicome/zatca-core @jaicome/zatca-server
 ```
-npm install zatca-xml-js
-```
+
+# New SDK (Recommended)
+The package is now being evolved as a scoped monorepo for better portability and security. We recommend migrating to the new packages for all new projects.
+
+*   **[@jaicome/zatca-core](https://github.com/Repzo/zatca-xml-js/tree/main/packages/zatca-core)**: Universal logic for building and parsing invoices. Compatible with browsers, React Native, and Node.js.
+*   **[@jaicome/zatca-server](https://github.com/Repzo/zatca-xml-js/tree/main/packages/zatca-server)**: Node.js specific logic for signing, EGS on-boarding, and ZATCA HTTP API integration.
+
+Check out the [Migration Guide](/docs/MIGRATION.md) and [Runtime Support](/docs/RUNTIME_SUPPORT.md) documentation for more details.
 
 # Usage
-View full example at <a href="/src/examples">examples</a>
+View the [Migration Guide](/docs/MIGRATION.md) for a full walkthrough.
+
+**Server-side (Node.js)**
 ```typescript
-import {
-    EGS, EGSUnitInfo,
-    ZATCASimplifiedTaxInvoice,
-} from "zatca-xml-js";
+import { NodeSigner } from "@jaicome/zatca-server";
+import { ZATCAInvoice } from "@jaicome/zatca-core";
 
+const signer = new NodeSigner(certificate_string);
+const invoice = new ZATCAInvoice({ props, signer, acceptWarning: true });
+const result = await invoice.sign(certificate_string, private_key_string);
+// result.signedXml, result.invoiceHash
+```
 
-// New Invoice and EGS Unit
-const invoice: ZATCASimplifiedTaxInvoice = {/*...*/};
-const egsunit: EGSUnitInfo = {/*...*/};
-
-// Init EGS unit
+**EGS on-boarding (Node.js)**
+```typescript
+import { EGS } from "@jaicome/zatca-server";
 const egs = new EGS(egsunit);
-// New Keys & CSR for the EGS
 await egs.generateNewKeysAndCSR(false, "solution_name");
-// Issue a new compliance cert for the EGS
 const compliance_rid = await egs.issueComplianceCertificate("123345");
-// Sign invoice
-const {signed_invoice_string, invoice_hash} = egs.signInvoice(invoice);
-// Check invoice compliance
-await egs.checkInvoiceCompliance(signed_invoice_string, invoice_hash);
-// Issue production certificate
 await egs.issueProductionCertificate(compliance_rid);
-// Report invoice
-await egs.reportInvoice(signed_invoice_string, invoice_hash);
 ```
 
 # Implementation

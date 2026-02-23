@@ -1,0 +1,57 @@
+{
+  "name": "@jaicome/zatca-server",
+  "version": "1.0.0-alpha.0",
+  "description": "ZATCA server library - Node.js only (signing, EGS, API integration)",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc --project tsconfig.build.json",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^18.7.16",
+    "@types/uuid": "^9.0.0",
+    "@types/xmldom": "^0.1.31",
+    "typescript": "^4.8.3",
+    "vitest": "^1.0.0"
+  },
+  "dependencies": {
+    "@fidm/x509": "^1.2.1",
+    "axios": "^1.4.0",
+    "moment": "^2.29.4",
+    "uuid": "^9.0.0",
+    "xmldom": "^0.6.0",
+    "xmldsigjs": "^2.5.0",
+    "zod": "^3.22.0"
+  },
+  "peerDependencies": {
+    "@jaicome/zatca-core": "^1.0.0-alpha.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Repzo/zatca-xml-js",
+    "directory": "packages/zatca-server"
+  },
+  "license": "MIT",
+  "keywords": [
+    "zatca",
+    "e-invoicing",
+    "saudi-arabia",
+    "xml",
+    "signing",
+    "egs",
+    "api",
+    "nodejs"
+  ],
+  "exports": {
+    ".": {
+      "import": "./lib/index.js",
+      "require": "./lib/index.js",
+      "types": "./lib/index.d.ts"
+    }
+  }
+}

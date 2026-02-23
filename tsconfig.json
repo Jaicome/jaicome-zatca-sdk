@@ -16,5 +16,5 @@
     "outDir": "testing_lib"
   },
 
-  "include": ["src/**/*"]
+  "include": ["packages/examples/**/*"]
 }
