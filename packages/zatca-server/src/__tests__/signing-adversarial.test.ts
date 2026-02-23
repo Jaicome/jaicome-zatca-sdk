@@ -161,10 +161,9 @@ describe("signing adversarial coverage", () => {
 			expect(getCertificateHash("")).toMatch(/^[A-Za-z0-9+/]+=*$/);
 		});
 
-		it("certificate hash decodes to 64-char SHA-256 hex text", () => {
+		it("certificate hash decodes to 32 bytes (SHA-256)", () => {
 			const hash = getCertificateHash(SAMPLE_ZATCA_TEST_CERT_BODY);
-			const decoded = Buffer.from(hash, "base64").toString("utf8");
-			expect(decoded).toMatch(/^[a-f0-9]{64}$/);
+			expect(Buffer.from(hash, "base64")).toHaveLength(32);
 		});
 	});
 

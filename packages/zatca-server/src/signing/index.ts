@@ -62,7 +62,8 @@ export const getInvoiceHash = (invoice_xml: XMLDocument): string => {
  */
 export const getCertificateHash = (certificate_string: string): string => {
     const certificate_hash = Buffer.from(
-        createHash("sha256").update(certificate_string).digest("hex")
+        createHash("sha256").update(certificate_string).digest("hex"),
+        "hex"
     ).toString("base64");
     return certificate_hash;
 };
@@ -199,7 +200,7 @@ export const generateSignedXMLString = ({
         ubl_signature_signed_properties_xml_string_for_signing
     );
     let signed_properties_hash = createHash("sha256").update(signed_properties_bytes).digest("hex");
-    signed_properties_hash = Buffer.from(signed_properties_hash).toString("base64");
+    signed_properties_hash = Buffer.from(signed_properties_hash, "hex").toString("base64");
     log("Info", "Signer", `Signed properties hash: ${signed_properties_hash}`);
 
     // UBL Extensions

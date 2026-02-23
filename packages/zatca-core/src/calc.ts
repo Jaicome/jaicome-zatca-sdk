@@ -463,7 +463,7 @@ export const Calc = (
   });
 
   if (
-    (props.invoice_type == "381" || props.invoice_type == "383") &&
+    (props.invoice_type === "381" || props.invoice_type === "383") &&
     props.cancelation
   ) {
     invoice_xml.set("Invoice/cac:PaymentMeans", false, {
