@@ -79,7 +79,7 @@ interface CSRConfigProps {
 const buildCSRConfig = (props: CSRConfigProps): string => {
     let t = CSR_TEMPLATE;
     t = t.replace("SET_PRIVATE_KEY_PASS", props.private_key_pass ?? "SET_PRIVATE_KEY_PASS");
-    t = t.replace("SET_PRODUCTION_VALUE", "PREZATCA-Code-Signing");
+    t = t.replace("SET_PRODUCTION_VALUE", props.production ? "ZATCA-Code-Signing" : "PREZATCA-Code-Signing");
     t = t.replace("SET_EGS_SERIAL_NUMBER", `1-${props.solution_name}|2-${props.egs_model}|3-${props.egs_serial_number}`);
     t = t.replace("SET_VAT_REGISTRATION_NUMBER", props.vat_number);
     t = t.replace("SET_BRANCH_LOCATION", props.branch_location);
