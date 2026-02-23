@@ -5,14 +5,15 @@ import {
   type EGSUnitInfo,
   REQUIRED_COMPLIANCE_STEPS,
   type ZATCAComplianceStep,
-} from "../zatca/egs";
+  NodeSigner,
+} from "@jaicome/zatca-server";
 import {
+  ZATCAInvoice,
   type ZATCAInvoiceLineItem,
   type ZATCAInvoiceProps,
   ZATCAInvoiceTypes,
   ZATCAPaymentMethods,
-} from "../zatca/templates/simplified_tax_invoice_template";
-import { ZATCAInvoice } from "../zatca/ZATCASimplifiedTaxInvoice";
+} from "@jaicome/zatca-core";
 
 const now = new Date();
 const issueDate = now.toISOString().split("T")[0];
@@ -147,7 +148,7 @@ const baseInvoice = new ZATCAInvoice({
   ),
   acceptWarning: true,
 });
-const invoiceXMLString = baseInvoice.toString();
+const invoiceXMLString = baseInvoice.getXML().toString({ no_header: false });
 fs.writeFileSync("test_invoice.xml", invoiceXMLString, "utf8");
 console.log("✅ Invoice XML (unsigned) saved as test_invoice.xml");
 
@@ -170,6 +171,9 @@ const main = async () => {
       compliance_request_id,
     );
 
+    // 4. Create NodeSigner using compliance certificate
+    const signer = new NodeSigner(egs.get().compliance_certificate!);
+
     const complianceChecks: Partial<
       Record<ZATCAComplianceStep, ComplianceCheckPayload>
     > = {};
@@ -185,7 +189,7 @@ const main = async () => {
     let previousHash = GENESIS_PREVIOUS_INVOICE_HASH;
     let previousSerial = "EGS1-886431145-100";
 
-    complianceStepExecutionOrder.forEach((step, index) => {
+    for (const [index, step] of complianceStepExecutionOrder.entries()) {
       const invoice = new ZATCAInvoice({
         props: buildInvoicePropsForComplianceStep(
           step,
@@ -193,10 +197,16 @@ const main = async () => {
           previousHash,
           previousSerial,
         ),
+        signer,
         acceptWarning: true,
       });
 
-      const { signed_invoice_string, invoice_hash } = egs.signInvoice(invoice);
+      const result = await invoice.sign(
+        egs.get().compliance_certificate!,
+        egs.get().private_key!,
+      );
+      const signed_invoice_string = result.signedXml;
+      const invoice_hash = result.invoiceHash;
       complianceChecks[step] = { signed_invoice_string, invoice_hash };
       serialByStep[step] = `EGS1-886431145-${101 + index}`;
       previousHash = invoice_hash;
@@ -204,7 +214,7 @@ const main = async () => {
 
       fs.writeFileSync(`invoice_${step}.xml`, signed_invoice_string, "utf8");
       console.log(`✅ Signed invoice for ${step} generated`);
-    });
+    }
 
     const complianceResults =
       await egs.runComplianceChecksForProduction(complianceChecks);
@@ -231,10 +241,15 @@ const main = async () => {
         previousHash,
         previousSerial,
       ),
+      signer,
       acceptWarning: true,
     });
-    const { signed_invoice_string, invoice_hash } =
-      egs.signInvoice(reportInvoice);
+    const reportResult = await reportInvoice.sign(
+      egs.get().compliance_certificate!,
+      egs.get().private_key!,
+    );
+    const signed_invoice_string = reportResult.signedXml;
+    const invoice_hash = reportResult.invoiceHash;
 
     const reportedInvoice = await egs.reportInvoice(
       signed_invoice_string,
