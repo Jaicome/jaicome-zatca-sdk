@@ -84,7 +84,7 @@ const expectedCoreTypes = [
   "ZATCAInvoiceLineItemDiscount",
   "ZATCAInvoiceLineItemTax",
   "ZATCAInvoiceLineItem",
-  "ZATCAInvoicCancelation",
+  "ZATCAInvoiceCancellation",
   "EGSUnitLocation",
   "EGSUnitCustomerInfo",
   "EGSUnitInfo",

@@ -189,11 +189,14 @@ type LineItem = InvoiceLineItem & {
 
 export type ZATCAInvoiceLineItem = LineItem | ZeroTaxLineItem;
 
-export interface ZATCAInvoicCancelation {
+export interface ZATCAInvoiceCancellation {
   canceled_serial_invoice_number: string;
   payment_method: ZATCAPaymentMethods;
   reason: string;
 }
+
+/** @deprecated Use ZATCAInvoiceCancellation instead */
+export type ZATCAInvoicCancelation = ZATCAInvoiceCancellation;
 
 export interface EGSUnitLocation {
   city?: string;
@@ -249,7 +252,7 @@ interface ZatcaInvoice {
 
 type CreditDebitInvoice = ZatcaInvoice & {
   invoice_type: ZATCAInvoiceTypes.CREDIT_NOTE | ZATCAInvoiceTypes.DEBIT_NOTE;
-  cancelation: ZATCAInvoicCancelation;
+  cancelation: ZATCAInvoiceCancellation;
 };
 
 type CashInvoice = ZatcaInvoice & {

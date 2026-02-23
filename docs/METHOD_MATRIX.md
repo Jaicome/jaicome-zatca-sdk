@@ -32,7 +32,7 @@ Legend:
 | `ZATCAInvoiceLineItemDiscount` | `@jaicome/zatca-core` | `core-only` | `yes/yes/yes` | `ZATCAInvoiceLineItemDiscount` | Type export | ❌ |
 | `ZATCAInvoiceLineItemTax` | `@jaicome/zatca-core` | `core-only` | `yes/yes/yes` | `ZATCAInvoiceLineItemTax` | Type export | ❌ |
 | `ZATCAInvoiceLineItem` | `@jaicome/zatca-core` | `core-only` | `yes/yes/yes` | `ZATCAInvoiceLineItem` | Type export | ❌ |
-| `ZATCAInvoicCancelation` | `@jaicome/zatca-core` | `core-only` | `yes/yes/yes` | `ZATCAInvoicCancelation` | Type export (legacy spelling preserved) | ❌ |
+| `ZATCAInvoiceCancellation` | `@jaicome/zatca-core` | `core-only` | `yes/yes/yes` | `ZATCAInvoiceCancellation` | Type export (correct spelling) | ❌ |
 | `EGSUnitLocation` | `@jaicome/zatca-core` | `shared-contract` | `yes/yes/yes` | `EGSUnitLocation` | Type export mirrored in server | ❌ |
 | `EGSUnitCustomerInfo` | `@jaicome/zatca-core` | `shared-contract` | `yes/yes/yes` | `EGSUnitCustomerInfo` | Type export mirrored in server | ❌ |
 | `EGSUnitInfo` | `@jaicome/zatca-core` | `shared-contract` | `yes/yes/yes` | `EGSUnitInfo` | Type export mirrored in server | ❌ |
