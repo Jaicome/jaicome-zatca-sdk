@@ -43,7 +43,7 @@ const constructLineItemTotals = (
   };
   cacClassifiedTaxCategories.push(VAT);
 
-  line_item.discounts?.map((discount) => {
+  line_item.discounts?.forEach((discount) => {
     line_discounts += discount.amount;
     cacAllowanceCharges.push({
       "cbc:ChargeIndicator": "false",
@@ -147,7 +147,7 @@ const constructTaxTotal = (
   const cacTaxSubtotal: any[] = [];
   const zeroTaxSubtotal: any[] = [];
 
-  const without_tax_items = line_items.filter((item) => item.VAT_percent == 0);
+  const without_tax_items = line_items.filter((item) => item.VAT_percent === 0);
   const modifiedZeroTaxSubTotal = (items: ZATCAInvoiceLineItem[]) => {
     let zeroTaxObj: {
       [key: string]: {
@@ -159,7 +159,7 @@ const constructTaxTotal = (
     } = {};
 
     items.forEach((item) => {
-      if (item.VAT_percent != 0) return;
+      if (item.VAT_percent !== 0) return;
       let total_line_item_discount =
         item.discounts?.reduce((p, c) => p + c.amount, 0) || 0;
 
@@ -240,12 +240,12 @@ const constructTaxTotal = (
     tax_amount: number,
     tax_percent: number
   ) => {
-    if (tax_percent == 0) return;
-    if (tax_percent == 0.05) {
+    if (tax_percent === 0) return;
+    if (tax_percent === 0.05) {
       fiveTaxSubTotal.taxable_amount += taxable_amount;
       fiveTaxSubTotal.tax_amount += tax_amount;
       fiveTaxSubTotal.exist = true;
-    } else if (tax_percent == 0.15) {
+    } else if (tax_percent === 0.15) {
       fifteenTaxSubTotal.taxable_amount += taxable_amount;
       fifteenTaxSubTotal.tax_amount += tax_amount;
       fifteenTaxSubTotal.exist = true;
@@ -254,7 +254,7 @@ const constructTaxTotal = (
 
   let taxes_total = 0;
 
-  line_items.map((line_item) => {
+  line_items.forEach((line_item) => {
     let total_line_item_discount =
       line_item.discounts?.reduce((p, c) => p + c.amount, 0) || 0;
 
@@ -407,7 +407,7 @@ export const Calc = (
 
   let invoice_line_items: any[] = [];
 
-  line_items.map((line_item) => {
+  line_items.forEach((line_item) => {
     line_item.tax_exclusive_price = Number(
       new Decimal(line_item.tax_exclusive_price).toFixed(14)
     );
@@ -444,7 +444,7 @@ export const Calc = (
     )
   );
 
-  invoice_line_items.map((line_item) => {
+  invoice_line_items.forEach((line_item) => {
     invoice_xml.set("Invoice/cac:InvoiceLine", false, line_item);
   });
 };

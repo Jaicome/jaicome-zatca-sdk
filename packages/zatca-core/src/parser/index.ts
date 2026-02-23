@@ -28,7 +28,7 @@ export class XMLDocument {
 
 
     private getElement(xml_object: any, path_query: string, parent_xml_object?: any, last_tag?: string): any {
-        if (path_query == "" || !xml_object) return {xml_object, parent_xml_object, last_tag};
+        if (path_query === "" || !xml_object) return {xml_object, parent_xml_object, last_tag};
     
         const current_path: string[] = path_query.split("/");
         const current_tag: string = current_path.splice(0, 1)[0];
