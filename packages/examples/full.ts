@@ -1,12 +1,3 @@
-import * as fs from "fs";
-import {
-  type ComplianceCheckPayload,
-  EGS,
-  type EGSUnitInfo,
-  REQUIRED_COMPLIANCE_STEPS,
-  type ZATCAComplianceStep,
-  NodeSigner,
-} from "@jaicome/zatca-server";
 import {
   ZATCAInvoice,
   type ZATCAInvoiceLineItem,
@@ -14,6 +5,15 @@ import {
   ZATCAInvoiceTypes,
   ZATCAPaymentMethods,
 } from "@jaicome/zatca-core";
+import {
+  type ComplianceCheckPayload,
+  EGS,
+  type EGSUnitInfo,
+  NodeSigner,
+  REQUIRED_COMPLIANCE_STEPS,
+  type ZATCAComplianceStep,
+} from "@jaicome/zatca-server";
+import * as fs from "fs";
 
 const now = new Date();
 const issueDate = now.toISOString().split("T")[0];
@@ -164,7 +164,7 @@ const main = async () => {
     console.log("Keys and CSR generated successfully");
 
     // 3. Issue compliance certificate
-    const otp = "555453";
+    const otp = "716400";
     const compliance_request_id = await egs.issueComplianceCertificate(otp);
     console.log(
       "Compliance certificate issued with request ID:",
