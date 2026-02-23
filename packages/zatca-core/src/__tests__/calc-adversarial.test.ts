@@ -313,38 +313,24 @@ describe("Edge case inputs", () => {
 		expect(firstText(xml, "Invoice/cac:TaxTotal/cbc:TaxAmount")).toBe("0.00");
 	});
 
-	it("Negative quantity (qty=-5, price=100, 15%) is accepted and creates negative totals", () => {
-		const invoice = buildInvoice(
-			makeProps({
-				line_items: [makeLineItem({ quantity: -5 })],
-			}),
-		);
-		const xml = invoice.getXML();
-
-		expect(
-			firstText(xml, "Invoice/cac:InvoiceLine/cbc:LineExtensionAmount"),
-		).toBe("-500.00");
-		expect(firstText(xml, "Invoice/cac:TaxTotal/cbc:TaxAmount")).toBe("-75.00");
-		expect(
-			firstText(xml, "Invoice/cac:LegalMonetaryTotal/cbc:TaxInclusiveAmount"),
-		).toBe("-575.00");
+	it("Negative quantity (qty=-5, price=100, 15%) throws an error", () => {
+		expect(() =>
+			buildInvoice(
+				makeProps({
+					line_items: [makeLineItem({ quantity: -5 })],
+				}),
+			),
+		).toThrow("quantity must be non-negative, got -5");
 	});
 
-	it("Negative price (qty=1, price=-100, 15%) is accepted and creates negative totals", () => {
-		const invoice = buildInvoice(
-			makeProps({
-				line_items: [makeLineItem({ tax_exclusive_price: -100 })],
-			}),
-		);
-		const xml = invoice.getXML();
-
-		expect(
-			firstText(xml, "Invoice/cac:InvoiceLine/cbc:LineExtensionAmount"),
-		).toBe("-100.00");
-		expect(firstText(xml, "Invoice/cac:TaxTotal/cbc:TaxAmount")).toBe("-15.00");
-		expect(
-			firstText(xml, "Invoice/cac:LegalMonetaryTotal/cbc:TaxInclusiveAmount"),
-		).toBe("-115.00");
+	it("Negative price (qty=1, price=-100, 15%) throws an error", () => {
+		expect(() =>
+			buildInvoice(
+				makeProps({
+					line_items: [makeLineItem({ tax_exclusive_price: -100 })],
+				}),
+			),
+		).toThrow("tax_exclusive_price must be non-negative, got -100");
 	});
 });
 

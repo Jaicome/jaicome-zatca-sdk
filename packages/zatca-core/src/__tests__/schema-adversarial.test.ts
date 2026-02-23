@@ -263,7 +263,7 @@ describe("ZATCAInvoiceLineItemSchema — adversarial", () => {
     ).not.toThrow();
   });
 
-  it("accepts negative quantity (z.number() imposes no sign constraint)", () => {
+  it("rejects negative quantity at computation layer (z.number() imposes no sign constraint at schema level)", () => {
     expect(() =>
       buildInvoice({
         ...validBase,
@@ -277,10 +277,10 @@ describe("ZATCAInvoiceLineItemSchema — adversarial", () => {
           },
         ],
       } as ZATCAInvoiceProps),
-    ).not.toThrow();
+    ).toThrow("quantity must be non-negative, got -5");
   });
 
-  it("accepts negative price (z.number() imposes no sign constraint)", () => {
+  it("rejects negative price at computation layer (z.number() imposes no sign constraint at schema level)", () => {
     expect(() =>
       buildInvoice({
         ...validBase,
@@ -294,7 +294,7 @@ describe("ZATCAInvoiceLineItemSchema — adversarial", () => {
           },
         ],
       } as ZATCAInvoiceProps),
-    ).not.toThrow();
+    ).toThrow("tax_exclusive_price must be non-negative, got -100");
   });
 
   it("rejects discount missing required reason field", () => {

@@ -27,6 +27,12 @@ const constructLineItemTotals = (
   line_item: ZATCAInvoiceLineItem,
   acceptWarning: boolean
 ) => {
+  if (line_item.quantity < 0) {
+    throw new Error(`Invalid line item: quantity must be non-negative, got ${line_item.quantity}`);
+  }
+  if (line_item.tax_exclusive_price < 0) {
+    throw new Error(`Invalid line item: tax_exclusive_price must be non-negative, got ${line_item.tax_exclusive_price}`);
+  }
   let line_discounts = 0;
   let cacAllowanceCharges: any[] = [];
   let cacClassifiedTaxCategories: any[] = [];
@@ -44,6 +50,9 @@ const constructLineItemTotals = (
   cacClassifiedTaxCategories.push(VAT);
 
   line_item.discounts?.forEach((discount) => {
+    if (discount.amount < 0) {
+      throw new Error(`Invalid discount: amount must be non-negative, got ${discount.amount}`);
+    }
     line_discounts += discount.amount;
     cacAllowanceCharges.push({
       "cbc:ChargeIndicator": "false",
@@ -428,6 +437,16 @@ export const Calc = (
   let total_discounts: number = 0;
 
   let invoice_line_items: any[] = [];
+
+  // Validate inputs before computation
+  line_items.forEach((item) => {
+    if (item.quantity < 0) {
+      throw new Error(`Invalid line item: quantity must be non-negative, got ${item.quantity}`);
+    }
+    if (item.tax_exclusive_price < 0) {
+      throw new Error(`Invalid line item: tax_exclusive_price must be non-negative, got ${item.tax_exclusive_price}`);
+    }
+  });
 
   line_items.forEach((line_item) => {
     line_item.tax_exclusive_price = Number(
