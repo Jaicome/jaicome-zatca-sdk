@@ -60,14 +60,17 @@ const constructLineItemTotals = (
   });
 
   line_discounts = Number(new Decimal(line_discounts).toFixed(14));
-  let line_extension_amount = Number(
+  let line_extension_amount = new Decimal(
     roundingNumber(
       acceptWarning,
       line_item.quantity * (line_item.tax_exclusive_price - line_discounts)
     )
   );
-  let line_item_total_taxes = Number(
-    roundingNumber(acceptWarning, line_extension_amount * line_item.VAT_percent)
+  let line_item_total_taxes = new Decimal(
+    roundingNumber(
+      acceptWarning,
+      line_extension_amount.toNumber() * line_item.VAT_percent
+    )
   );
 
   cacTaxTotal = {
@@ -78,7 +81,7 @@ const constructLineItemTotals = (
     "cbc:RoundingAmount": {
       "@_currencyID": "SAR",
       "#text": new Decimal(
-        line_extension_amount + line_item_total_taxes
+        line_extension_amount.plus(line_item_total_taxes)
       ).toFixed(2),
     },
   };
@@ -133,9 +136,9 @@ const constructLineItem = (
       },
     },
     line_item_totals: {
-      taxes_total: line_item_total_taxes,
+      taxes_total: line_item_total_taxes.toNumber(),
       discounts_total: line_discounts,
-      extension_amount: line_extension_amount,
+      extension_amount: line_extension_amount.toNumber(),
     },
   };
 };
@@ -261,7 +264,7 @@ const constructTaxTotal = (
     total_line_item_discount = Number(
       new Decimal(total_line_item_discount).toFixed(14)
     );
-    const taxable_amount = Number(
+    const taxable_amount = new Decimal(
       roundingNumber(
         acceptWarning,
         (line_item.tax_exclusive_price - total_line_item_discount) *
@@ -269,17 +272,28 @@ const constructTaxTotal = (
       )
     );
 
-    let tax_amount = Number(
-      roundingNumber(acceptWarning, line_item.VAT_percent * taxable_amount)
+    let tax_amount = new Decimal(
+      roundingNumber(
+        acceptWarning,
+        line_item.VAT_percent * taxable_amount.toNumber()
+      )
     );
 
-    addTaxSubtotal(taxable_amount, tax_amount, line_item.VAT_percent);
-    taxes_total += parseFloat(new Decimal(tax_amount).toString());
+    addTaxSubtotal(
+      taxable_amount.toNumber(),
+      tax_amount.toNumber(),
+      line_item.VAT_percent
+    );
+    taxes_total += tax_amount.toNumber();
 
     line_item.other_taxes?.map((tax) => {
-      tax_amount = tax.percent_amount * taxable_amount;
-      addTaxSubtotal(taxable_amount, tax_amount, tax.percent_amount);
-      taxes_total += parseFloat(tax_amount.toString());
+      const other_tax_amount = tax.percent_amount * taxable_amount.toNumber();
+      addTaxSubtotal(
+        taxable_amount.toNumber(),
+        other_tax_amount,
+        tax.percent_amount
+      );
+      taxes_total += other_tax_amount;
     });
   });
 
