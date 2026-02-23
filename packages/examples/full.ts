@@ -171,8 +171,13 @@ const main = async () => {
     console.log("Keys and CSR generated successfully");
 
     // 3. Issue compliance certificate
-    const otp = "625021";
-    const compliance_request_id = await egs.issueComplianceCertificate(otp);
+    const otp = "647065";
+    const complianceCertResult = await egs.issueComplianceCertificate(otp);
+    if (complianceCertResult.isErr()) {
+      console.error("Failed to issue compliance certificate:", complianceCertResult.error);
+      return;
+    }
+    const compliance_request_id = complianceCertResult.value;
     console.log(
       "Compliance certificate issued with request ID:",
       compliance_request_id,
@@ -227,8 +232,13 @@ const main = async () => {
       console.log(`✅ Signed invoice for ${step} generated`);
     }
 
-    const complianceResults =
+    const complianceResultsResult =
       await egs.runComplianceChecksForProduction(complianceChecks);
+    if (complianceResultsResult.isErr()) {
+      console.error("Compliance checks failed:", complianceResultsResult.error);
+      return;
+    }
+    const complianceResults = complianceResultsResult.value;
     REQUIRED_COMPLIANCE_STEPS.forEach((step) => {
       const stepResult = complianceResults[step];
       console.log(
@@ -237,9 +247,14 @@ const main = async () => {
       );
     });
 
-    const production_request_id = await egs.issueProductionCertificate(
+    const productionResult = await egs.issueProductionCertificate(
       compliance_request_id,
     );
+    if (productionResult.isErr()) {
+      console.error("Failed to issue production certificate:", productionResult.error);
+      return;
+    }
+    const production_request_id = productionResult.value;
     console.log(
       "Production certificate issued with request ID:",
       production_request_id,
@@ -256,17 +271,20 @@ const main = async () => {
       acceptWarning: true,
     });
     const reportResult = await reportInvoice.sign(
-      egs.get().compliance_certificate!,
+      egs.get().production_certificate!,
       egs.get().private_key!,
     );
     const signed_invoice_string = reportResult.signedXml;
     const invoice_hash = reportResult.invoiceHash;
-
-    const reportedInvoice = await egs.reportInvoice(
+    const reportedInvoiceResult = await egs.reportInvoice(
       signed_invoice_string,
       invoice_hash,
     );
-    console.log("Invoice reporting status:", reportedInvoice?.reportingStatus);
+    if (reportedInvoiceResult.isErr()) {
+      console.error("Failed to report invoice:", reportedInvoiceResult.error);
+      return;
+    }
+    console.log("Invoice reporting status:", reportedInvoiceResult.value?.reportingStatus);
 
     console.log("Process completed successfully!");
   } catch (error: any) {
