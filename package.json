@@ -1,5 +1,5 @@
 {
-  "name": "zatca-xml-ts",
+  "name": "jaicome-zatca-sdk",
   "version": "0.1.5",
   "description": "An implementation of Saudi Arabia ZATCA's E-Invoicing requirements, processes, and standards.",
   "private": true,
@@ -19,6 +19,7 @@
     "@types/node": "^18.7.16",
     "@types/uuid": "^8.3.4",
     "@types/xmldom": "^0.1.31",
+    "nitro": "npm:nitro-nightly@3.0.1-20260128-211656-ae83c97e",
     "typescript": "^4.8.3",
     "vitest": "^1.0.0"
   },

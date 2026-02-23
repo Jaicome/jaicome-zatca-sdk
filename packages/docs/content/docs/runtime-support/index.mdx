@@ -1,0 +1,55 @@
+---
+title: Runtime Support
+description: Runtime compatibility and constraints for core and server packages.
+---
+
+# Runtime Support and Guarantees
+
+The `@jaicome/zatca` SDK is split into two packages with different runtime
+requirements and guarantees.
+
+## Runtime Matrix
+
+| Runtime | `@jaicome/zatca-core` | `@jaicome/zatca-server` | Notes |
+| --- | --- | --- | --- |
+| Node.js 16+ | Supported | Supported | Full support including signing and EGS lifecycle |
+| Web Browser | Supported | Not supported | Signing remains server-side to protect keys |
+| React Native | Supported | Not supported | Server package depends on Node internals |
+
+## Prerequisites
+
+### `@jaicome/zatca-core`
+
+- Node.js >= 16.0.0 for global `atob`/`btoa`.
+- React Native >= 0.65 for `atob`/`btoa` and `TextEncoder`/`TextDecoder`.
+- Modern browsers (Chrome 67+, Firefox 58+, Safari 13.1+, Edge 79+).
+
+Required APIs:
+
+- `atob` / `btoa`
+- `TextEncoder` / `TextDecoder`
+- ES2020+
+
+### `@jaicome/zatca-server`
+
+Node.js-only requirements:
+
+- `crypto`
+- `child_process`
+- `fs`
+- OpenSSL installed and available in `PATH`
+
+## Runtime Guarantees
+
+### Server-Only Signing
+
+Signing through `NodeSigner` is intentionally server-only.
+
+### Core Portability
+
+`@jaicome/zatca-core` avoids Node-only globals and uses `Uint8Array` for binary
+data, making it portable across browser and React Native environments.
+
+### Versioning
+
+Keep `@jaicome/zatca-core` and `@jaicome/zatca-server` on matching versions.

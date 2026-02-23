@@ -1,0 +1,153 @@
+---
+title: Core + Server Tutorials
+description: Step-by-step tutorials for core-only and core+server flows.
+---
+
+# Core + Server Tutorials
+
+This tutorial set gives practical, end-to-end flows for using
+`@jaicome/zatca-core` and `@jaicome/zatca-server`.
+
+## Tutorial 1: Core-only Invoice Build (Portable)
+
+```bash
+npm install @jaicome/zatca-core
+```
+
+```ts
+import {
+  buildInvoice,
+  generatePhaseOneQR,
+  ZATCAInvoiceTypes,
+  ZATCAPaymentMethods,
+  type ZATCAInvoiceProps,
+} from "@jaicome/zatca-core";
+
+const now = new Date();
+const props: ZATCAInvoiceProps = {
+  egs_info: {
+    uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
+    custom_id: "EGS1",
+    model: "IOS",
+    CRN_number: "7032256278",
+    VAT_name: "Jaicome Information Technology",
+    VAT_number: "311497191800003",
+    branch_name: "Main",
+    branch_industry: "Software",
+  },
+  invoice_counter_number: 1,
+  invoice_serial_number: "EGS1-886431145-101",
+  issue_date: now.toISOString().split("T")[0],
+  issue_time: now.toISOString().split("T")[1].slice(0, 8),
+  previous_invoice_hash:
+    "NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==",
+  line_items: [
+    {
+      id: "1",
+      name: "Sample Product",
+      quantity: 2,
+      tax_exclusive_price: 100,
+      VAT_percent: 0.15,
+    },
+  ],
+  invoice_type: ZATCAInvoiceTypes.INVOICE,
+  invoice_code: "0200000",
+  payment_method: ZATCAPaymentMethods.CASH,
+};
+
+const invoice = buildInvoice(props);
+const xml = invoice.getXML().toString({ no_header: false });
+const phaseOneQr = generatePhaseOneQR(invoice);
+```
+
+## Tutorial 2: Server Signing with `NodeSigner`
+
+```bash
+npm install @jaicome/zatca-core @jaicome/zatca-server
+```
+
+```ts
+import { ZATCAInvoice } from "@jaicome/zatca-core";
+import { NodeSigner } from "@jaicome/zatca-server";
+
+const signer = new NodeSigner(certificatePem);
+const invoice = new ZATCAInvoice({ props, signer, acceptWarning: true });
+const result = await invoice.sign(certificatePem, privateKeyPem);
+```
+
+## Tutorial 3: EGS Onboarding + Compliance + Reporting
+
+```ts
+import { EGS, type EGSUnitInfo } from "@jaicome/zatca-server";
+
+const egsInfo: EGSUnitInfo = {
+  uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
+  custom_id: "EGS2",
+  model: "IOS",
+  CRN_number: "7032256278",
+  VAT_name: "Jaicome Information Technology",
+  VAT_number: "311497191800003",
+  branch_name: "Main",
+  branch_industry: "Software",
+};
+
+const egs = new EGS(egsInfo, "simulation");
+await egs.generateNewKeysAndCSR(false, "solution_name");
+const complianceRequestId = await egs.issueComplianceCertificate(otp);
+await egs.issueProductionCertificate(complianceRequestId);
+```
+
+## Tutorial 4: Production Readiness Compliance Steps
+
+```ts
+import {
+  REQUIRED_COMPLIANCE_STEPS,
+  type ComplianceCheckPayload,
+  type ZATCAComplianceStep,
+} from "@jaicome/zatca-server";
+
+const checks: Partial<Record<ZATCAComplianceStep, ComplianceCheckPayload>> = {
+  "standard-compliant": {
+    signed_invoice_string: signedXmlA,
+    invoice_hash: hashA,
+  },
+  "standard-credit-note-compliant": {
+    signed_invoice_string: signedXmlB,
+    invoice_hash: hashB,
+  },
+  "standard-debit-note-compliant": {
+    signed_invoice_string: signedXmlC,
+    invoice_hash: hashC,
+  },
+  "simplified-compliant": {
+    signed_invoice_string: signedXmlD,
+    invoice_hash: hashD,
+  },
+  "simplified-credit-note-compliant": {
+    signed_invoice_string: signedXmlE,
+    invoice_hash: hashE,
+  },
+  "simplified-debit-note-compliant": {
+    signed_invoice_string: signedXmlF,
+    invoice_hash: hashF,
+  },
+};
+
+const results = await egs.runComplianceChecksForProduction(
+  checks,
+  REQUIRED_COMPLIANCE_STEPS,
+);
+```
+
+## Common Pitfalls
+
+- Importing `@jaicome/zatca-server` in browser/RN code.
+- Sending production credentials to simulation endpoint (or vice versa).
+- Calling `invoice.sign(...)` without injecting a signer.
+
+## Next Docs
+
+- [Core + Server Guide](/docs/core-server-guide)
+- [API Reference](/docs/api-reference)
+- [Runtime Support](/docs/runtime-support)
+- [Validation Errors](/docs/validation-errors)

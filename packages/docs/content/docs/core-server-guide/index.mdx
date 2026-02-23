@@ -1,0 +1,142 @@
+---
+title: Core + Server Guide
+description: Where, how, and why to use the core and server packages.
+---
+
+# Core + Server Guide
+
+This guide explains where each package belongs in your architecture, how to use
+it correctly, and why the split exists.
+
+## Why There Are Two Packages
+
+The SDK is split intentionally:
+
+- `@jaicome/zatca-core` contains portable invoice creation and parsing logic.
+- `@jaicome/zatca-server` contains Node.js-only signing, EGS, and API features.
+
+This protects private keys and avoids shipping Node-only dependencies into
+frontend runtimes.
+
+## Where to Use Each Package
+
+### Use `@jaicome/zatca-core` in
+
+- Browser apps
+- React Native apps
+- Shared libraries
+- Node services that only need XML build/parse and phase-one QR
+
+### Use `@jaicome/zatca-server` in
+
+- Backend services (Node.js)
+- Workers or jobs that sign invoices
+- Systems that onboard EGS and call ZATCA endpoints
+
+## Runtime Matrix
+
+| Runtime | `@jaicome/zatca-core` | `@jaicome/zatca-server` |
+| --- | --- | --- |
+| Node.js | Supported | Supported |
+| Browser | Supported | Not supported |
+| React Native | Supported | Not supported |
+
+## Installation
+
+```bash
+npm install @jaicome/zatca-core @jaicome/zatca-server
+```
+
+If you are building frontend-only code, install only `@jaicome/zatca-core`.
+
+## High-Level Architecture
+
+Typical deployment:
+
+1. Frontend (web/mobile) creates invoice payloads with `@jaicome/zatca-core`.
+2. Frontend sends unsigned invoice XML or business payload to backend.
+3. Backend signs invoice using `@jaicome/zatca-server` (`NodeSigner` or `EGS`).
+4. Backend sends compliance/reporting/clearance requests to ZATCA.
+
+## How to Use `@jaicome/zatca-core`
+
+```ts
+import {
+  buildInvoice,
+  ZATCAInvoiceTypes,
+  ZATCAPaymentMethods,
+  type ZATCAInvoiceProps,
+} from "@jaicome/zatca-core";
+
+const now = new Date();
+const props: ZATCAInvoiceProps = {
+  egs_info: {
+    uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
+    custom_id: "EGS1",
+    model: "IOS",
+    CRN_number: "7032256278",
+    VAT_name: "Jaicome Information Technology",
+    VAT_number: "311497191800003",
+    branch_name: "Main",
+    branch_industry: "Software",
+  },
+  invoice_counter_number: 1,
+  invoice_serial_number: "EGS1-886431145-101",
+  issue_date: now.toISOString().split("T")[0],
+  issue_time: now.toISOString().split("T")[1].slice(0, 8),
+  previous_invoice_hash:
+    "NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==",
+  line_items: [
+    {
+      id: "1",
+      name: "Sample Product",
+      quantity: 2,
+      tax_exclusive_price: 100,
+      VAT_percent: 0.15,
+    },
+  ],
+  invoice_type: ZATCAInvoiceTypes.INVOICE,
+  invoice_code: "0200000",
+  payment_method: ZATCAPaymentMethods.CASH,
+};
+
+const invoice = buildInvoice(props);
+const xml = invoice.getXML().toString({ no_header: false });
+```
+
+## How to Use `@jaicome/zatca-server`
+
+```ts
+import { NodeSigner } from "@jaicome/zatca-server";
+import { ZATCAInvoice } from "@jaicome/zatca-core";
+
+const signer = new NodeSigner(certificatePem);
+const invoice = new ZATCAInvoice({ props, signer, acceptWarning: true });
+const result = await invoice.sign(certificatePem, privateKeyPem);
+```
+
+```ts
+import { EGS } from "@jaicome/zatca-server";
+
+const egs = new EGS(egsUnitInfo, "simulation");
+await egs.generateNewKeysAndCSR(false, "solution_name");
+const complianceRequestId = await egs.issueComplianceCertificate(otp);
+await egs.issueProductionCertificate(complianceRequestId);
+```
+
+## Environment Selection (`EGS`)
+
+`new EGS(info, env)` supports:
+
+- `development` (developer portal base path)
+- `simulation`
+- `production`
+
+Use certificate, secret, and endpoint from the same environment only.
+
+## Related Docs
+
+- [Core + Server Tutorials](/docs/core-server-tutorials)
+- [API Reference](/docs/api-reference)
+- [Runtime Support](/docs/runtime-support)
+- [Validation Errors](/docs/validation-errors)
