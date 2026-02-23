@@ -21,34 +21,32 @@ const settings = {
   PRODUCTION_BASEURL: "https://gw-fatoora.zatca.gov.sa/e-invoicing/core",
 };
 
-type ApiResult<T> = Result<T, ZatcaApiError> & T;
-
 interface ComplianceAPIInterface {
   issueCertificate: (
     csr: string,
     otp: string
-  ) => Promise<ApiResult<IssuedCertificate>>;
+  ) => Promise<Result<IssuedCertificate, ZatcaApiError>>;
   checkInvoiceCompliance: (
     signed_xml_string: string,
     invoice_hash: string,
     egs_uuid: string
-  ) => Promise<ApiResult<InvoiceResponse>>;
+  ) => Promise<Result<InvoiceResponse, ZatcaApiError>>;
 }
 
 interface ProductionAPIInterface {
   issueCertificate: (
     compliance_request_id: string
-  ) => Promise<ApiResult<IssuedCertificate>>;
+  ) => Promise<Result<IssuedCertificate, ZatcaApiError>>;
   reportInvoice: (
     signed_xml_string: string,
     invoice_hash: string,
     egs_uuid: string
-  ) => Promise<ApiResult<InvoiceResponse>>;
+  ) => Promise<Result<InvoiceResponse, ZatcaApiError>>;
   clearanceInvoice: (
     signed_xml_string: string,
     invoice_hash: string,
     egs_uuid: string
-  ) => Promise<ApiResult<InvoiceResponse>>;
+  ) => Promise<Result<InvoiceResponse, ZatcaApiError>>;
 }
 
 class API {
@@ -159,7 +157,7 @@ class API {
     const issueCertificate = async (
       csr: string,
       otp: string
-    ): Promise<ApiResult<IssuedCertificate>> => {
+    ): Promise<Result<IssuedCertificate, ZatcaApiError>> => {
       const headers = {
         "Accept-Version": settings.API_VERSION,
         OTP: otp,
@@ -173,7 +171,7 @@ class API {
       );
 
       if (result.isErr()) {
-        return result as ApiResult<IssuedCertificate>;
+        return result as Result<IssuedCertificate, ZatcaApiError>;
       }
 
       const data = result.value;
@@ -187,14 +185,14 @@ class API {
         issued_certificate,
         api_secret: data.secret,
         request_id: data.requestID,
-      }) as ApiResult<IssuedCertificate>;
+      }) as Result<IssuedCertificate, ZatcaApiError>;
     };
 
     const checkInvoiceCompliance = async (
       signed_xml_string: string,
       invoice_hash: string,
       egs_uuid: string
-    ): Promise<ApiResult<InvoiceResponse>> => {
+    ): Promise<Result<InvoiceResponse, ZatcaApiError>> => {
       const headers = {
         "Accept-Version": settings.API_VERSION,
         "Accept-Language": "en",
@@ -211,7 +209,7 @@ class API {
         headers
       );
 
-      return result as ApiResult<InvoiceResponse>;
+      return result as Result<InvoiceResponse, ZatcaApiError>;
     };
 
     return { issueCertificate, checkInvoiceCompliance };
@@ -228,7 +226,7 @@ class API {
 
     const issueCertificate = async (
       compliance_request_id: string
-    ): Promise<ApiResult<IssuedCertificate>> => {
+    ): Promise<Result<IssuedCertificate, ZatcaApiError>> => {
       const headers = {
         "Accept-Version": settings.API_VERSION,
         ...auth_headers,
@@ -241,7 +239,7 @@ class API {
       );
 
       if (result.isErr()) {
-        return result as ApiResult<IssuedCertificate>;
+        return result as Result<IssuedCertificate, ZatcaApiError>;
       }
 
       const data = result.value;
@@ -255,14 +253,14 @@ class API {
         issued_certificate,
         api_secret: data.secret,
         request_id: data.requestID,
-      }) as ApiResult<IssuedCertificate>;
+      }) as Result<IssuedCertificate, ZatcaApiError>;
     };
 
     const reportInvoice = async (
       signed_xml_string: string,
       invoice_hash: string,
       egs_uuid: string
-    ): Promise<ApiResult<InvoiceResponse>> => {
+    ): Promise<Result<InvoiceResponse, ZatcaApiError>> => {
       const headers = {
         "Accept-Version": settings.API_VERSION,
         "Accept-Language": "en",
@@ -280,14 +278,14 @@ class API {
         headers
       );
 
-      return result as ApiResult<InvoiceResponse>;
+      return result as Result<InvoiceResponse, ZatcaApiError>;
     };
 
     const clearanceInvoice = async (
       signed_xml_string: string,
       invoice_hash: string,
       egs_uuid: string
-    ): Promise<ApiResult<InvoiceResponse>> => {
+    ): Promise<Result<InvoiceResponse, ZatcaApiError>> => {
       const headers = {
         "Accept-Version": settings.API_VERSION,
         "Accept-Language": "en",
@@ -305,7 +303,7 @@ class API {
         headers
       );
 
-      return result as ApiResult<InvoiceResponse>;
+      return result as Result<InvoiceResponse, ZatcaApiError>;
     };
 
     return { issueCertificate, reportInvoice, clearanceInvoice };

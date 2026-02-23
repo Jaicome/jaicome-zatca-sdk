@@ -1,4 +1,5 @@
 import { TaggedError } from "better-result";
+import type { ValidationMessage } from "./types.js";
 
 export class NetworkError extends TaggedError("NetworkError")<{
   url: string;
@@ -24,14 +25,19 @@ export class ApiError extends TaggedError("ApiError")<{
     });
   }
 
-  get validationErrors() {
-    const body = this.body as any;
-    return body?.validationResults?.errorMessages ?? [];
+  private get _bodyAsValidation(): { validationResults?: { errorMessages?: ValidationMessage[]; warningMessages?: ValidationMessage[] } } | null {
+    if (typeof this.body === 'object' && this.body !== null) {
+      return this.body as { validationResults?: { errorMessages?: ValidationMessage[]; warningMessages?: ValidationMessage[] } };
+    }
+    return null;
   }
 
-  get validationWarnings() {
-    const body = this.body as any;
-    return body?.validationResults?.warningMessages ?? [];
+  get validationErrors(): ValidationMessage[] {
+    return this._bodyAsValidation?.validationResults?.errorMessages ?? [];
+  }
+
+  get validationWarnings(): ValidationMessage[] {
+    return this._bodyAsValidation?.validationResults?.warningMessages ?? [];
   }
 }
 
