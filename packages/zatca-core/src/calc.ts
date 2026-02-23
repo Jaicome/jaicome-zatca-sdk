@@ -286,16 +286,24 @@ const constructTaxTotal = (
     );
     taxes_total += tax_amount.toNumber();
 
-    line_item.other_taxes?.map((tax) => {
-      const other_tax_amount = tax.percent_amount * taxable_amount.toNumber();
+    line_item.other_taxes?.forEach((tax) => {
+      const other_tax_amount = new Decimal(
+        roundingNumber(
+          acceptWarning,
+          tax.percent_amount * taxable_amount.toNumber()
+        )
+      );
       addTaxSubtotal(
         taxable_amount.toNumber(),
-        other_tax_amount,
+        other_tax_amount.toNumber(),
         tax.percent_amount
       );
-      taxes_total += other_tax_amount;
+      taxes_total += other_tax_amount.toNumber();
     });
   });
+
+  // BR-CO-15: Apply document-level rounding once after accumulating all line-level VAT amounts
+  taxes_total = parseFloat(new Decimal(taxes_total).toFixed(2));
 
   if (fifteenTaxSubTotal.exist) {
     cacTaxSubtotal.push({
