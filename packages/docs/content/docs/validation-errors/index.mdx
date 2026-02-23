@@ -1,0 +1,55 @@
+---
+title: Validation Errors
+description: ZodValidationError model and handling patterns.
+---
+
+# Validation Error Model
+
+The `@jaicome/zatca` SDK uses Zod for input validation. Invalid payloads throw
+`ZodValidationError` with structured issue details.
+
+## `ZodValidationError`
+
+```ts
+class ZodValidationError extends Error {
+  readonly issues: ZodIssue[];
+  readonly message: string;
+}
+```
+
+Each issue contains:
+
+- `path`: location inside the input payload
+- `message`: human-readable error text
+- `code`: Zod issue code (`invalid_type`, `too_small`, etc.)
+
+## Catching Validation Errors
+
+```ts
+import { buildInvoice, ZodValidationError } from "@jaicome/zatca-core";
+
+try {
+  buildInvoice(invalidProps);
+} catch (error) {
+  if (error instanceof ZodValidationError) {
+    console.error(error.issues);
+  }
+  throw error;
+}
+```
+
+## Validated Boundaries
+
+- `buildInvoice(props)` -> `ZATCAInvoicePropsSchema`
+- `prepareSigningInput(invoice)` -> `SigningInputSchema`
+- `new EGS(info)` -> `EGSUnitInfoSchema`
+
+## Import Paths
+
+```ts
+import { ZodValidationError } from "@jaicome/zatca-core";
+```
+
+```ts
+import { ZodValidationError } from "@jaicome/zatca-server";
+```

@@ -28,6 +28,9 @@
 </div>
 
 
+# Jaicome ZATCA SDK
+
+
 
 # Dependencies
 If you plan on using the built in `EGS` module to generate keys, and CSR. The `EGS` module in the package is dependent on <a href="https://www.openssl.org">OpenSSL</a> being installed in the system it's running on. It's being used to generate an `ECDSA` key pair using the `secp256k1` curve. also to generate and sign a CSR.
@@ -46,7 +49,7 @@ All tha main futures required to on-board a new EGS. Create, sign, and report a 
     - Reporting.
 
 # Installation
-> **Package-only policy**: The root `zatca-xml-js` package is no longer published. Use `@jaicome/zatca-core` and `@jaicome/zatca-server` for all new projects.
+> **Package-only policy**: The root `jaicome-zatca-sdk` package is not published. Use `@jaicome/zatca-core` and `@jaicome/zatca-server` for all new projects.
 
 ```bash
 npm install @jaicome/zatca-core @jaicome/zatca-server
@@ -58,10 +61,10 @@ The package is now being evolved as a scoped monorepo for better portability and
 *   **[@jaicome/zatca-core](https://github.com/Repzo/zatca-xml-js/tree/main/packages/zatca-core)**: Universal logic for building and parsing invoices. Compatible with browsers, React Native, and Node.js.
 *   **[@jaicome/zatca-server](https://github.com/Repzo/zatca-xml-js/tree/main/packages/zatca-server)**: Node.js specific logic for signing, EGS on-boarding, and ZATCA HTTP API integration.
 
-Check out the [Migration Guide](/docs/MIGRATION.md) and [Runtime Support](/docs/RUNTIME_SUPPORT.md) documentation for more details.
+Check out the [Core + Server Guide](/docs/core-server-guide), [Core + Server Tutorials](/docs/core-server-tutorials), and [Runtime Support](/docs/runtime-support) documentation for more details.
 
 # Usage
-View the [Migration Guide](/docs/MIGRATION.md) for a full walkthrough.
+Start with the [Core + Server Guide](/docs/core-server-guide) for architecture and package boundaries, then follow the [Core + Server Tutorials](/docs/core-server-tutorials) for end-to-end flows.
 
 **Server-side (Node.js)**
 ```typescript
@@ -108,7 +111,7 @@ await egs.issueProductionCertificate(compliance_rid);
     - NIST SP 56A
 
 # Notice of Non-Affiliation and Disclaimer
-`zatca-xml-js` is not affiliated, associated, authorized, endorsed by, or in any way officially connected with ZATCA (Zakat, Tax and Customs Authority), or any of its subsidiaries or its affiliates. The official ZATCA website can be found at https://zatca.gov.sa.
+`jaicome-zatca-sdk` is not affiliated, associated, authorized, endorsed by, or in any way officially connected with ZATCA (Zakat, Tax and Customs Authority), or any of its subsidiaries or its affiliates. The official ZATCA website can be found at https://zatca.gov.sa.
 
 # Contribution
 All contributions are appreciated.
@@ -117,6 +120,3 @@ All contributions are appreciated.
 - CSIDs renewal, revoking.
 - Populating templates using a template engine instead of `replace`
 - Getting ZATCA to hopefully minify the XMLs before hashing ?
-
-
-

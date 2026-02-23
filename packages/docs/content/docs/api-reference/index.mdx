@@ -1,0 +1,94 @@
+---
+title: API Reference
+description: Public APIs of @jaicome/zatca-core and @jaicome/zatca-server.
+---
+
+# API Reference
+
+This reference documents the public APIs of `@jaicome/zatca-core` and
+`@jaicome/zatca-server` based on the current exported source code.
+
+## `@jaicome/zatca-core`
+
+### Core API
+
+- `buildInvoice(props: ZATCAInvoiceProps, signer?: Signer): ZATCAInvoice`
+- `parseInvoice(xml: string, signer?: Signer): ZATCAInvoice`
+- `prepareSigningInput(invoice: ZATCAInvoice): SigningInput`
+- `generatePhaseOneQR(invoice: ZATCAInvoice): string`
+
+### Classes
+
+- `class ZATCAInvoice`
+  - `getXML(): XMLDocument`
+  - `sign(certificate_string: string, private_key_string: string): Promise<SignatureResult>`
+- `class XMLDocument`
+  - `get(path_query?: string, condition?: any): XMLQueryResult`
+  - `delete(path_query?: string, condition?: any): boolean`
+  - `set(path_query: string, overwrite: boolean, set_xml: XMLObject | string): boolean`
+  - `toString({ no_header?: boolean }): string`
+
+### Contracts and Types
+
+- `SigningInput`
+- `SignatureResult`
+- `SignedInvoiceArtifacts`
+- `Signer`
+- `RuntimeCapabilities`
+- `DEFAULT_RUNTIME_CAPABILITIES`
+
+### Validation exports
+
+- `ZodValidationError`
+- `ZATCAInvoicePropsSchema`
+- `ZATCAInvoiceLineItemSchema`
+- `EGSUnitInfoSchema`
+- `EGSUnitLocationSchema`
+- `EGSUnitCustomerInfoSchema`
+- `SigningInputSchema`
+
+## `@jaicome/zatca-server`
+
+### Classes
+
+- `class NodeSigner implements Signer`
+  - `sign(input: SigningInput): Promise<SignatureResult>`
+- `class EGS`
+  - `get()`
+  - `set(egs_info: Partial<EGSUnitInfo>)`
+  - `generateNewKeysAndCSR(production: boolean, solution_name: string): Promise<void>`
+  - `issueComplianceCertificate(OTP: string): Promise<string>`
+  - `issueProductionCertificate(compliance_request_id: string): Promise<string>`
+  - `checkInvoiceCompliance(signed_invoice_string: string, invoice_hash: string): Promise<any>`
+  - `runComplianceChecksForProduction(checks, required_steps?): Promise<Record<ZATCAComplianceStep, any>>`
+  - `reportInvoice(signed_invoice_string: string, invoice_hash: string): Promise<any>`
+  - `clearanceInvoice(signed_invoice_string: string, invoice_hash: string): Promise<any>`
+  - `signInvoice(invoice: ZATCAInvoice, production?: boolean): { signed_invoice_string, invoice_hash, qr }`
+
+### Signing utilities
+
+- `getPureInvoiceString(invoice_xml: XMLDocument): string`
+- `getInvoiceHash(invoice_xml: XMLDocument): string`
+- `getCertificateHash(certificate_string: string): string`
+- `createInvoiceDigitalSignature(invoice_hash: string, private_key_string: string): string`
+- `getCertificateInfo(certificate_string: string): { hash, issuer, serial_number, public_key, signature }`
+- `cleanUpCertificateString(certificate_string: string): string`
+- `cleanUpPrivateKeyString(private_key_string: string): string`
+- `generateSignedXMLString(params: GenerateSignedXMLStringParams): SignedXMLResult`
+
+### QR utilities
+
+- `generateQR(params): string`
+- `generatePhaseOneQR({ invoice_xml }): string`
+
+### EGS constants and types
+
+- `REQUIRED_COMPLIANCE_STEPS`
+- `ZATCAComplianceStep`
+- `ComplianceCheckPayload`
+- `EGSUnitInfo`, `EGSUnitLocation`, `EGSUnitCustomerInfo`
+
+### Re-exports from core
+
+- `ZodValidationError`
+- `EGSUnitInfoSchema`
