@@ -27,25 +27,25 @@ interface ComplianceAPIInterface {
     otp: string
   ) => Promise<Result<IssuedCertificate, ZatcaApiError>>;
   checkInvoiceCompliance: (
-    signed_xml_string: string,
-    invoice_hash: string,
-    egs_uuid: string
+    signedXmlString: string,
+    invoiceHash: string,
+    egsId: string
   ) => Promise<Result<InvoiceResponse, ZatcaApiError>>;
 }
 
 interface ProductionAPIInterface {
   issueCertificate: (
-    compliance_request_id: string
+    complianceRequestId: string
   ) => Promise<Result<IssuedCertificate, ZatcaApiError>>;
   reportInvoice: (
-    signed_xml_string: string,
-    invoice_hash: string,
-    egs_uuid: string
+    signedXmlString: string,
+    invoiceHash: string,
+    egsId: string
   ) => Promise<Result<InvoiceResponse, ZatcaApiError>>;
   clearanceInvoice: (
-    signed_xml_string: string,
-    invoice_hash: string,
-    egs_uuid: string
+    signedXmlString: string,
+    invoiceHash: string,
+    egsId: string
   ) => Promise<Result<InvoiceResponse, ZatcaApiError>>;
 }
 
@@ -146,8 +146,8 @@ class API {
   }
 
   compliance(certificate?: string, secret?: string): ComplianceAPIInterface {
-    const auth_headers = this.getAuthHeaders(certificate, secret);
-    const base_url =
+    const authHeaders = this.getAuthHeaders(certificate, secret);
+    const baseUrl =
       this.env === "production"
         ? settings.PRODUCTION_BASEURL
         : this.env === "simulation"
@@ -161,11 +161,11 @@ class API {
       const headers = {
         "Accept-Version": settings.API_VERSION,
         OTP: otp,
-        ...auth_headers,
+        ...authHeaders,
       };
 
       const result = await this.fetchJson<CertificateResponse>(
-        `${base_url}/compliance`,
+        `${baseUrl}/compliance`,
         { csr: Buffer.from(csr).toString("base64") },
         headers
       );
@@ -189,22 +189,22 @@ class API {
     };
 
     const checkInvoiceCompliance = async (
-      signed_xml_string: string,
-      invoice_hash: string,
-      egs_uuid: string
+      signedXmlString: string,
+      invoiceHash: string,
+      egsId: string
     ): Promise<Result<InvoiceResponse, ZatcaApiError>> => {
       const headers = {
         "Accept-Version": settings.API_VERSION,
         "Accept-Language": "en",
-        ...auth_headers,
+        ...authHeaders,
       };
 
       const result = await this.fetchJson<InvoiceResponse>(
-        `${base_url}/compliance/invoices`,
+        `${baseUrl}/compliance/invoices`,
         {
-          invoiceHash: invoice_hash,
-          uuid: egs_uuid,
-          invoice: Buffer.from(signed_xml_string).toString("base64"),
+          invoiceHash: invoiceHash,
+          uuid: egsId,
+          invoice: Buffer.from(signedXmlString).toString("base64"),
         },
         headers
       );
@@ -216,8 +216,8 @@ class API {
   }
 
   production(certificate?: string, secret?: string): ProductionAPIInterface {
-    const auth_headers = this.getAuthHeaders(certificate, secret);
-    const base_url =
+    const authHeaders = this.getAuthHeaders(certificate, secret);
+    const baseUrl =
       this.env === "production"
         ? settings.PRODUCTION_BASEURL
         : this.env === "simulation"
@@ -225,15 +225,15 @@ class API {
         : settings.SANDBOX_BASEURL;
 
     const issueCertificate = async (
-      compliance_request_id: string
+      complianceRequestId: string
     ): Promise<Result<IssuedCertificate, ZatcaApiError>> => {
       const headers = {
         "Accept-Version": settings.API_VERSION,
-        ...auth_headers,
+        ...authHeaders,
       };
 
       const result = await this.fetchJson<CertificateResponse>(
-        `${base_url}/production/csids`,
+        `${baseUrl}/production/csids`,
         { compliance_request_id },
         headers
       );
@@ -257,23 +257,23 @@ class API {
     };
 
     const reportInvoice = async (
-      signed_xml_string: string,
-      invoice_hash: string,
-      egs_uuid: string
+      signedXmlString: string,
+      invoiceHash: string,
+      egsId: string
     ): Promise<Result<InvoiceResponse, ZatcaApiError>> => {
       const headers = {
         "Accept-Version": settings.API_VERSION,
         "Accept-Language": "en",
         "Clearance-Status": "0",
-        ...auth_headers,
+        ...authHeaders,
       };
 
       const result = await this.fetchJson<InvoiceResponse>(
-        `${base_url}/invoices/reporting/single`,
+        `${baseUrl}/invoices/reporting/single`,
         {
-          invoiceHash: invoice_hash,
-          uuid: egs_uuid,
-          invoice: Buffer.from(signed_xml_string).toString("base64"),
+          invoiceHash: invoiceHash,
+          uuid: egsId,
+          invoice: Buffer.from(signedXmlString).toString("base64"),
         },
         headers
       );
@@ -282,23 +282,23 @@ class API {
     };
 
     const clearanceInvoice = async (
-      signed_xml_string: string,
-      invoice_hash: string,
-      egs_uuid: string
+      signedXmlString: string,
+      invoiceHash: string,
+      egsId: string
     ): Promise<Result<InvoiceResponse, ZatcaApiError>> => {
       const headers = {
         "Accept-Version": settings.API_VERSION,
         "Accept-Language": "en",
         "Clearance-Status": "1",
-        ...auth_headers,
+        ...authHeaders,
       };
 
       const result = await this.fetchJson<InvoiceResponse>(
-        `${base_url}/invoices/clearance/single`,
+        `${baseUrl}/invoices/clearance/single`,
         {
-          invoiceHash: invoice_hash,
-          uuid: egs_uuid,
-          invoice: Buffer.from(signed_xml_string).toString("base64"),
+          invoiceHash: invoiceHash,
+          uuid: egsId,
+          invoice: Buffer.from(signedXmlString).toString("base64"),
         },
         headers
       );

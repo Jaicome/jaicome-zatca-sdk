@@ -1,31 +1,32 @@
 import Mustache from "mustache";
+import type { EGSInfo, CustomerInfo } from "../schemas/index.js";
 
 const template = /* XML */ `
 <?xml version="1.0" encoding="UTF-8"?>
 <Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2"><ext:UBLExtensions>SET_UBL_EXTENSIONS_STRING</ext:UBLExtensions>
     
     <cbc:ProfileID>reporting:1.0</cbc:ProfileID>
-    <cbc:ID>{{{invoice_serial_number}}}</cbc:ID>
-    <cbc:UUID>{{{egs_info.uuid}}}</cbc:UUID>
-    <cbc:IssueDate>{{{issue_date}}}</cbc:IssueDate>
-    <cbc:IssueTime>{{{issue_time}}}</cbc:IssueTime>
-    <cbc:InvoiceTypeCode name="{{{invoice_code}}}">{{{invoice_type}}}</cbc:InvoiceTypeCode>
+    <cbc:ID>{{{invoiceSerialNumber}}}</cbc:ID>
+    <cbc:UUID>{{{egsInfo.id}}}</cbc:UUID>
+    <cbc:IssueDate>{{{issueDate}}}</cbc:IssueDate>
+    <cbc:IssueTime>{{{issueTime}}}</cbc:IssueTime>
+    <cbc:InvoiceTypeCode name="{{{invoiceCode}}}">{{{invoiceType}}}</cbc:InvoiceTypeCode>
     <cbc:DocumentCurrencyCode>SAR</cbc:DocumentCurrencyCode>
     <cbc:TaxCurrencyCode>SAR</cbc:TaxCurrencyCode>
     {{#cancelation}}
     <cac:BillingReference>
         <cac:InvoiceDocumentReference>
-            <cbc:ID>{{{cancelation.canceled_serial_invoice_number}}}</cbc:ID>
+            <cbc:ID>{{{cancelation.canceledSerialInvoiceNumber}}}</cbc:ID>
         </cac:InvoiceDocumentReference>
     </cac:BillingReference>
     {{/cancelation}}
     <cac:AdditionalDocumentReference>
         <cbc:ID>ICV</cbc:ID>
-        <cbc:UUID>{{{invoice_counter_number}}}</cbc:UUID>
+        <cbc:UUID>{{{invoiceCounterNumber}}}</cbc:UUID>
     </cac:AdditionalDocumentReference><cac:AdditionalDocumentReference>
         <cbc:ID>PIH</cbc:ID>
         <cac:Attachment>
-            <cbc:EmbeddedDocumentBinaryObject mimeCode="text/plain">{{{previous_invoice_hash}}}</cbc:EmbeddedDocumentBinaryObject>
+            <cbc:EmbeddedDocumentBinaryObject mimeCode="text/plain">{{{previousInvoiceHash}}}</cbc:EmbeddedDocumentBinaryObject>
         </cac:Attachment>
     </cac:AdditionalDocumentReference>
     <cac:AdditionalDocumentReference>
@@ -41,105 +42,105 @@ const template = /* XML */ `
     <cac:AccountingSupplierParty>
     <cac:Party>
       <cac:PartyIdentification>
-        <cbc:ID schemeID="CRN">{{{egs_info.CRN_number}}}</cbc:ID>
+        <cbc:ID schemeID="CRN">{{{crnNumber}}}</cbc:ID>
       </cac:PartyIdentification>
       <cac:PostalAddress>
-      {{#egs_info.location.street}}
-        <cbc:StreetName>{{{egs_info.location.street}}}</cbc:StreetName>
-      {{/egs_info.location.street}}
-      {{#egs_info.location.building}}
-        <cbc:BuildingNumber>{{{egs_info.location.building}}}</cbc:BuildingNumber>
-      {{/egs_info.location.building}}
-      {{#egs_info.location.plot_identification}}
-        <cbc:PlotIdentification>{{{egs_info.location.plot_identification}}}</cbc:PlotIdentification>
-      {{/egs_info.location.plot_identification}}
-      {{#egs_info.location.city_subdivision}}
-        <cbc:CitySubdivisionName>{{{egs_info.location.city_subdivision}}}</cbc:CitySubdivisionName>
-      {{/egs_info.location.city_subdivision}}
-      {{#egs_info.location.city}}
-        <cbc:CityName>{{{egs_info.location.city}}}</cbc:CityName>
-      {{/egs_info.location.city}}
-      {{#egs_info.location.postal_zone}}
-        <cbc:PostalZone>{{{egs_info.location.postal_zone}}}</cbc:PostalZone>
-      {{/egs_info.location.postal_zone}}
+      {{#egsInfo.location.street}}
+        <cbc:StreetName>{{{egsInfo.location.street}}}</cbc:StreetName>
+      {{/egsInfo.location.street}}
+      {{#egsInfo.location.building}}
+        <cbc:BuildingNumber>{{{egsInfo.location.building}}}</cbc:BuildingNumber>
+      {{/egsInfo.location.building}}
+      {{#egsInfo.location.plotIdentification}}
+        <cbc:PlotIdentification>{{{egsInfo.location.plotIdentification}}}</cbc:PlotIdentification>
+      {{/egsInfo.location.plotIdentification}}
+      {{#egsInfo.location.citySubdivision}}
+        <cbc:CitySubdivisionName>{{{egsInfo.location.citySubdivision}}}</cbc:CitySubdivisionName>
+      {{/egsInfo.location.citySubdivision}}
+      {{#egsInfo.location.city}}
+        <cbc:CityName>{{{egsInfo.location.city}}}</cbc:CityName>
+      {{/egsInfo.location.city}}
+      {{#egsInfo.location.postalZone}}
+        <cbc:PostalZone>{{{egsInfo.location.postalZone}}}</cbc:PostalZone>
+      {{/egsInfo.location.postalZone}}
         <cac:Country>
           <cbc:IdentificationCode>SA</cbc:IdentificationCode>
         </cac:Country>
       </cac:PostalAddress>
       <cac:PartyTaxScheme>
-        <cbc:CompanyID>{{{egs_info.VAT_number}}}</cbc:CompanyID>
+        <cbc:CompanyID>{{{egsInfo.vatNumber}}}</cbc:CompanyID>
         <cac:TaxScheme>
           <cbc:ID>VAT</cbc:ID>
         </cac:TaxScheme>
       </cac:PartyTaxScheme>
       <cac:PartyLegalEntity>
-        <cbc:RegistrationName>{{{egs_info.VAT_name}}}</cbc:RegistrationName>
+        <cbc:RegistrationName>{{{egsInfo.vatName}}}</cbc:RegistrationName>
       </cac:PartyLegalEntity>
     </cac:Party>
   </cac:AccountingSupplierParty>
   <cac:AccountingCustomerParty>
-  {{#egs_info.customer_info}}
+  {{#customerInfo}}
     <cac:Party>
         <cac:PartyIdentification>
-          <cbc:ID schemeID="CRN">{{{egs_info.customer_info.customer_crn_number}}}</cbc:ID>
+          <cbc:ID schemeID="CRN">{{{customerInfo.customerCrnNumber}}}</cbc:ID>
         </cac:PartyIdentification>
         <cac:PostalAddress>
-          {{#egs_info.customer_info.street}}
-            <cbc:StreetName>{{{egs_info.customer_info.street}}}</cbc:StreetName>
-          {{/egs_info.customer_info.street}}
-          {{#egs_info.customer_info.additional_street}}
-            <cbc:AdditionalStreetName>{{{egs_info.customer_info.additional_street}}}</cbc:AdditionalStreetName>
-          {{/egs_info.customer_info.additional_street}}
-          {{#egs_info.customer_info.building}}
-            <cbc:BuildingNumber>{{{egs_info.customer_info.building}}}</cbc:BuildingNumber>
-          {{/egs_info.customer_info.building}}
-          {{#egs_info.customer_info.plot_identification}}
-            <cbc:PlotIdentification>{{{egs_info.customer_info.plot_identification}}}</cbc:PlotIdentification>
-          {{/egs_info.customer_info.plot_identification}}
-          {{#egs_info.customer_info.city_subdivision}}
-            <cbc:CitySubdivisionName>{{{egs_info.customer_info.city_subdivision}}}</cbc:CitySubdivisionName>
-          {{/egs_info.customer_info.city_subdivision}}
-          {{#egs_info.customer_info.city}}
-            <cbc:CityName>{{{egs_info.customer_info.city}}}</cbc:CityName>
-          {{/egs_info.customer_info.city}}
-          {{#egs_info.customer_info.postal_zone}}
-            <cbc:PostalZone>{{{egs_info.customer_info.postal_zone}}}</cbc:PostalZone>
-          {{/egs_info.customer_info.postal_zone}}
-          {{#egs_info.customer_info.country_sub_entity}}
-            <cbc:CountrySubentity>{{{egs_info.customer_info.country_sub_entity}}}</cbc:CountrySubentity>
-          {{/egs_info.customer_info.country_sub_entity}}
+          {{#customerInfo.street}}
+            <cbc:StreetName>{{{customerInfo.street}}}</cbc:StreetName>
+          {{/customerInfo.street}}
+          {{#customerInfo.additionalStreet}}
+            <cbc:AdditionalStreetName>{{{customerInfo.additionalStreet}}}</cbc:AdditionalStreetName>
+          {{/customerInfo.additionalStreet}}
+          {{#customerInfo.building}}
+            <cbc:BuildingNumber>{{{customerInfo.building}}}</cbc:BuildingNumber>
+          {{/customerInfo.building}}
+          {{#customerInfo.plotIdentification}}
+            <cbc:PlotIdentification>{{{customerInfo.plotIdentification}}}</cbc:PlotIdentification>
+          {{/customerInfo.plotIdentification}}
+          {{#customerInfo.citySubdivision}}
+            <cbc:CitySubdivisionName>{{{customerInfo.citySubdivision}}}</cbc:CitySubdivisionName>
+          {{/customerInfo.citySubdivision}}
+          {{#customerInfo.city}}
+            <cbc:CityName>{{{customerInfo.city}}}</cbc:CityName>
+          {{/customerInfo.city}}
+          {{#customerInfo.postalZone}}
+            <cbc:PostalZone>{{{customerInfo.postalZone}}}</cbc:PostalZone>
+          {{/customerInfo.postalZone}}
+          {{#customerInfo.countrySubEntity}}
+            <cbc:CountrySubentity>{{{customerInfo.countrySubEntity}}}</cbc:CountrySubentity>
+          {{/customerInfo.countrySubEntity}}
             <cac:Country>
                 <cbc:IdentificationCode>SA</cbc:IdentificationCode>
             </cac:Country>
         </cac:PostalAddress>
-        {{#egs_info.customer_info.vat_number}}
+        {{#customerInfo.vatNumber}}
         <cac:PartyTaxScheme>
-          <cbc:CompanyID>{{{egs_info.customer_info.vat_number}}}</cbc:CompanyID>
+          <cbc:CompanyID>{{{customerInfo.vatNumber}}}</cbc:CompanyID>
           <cac:TaxScheme>
             <cbc:ID>VAT</cbc:ID>
           </cac:TaxScheme>
         </cac:PartyTaxScheme>
-        {{/egs_info.customer_info.vat_number}}
+        {{/customerInfo.vatNumber}}
         <cac:PartyLegalEntity>
-            <cbc:RegistrationName>{{{egs_info.customer_info.buyer_name}}}</cbc:RegistrationName>
+            <cbc:RegistrationName>{{{customerInfo.buyerName}}}</cbc:RegistrationName>
         </cac:PartyLegalEntity>
     </cac:Party>
-  {{/egs_info.customer_info}}
+  {{/customerInfo}}
   </cac:AccountingCustomerParty>
-  {{#actual_delivery_date}}
+  {{#actualDeliveryDate}}
   <cac:Delivery>
-    <cbc:ActualDeliveryDate>{{{actual_delivery_date}}}</cbc:ActualDeliveryDate>
-    {{#latest_delivery_date}}
-    <cbc:LatestDeliveryDate>{{{latest_delivery_date}}}</cbc:LatestDeliveryDate>
-    {{/latest_delivery_date}}
+    <cbc:ActualDeliveryDate>{{{actualDeliveryDate}}}</cbc:ActualDeliveryDate>
+    {{#latestDeliveryDate}}
+    <cbc:LatestDeliveryDate>{{{latestDeliveryDate}}}</cbc:LatestDeliveryDate>
+    {{/latestDeliveryDate}}
   </cac:Delivery>
-  {{/actual_delivery_date}}
+  {{/actualDeliveryDate}}
   {{^cancelation}}
-  {{#payment_method}}
+  {{#paymentMethod}}
   <cac:PaymentMeans>
-    <cbc:PaymentMeansCode>{{{payment_method}}}</cbc:PaymentMeansCode>
+    <cbc:PaymentMeansCode>{{{paymentMethod}}}</cbc:PaymentMeansCode>
   </cac:PaymentMeans>
-  {{/payment_method}}
+  {{/paymentMethod}}
   {{/cancelation}}
 </Invoice>`;
 
@@ -162,7 +163,7 @@ export interface ZATCAInvoiceLineItemDiscount {
 }
 
 export interface ZATCAInvoiceLineItemTax {
-  percent_amount: number;
+  percentAmount: number;
 }
 
 interface InvoiceLineItem {
@@ -198,77 +199,39 @@ export interface ZATCAInvoiceCancellation {
 /** @deprecated Use ZATCAInvoiceCancellation instead */
 export type ZATCAInvoicCancelation = ZATCAInvoiceCancellation;
 
-export interface EGSUnitLocation {
-  city?: string;
-  city_subdivision?: string;
-  street?: string;
-  plot_identification?: string;
-  building?: string;
-  postal_zone?: string;
+
+
+interface ZatcaInvoiceBase {
+  egsInfo: EGSInfo;
+  crnNumber: string;
+  customerInfo?: CustomerInfo;
+  invoiceCounterNumber: number;
+  invoiceSerialNumber: string;
+  issueDate: string;
+  issueTime: string;
+  previousInvoiceHash: string;
+  lineItems: ZATCAInvoiceLineItem[];
 }
 
-export interface EGSUnitCustomerInfo {
-  city?: string;
-  city_subdivision?: string;
-  street?: string;
-  additional_street?: string;
-  plot_identification?: string;
-  building?: string;
-  postal_zone?: string;
-  country_sub_entity?: string;
-  buyer_name: string;
-  customer_crn_number?: string;
-  vat_number?: string;
-}
-
-export interface EGSUnitInfo {
-  uuid: string;
-  custom_id: string;
-  model: string;
-  CRN_number: string;
-  VAT_name: string;
-  VAT_number: string;
-  branch_name: string;
-  branch_industry: string;
-  location?: EGSUnitLocation;
-  customer_info?: EGSUnitCustomerInfo;
-  private_key?: string;
-  csr?: string;
-  compliance_certificate?: string;
-  compliance_api_secret?: string;
-  production_certificate?: string;
-  production_api_secret?: string;
-}
-
-interface ZatcaInvoice {
-  egs_info: EGSUnitInfo;
-  invoice_counter_number: number;
-  invoice_serial_number: string;
-  issue_date: string;
-  issue_time: string;
-  previous_invoice_hash: string;
-  line_items: ZATCAInvoiceLineItem[];
-}
-
-type CreditDebitInvoice = ZatcaInvoice & {
-  invoice_type: ZATCAInvoiceTypes.CREDIT_NOTE | ZATCAInvoiceTypes.DEBIT_NOTE;
+type CreditDebitInvoice = ZatcaInvoiceBase & {
+  invoiceType: ZATCAInvoiceTypes.CREDIT_NOTE | ZATCAInvoiceTypes.DEBIT_NOTE;
   cancelation: ZATCAInvoiceCancellation;
 };
 
-type CashInvoice = ZatcaInvoice & {
-  invoice_type: ZATCAInvoiceTypes.INVOICE;
-  actual_delivery_date?: string;
-  latest_delivery_date?: string;
-  payment_method?: "10" | "30" | "42" | "48";
+type CashInvoice = ZatcaInvoiceBase & {
+  invoiceType: ZATCAInvoiceTypes.INVOICE;
+  actualDeliveryDate?: string;
+  latestDeliveryDate?: string;
+  paymentMethod?: "10" | "30" | "42" | "48";
 };
 
 type TaxInvoice = (CashInvoice | CreditDebitInvoice) & {
-  invoice_code: "0100000";
-  actual_delivery_date?: string;
+  invoiceCode: "0100000";
+  actualDeliveryDate?: string;
 };
 
 type SimplifiedInvoice = (CashInvoice | CreditDebitInvoice) & {
-  invoice_code: "0200000";
+  invoiceCode: "0200000";
 };
 
 export type ZATCAInvoiceProps = SimplifiedInvoice | TaxInvoice;

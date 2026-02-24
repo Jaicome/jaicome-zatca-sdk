@@ -3,8 +3,8 @@ import { v4 as uuidv4 } from 'uuid';
 import fs from "fs";
 
 import { Result } from "better-result";
-import { ZATCAInvoice } from "@jaicome/zatca-core";
-import { EGSUnitInfoSchema, ZodValidationError } from "@jaicome/zatca-core";
+import { ZATCAInvoice, type EGSInfo, type EGSLocation } from "@jaicome/zatca-core";
+import { EGSInfoSchema, ZodValidationError } from "@jaicome/zatca-core";
 import API from "../api/index.js";
 import type { ZatcaApiError, InvoiceResponse } from "../api/index.js";
 import { generateSignedXMLString } from "../signing/index.js";
@@ -92,47 +92,6 @@ const buildCSRConfig = (props: CSRConfigProps): string => {
     return t;
 };
 
-export interface EGSUnitLocation {
-  city?: string;
-  city_subdivision?: string;
-  street?: string;
-  plot_identification?: string;
-  building?: string;
-  postal_zone?: string;
-}
-
-export interface EGSUnitCustomerInfo {
-  city?: string;
-  city_subdivision?: string;
-  street?: string;
-  additional_street?: string;
-  plot_identification?: string;
-  building?: string;
-  postal_zone?: string;
-  country_sub_entity?: string;
-  buyer_name: string;
-  customer_crn_number?: string;
-  vat_number?: string;
-}
-
-export interface EGSUnitInfo {
-    uuid: string,
-    custom_id: string,
-    model: string,
-    CRN_number: string,
-    VAT_name: string,
-    VAT_number: string,
-    branch_name: string,
-    branch_industry: string,
-    location?: EGSUnitLocation,
-    customer_info?: EGSUnitCustomerInfo,
-    private_key?: string,
-    csr?: string,
-    compliance_certificate?: string,
-    compliance_api_secret?: string,
-    production_certificate?: string,
-    production_api_secret?: string,
-}
 
 export type ZATCAComplianceStep =
     | "standard-compliant"
@@ -143,8 +102,8 @@ export type ZATCAComplianceStep =
     | "simplified-debit-note-compliant";
 
 export interface ComplianceCheckPayload {
-    signed_invoice_string: string,
-    invoice_hash: string,
+    signedInvoiceString: string,
+    invoiceHash: string,
 }
 
 export const REQUIRED_COMPLIANCE_STEPS: readonly ZATCAComplianceStep[] = [
@@ -184,22 +143,22 @@ const generatePrime256v1KeyPair = async (): Promise<string> => {
     return private_key;
 }
 
-const generateCSR = async (egs_info: EGSUnitInfo, production: boolean, solution_name: string): Promise<string> => {
-    if (!egs_info.private_key) throw new Error("EGS has no private key");
+const generateCSR = async (info: EGSInfo, privateKey: string, production: boolean, solution_name: string): Promise<string> => {
+    if (!privateKey) throw new Error("EGS has no private key");
 
     const private_key_file = `${process.env.TEMP_FOLDER ?? "/tmp/"}${uuidv4()}.pem`;
     const csr_config_file = `${process.env.TEMP_FOLDER ?? "/tmp/"}${uuidv4()}.cnf`;
-    fs.writeFileSync(private_key_file, egs_info.private_key);
+    fs.writeFileSync(private_key_file, privateKey);
     fs.writeFileSync(csr_config_file, buildCSRConfig({
-        egsModel: egs_info.model,
-        egsSerialNumber: egs_info.uuid,
+        egsModel: info.model,
+        egsSerialNumber: info.id,
         solutionName: solution_name,
-        vatNumber: egs_info.VAT_number,
-        branchLocation: `${egs_info.location?.building} ${egs_info.location?.street}, ${egs_info.location?.city}`,
-        branchIndustry: egs_info.branch_industry,
-        branchName: egs_info.branch_name,
-        taxpayerName: egs_info.VAT_name,
-        taxpayerProvidedId: egs_info.custom_id,
+        vatNumber: info.vatNumber,
+        branchLocation: `${info.location?.building} ${info.location?.street}, ${info.location?.city}`,
+        branchIndustry: info.branchIndustry,
+        branchName: info.branchName,
+        taxpayerName: info.vatName,
+        taxpayerProvidedId: info.name,
         production: production
     }));
     
@@ -222,65 +181,124 @@ const generateCSR = async (egs_info: EGSUnitInfo, production: boolean, solution_
 }
 
 
+export interface EGSSnapshot {
+    info: EGSInfo,
+    privateKey?: string,
+    csr?: string,
+    complianceCertificate?: string,
+    complianceApiSecret?: string,
+    productionCertificate?: string,
+    productionApiSecret?: string,
+}
+
 export class EGS {
 
-    private egs_info: EGSUnitInfo;
+    private info: EGSInfo;
     private api: API;
+    private privateKey?: string;
+    private csr?: string;
+    private complianceCertificate?: string;
+    private complianceApiSecret?: string;
+    private productionCertificate?: string;
+    private productionApiSecret?: string;
 
-    constructor(egs_info: EGSUnitInfo, env: "production" | "simulation" | "development" = "development") {
-        const result = EGSUnitInfoSchema.safeParse(egs_info);
+    constructor(info: EGSInfo, env: "production" | "simulation" | "development" = "development") {
+        const result = EGSInfoSchema.safeParse(info);
         if (!result.success) {
             throw new ZodValidationError(result.error.issues);
         }
-        this.egs_info = egs_info;
+        this.info = info;
         this.api = new API(env);
     }
 
-    get() {
-        return this.egs_info;
+    getInfo(): EGSInfo {
+        return this.info;
     }
 
-    set(egs_info: Partial<EGSUnitInfo>) {
-        this.egs_info = {...this.egs_info, ...egs_info};
+    getPrivateKey(): string | undefined {
+        return this.privateKey;
+    }
+
+    getCsr(): string | undefined {
+        return this.csr;
+    }
+
+    getComplianceCertificate(): string | undefined {
+        return this.complianceCertificate;
+    }
+
+    getComplianceApiSecret(): string | undefined {
+        return this.complianceApiSecret;
+    }
+
+    getProductionCertificate(): string | undefined {
+        return this.productionCertificate;
+    }
+
+    getProductionApiSecret(): string | undefined {
+        return this.productionApiSecret;
+    }
+
+    export(): EGSSnapshot {
+        return {
+            info: this.info,
+            privateKey: this.privateKey,
+            csr: this.csr,
+            complianceCertificate: this.complianceCertificate,
+            complianceApiSecret: this.complianceApiSecret,
+            productionCertificate: this.productionCertificate,
+            productionApiSecret: this.productionApiSecret,
+        };
+    }
+
+    static restore(snapshot: EGSSnapshot, env: "production" | "simulation" | "development" = "development"): EGS {
+        const egs = new EGS(snapshot.info, env);
+        egs.privateKey = snapshot.privateKey;
+        egs.csr = snapshot.csr;
+        egs.complianceCertificate = snapshot.complianceCertificate;
+        egs.complianceApiSecret = snapshot.complianceApiSecret;
+        egs.productionCertificate = snapshot.productionCertificate;
+        egs.productionApiSecret = snapshot.productionApiSecret;
+        return egs;
     }
 
     async generateNewKeysAndCSR(production: boolean, solution_name: string): Promise<void> {
         const new_private_key = await generatePrime256v1KeyPair();
-        this.egs_info.private_key = new_private_key;
+        this.privateKey = new_private_key;
 
-        const new_csr = await generateCSR(this.egs_info, production, solution_name);    
-        this.egs_info.csr = new_csr;
+        const new_csr = await generateCSR(this.info, this.privateKey, production, solution_name);    
+        this.csr = new_csr;
     }
 
     async issueComplianceCertificate(OTP: string): Promise<Result<string, ZatcaApiError>> {
-        if (!this.egs_info.csr) throw new Error("EGS needs to generate a CSR first.");
+        if (!this.csr) throw new Error("EGS needs to generate a CSR first.");
 
-        const issued_data = await this.api.compliance().issueCertificate(this.egs_info.csr, OTP);
+        const issued_data = await this.api.compliance().issueCertificate(this.csr, OTP);
         if (issued_data.isErr()) return issued_data as Result<string, ZatcaApiError>;
-        this.egs_info.compliance_certificate = issued_data.value.issued_certificate;
-        this.egs_info.compliance_api_secret = issued_data.value.api_secret;
+        this.complianceCertificate = issued_data.value.issued_certificate;
+        this.complianceApiSecret = issued_data.value.api_secret;
 
         return Result.ok(issued_data.value.request_id);
     }
 
     async issueProductionCertificate(compliance_request_id: string): Promise<Result<string, ZatcaApiError>> {
-        if(!this.egs_info.compliance_certificate || !this.egs_info.compliance_api_secret) throw new Error("EGS is missing a certificate/private key/api secret to request a production certificate.")
+        if(!this.complianceCertificate || !this.complianceApiSecret) throw new Error("EGS is missing a certificate/private key/api secret to request a production certificate.")
 
-        const issued_data = await this.api.production(this.egs_info.compliance_certificate, this.egs_info.compliance_api_secret).issueCertificate(compliance_request_id);
+        const issued_data = await this.api.production(this.complianceCertificate, this.complianceApiSecret).issueCertificate(compliance_request_id);
         if (issued_data.isErr()) return issued_data as Result<string, ZatcaApiError>;
-        this.egs_info.production_certificate = issued_data.value.issued_certificate;
-        this.egs_info.production_api_secret = issued_data.value.api_secret;
+        this.productionCertificate = issued_data.value.issued_certificate;
+        this.productionApiSecret = issued_data.value.api_secret;
         
         return Result.ok(issued_data.value.request_id);
     }
 
-    async checkInvoiceCompliance(signed_invoice_string: string, invoice_hash: string): Promise<Result<InvoiceResponse, ZatcaApiError>> {
-        if(!this.egs_info.compliance_certificate || !this.egs_info.compliance_api_secret) throw new Error("EGS is missing a certificate/private key/api secret to check the invoice compliance.")
+    async checkInvoiceCompliance(signedInvoiceString: string, invoiceHash: string): Promise<Result<InvoiceResponse, ZatcaApiError>> {
+        if(!this.complianceCertificate || !this.complianceApiSecret) throw new Error("EGS is missing a certificate/private key/api secret to check the invoice compliance.")
 
-        return await this.api.compliance(this.egs_info.compliance_certificate, this.egs_info.compliance_api_secret).checkInvoiceCompliance(
-            signed_invoice_string,
-            invoice_hash,
-            this.egs_info.uuid
+        return await this.api.compliance(this.complianceCertificate, this.complianceApiSecret).checkInvoiceCompliance(
+            signedInvoiceString,
+            invoiceHash,
+            this.info.id
         ) as Result<InvoiceResponse, ZatcaApiError>;
     }
 
@@ -302,8 +320,8 @@ export class EGS {
             }
 
             const r = await this.checkInvoiceCompliance(
-                payload.signed_invoice_string,
-                payload.invoice_hash,
+                payload.signedInvoiceString,
+                payload.invoiceHash,
             );
             if (r.isErr()) return r;
             responses[step] = r.value;
@@ -312,34 +330,34 @@ export class EGS {
         return Result.ok(responses);
     }
 
-    async reportInvoice(signed_invoice_string: string, invoice_hash: string): Promise<Result<InvoiceResponse, ZatcaApiError>> {
-        if(!this.egs_info.production_certificate || !this.egs_info.production_api_secret) throw new Error("EGS is missing a certificate/private key/api secret to report the invoice.")
+    async reportInvoice(signedInvoiceString: string, invoiceHash: string): Promise<Result<InvoiceResponse, ZatcaApiError>> {
+        if(!this.productionCertificate || !this.productionApiSecret) throw new Error("EGS is missing a certificate/private key/api secret to report the invoice.")
 
-        return await this.api.production(this.egs_info.production_certificate, this.egs_info.production_api_secret).reportInvoice(
-            signed_invoice_string,
-            invoice_hash,
-            this.egs_info.uuid
+        return await this.api.production(this.productionCertificate, this.productionApiSecret).reportInvoice(
+            signedInvoiceString,
+            invoiceHash,
+            this.info.id
         ) as Result<InvoiceResponse, ZatcaApiError>;
     }
 
-    async clearanceInvoice(signed_invoice_string: string, invoice_hash: string): Promise<Result<InvoiceResponse, ZatcaApiError>> {
-        if(!this.egs_info.production_certificate || !this.egs_info.production_api_secret) throw new Error("EGS is missing a certificate/private key/api secret to report the invoice.")
+    async clearanceInvoice(signedInvoiceString: string, invoiceHash: string): Promise<Result<InvoiceResponse, ZatcaApiError>> {
+        if(!this.productionCertificate || !this.productionApiSecret) throw new Error("EGS is missing a certificate/private key/api secret to report the invoice.")
 
-        return await this.api.production(this.egs_info.production_certificate, this.egs_info.production_api_secret).clearanceInvoice(
-            signed_invoice_string,
-            invoice_hash,
-            this.egs_info.uuid
+        return await this.api.production(this.productionCertificate, this.productionApiSecret).clearanceInvoice(
+            signedInvoiceString,
+            invoiceHash,
+            this.info.id
         ) as Result<InvoiceResponse, ZatcaApiError>;
     }
 
-    signInvoice(invoice: ZATCAInvoice, production?: boolean): {signed_invoice_string: string, invoice_hash: string, qr: string} {
-        const certificate_string = production ? this.egs_info.production_certificate : this.egs_info.compliance_certificate;
-        if (!certificate_string || !this.egs_info.private_key) throw new Error("EGS is missing a certificate/private key to sign the invoice.");
+    signInvoice(invoice: ZATCAInvoice, production?: boolean): {signedInvoiceString: string, invoiceHash: string, qr: string} {
+        const certificate_string = production ? this.productionCertificate : this.complianceCertificate;
+        if (!certificate_string || !this.privateKey) throw new Error("EGS is missing a certificate/private key to sign the invoice.");
 
         return generateSignedXMLString({
             invoice_xml: invoice.getXML(),
             certificate_string,
-            private_key_string: this.egs_info.private_key,
+            private_key_string: this.privateKey,
         });
     }
 }

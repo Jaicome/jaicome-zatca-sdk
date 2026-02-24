@@ -39,16 +39,16 @@ export class ZATCAInvoice {
     } else {
       if (!props) throw new Error("Unable to create new XML invoice.");
       this.invoice_xml = new XMLDocument(defaultSimplifiedTaxInvoice(props));
-      this.parseLineItems(props.line_items ?? [], props, acceptWarning);
+      this.parseLineItems(props.lineItems ?? [], props, acceptWarning);
     }
   }
 
   private parseLineItems(
-    line_items: ZATCAInvoiceLineItem[],
+    lineItems: ZATCAInvoiceLineItem[],
     props: ZATCAInvoiceProps,
     acceptWarning: boolean = false
   ) {
-    Calc(line_items, props, this.invoice_xml, acceptWarning);
+    Calc(lineItems, props, this.invoice_xml, acceptWarning);
   }
 
   getXML(): XMLDocument {
