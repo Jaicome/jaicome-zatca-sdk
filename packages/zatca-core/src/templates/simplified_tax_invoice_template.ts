@@ -170,29 +170,29 @@ interface InvoiceLineItem {
   id: string;
   name: string;
   quantity: number;
-  tax_exclusive_price: number;
-  other_taxes?: ZATCAInvoiceLineItemTax[];
+  taxExclusivePrice: number;
+  otherTaxes?: ZATCAInvoiceLineItemTax[];
   discounts?: ZATCAInvoiceLineItemDiscount[];
 }
 
 type ZeroTaxLineItem = InvoiceLineItem & {
-  VAT_percent: 0;
-  vat_category: {
+  vatPercent: 0;
+  vatCategory: {
     code: "O" | "Z" | "E";
-    reason_code?: string;
+    reasonCode?: string;
     reason?: string;
   };
 };
 
 type LineItem = InvoiceLineItem & {
-  VAT_percent: 0.15 | 0.05;
+  vatPercent: 0.15 | 0.05;
 };
 
 export type ZATCAInvoiceLineItem = LineItem | ZeroTaxLineItem;
 
 export interface ZATCAInvoiceCancellation {
-  canceled_serial_invoice_number: string;
-  payment_method: ZATCAPaymentMethods;
+  canceledSerialInvoiceNumber: string;
+  paymentMethod: ZATCAPaymentMethods;
   reason: string;
 }
 
