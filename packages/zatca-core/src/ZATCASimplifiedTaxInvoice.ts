@@ -2,8 +2,6 @@ import { XMLDocument } from "./parser/index.js";
 import { Calc } from "./calc.js";
 import { Signer, SignatureResult } from "./contracts/signer.js";
 import defaultSimplifiedTaxInvoice, {
-  ZATCAInvoiceTypes,
-  ZATCAPaymentMethods,
   ZATCAInvoiceTypeSchema,
   ZATCAPaymentMethodSchema,
   InvoiceCodeSchema,
@@ -27,8 +25,6 @@ export type {
   InvoiceCode,
 };
 export {
-  ZATCAInvoiceTypes,
-  ZATCAPaymentMethods,
   ZATCAInvoiceTypeSchema,
   ZATCAPaymentMethodSchema,
   InvoiceCodeSchema,

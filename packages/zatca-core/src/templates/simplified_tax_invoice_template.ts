@@ -145,18 +145,6 @@ const template = /* XML */ `
   {{/cancelation}}
 </Invoice>`;
 
-export enum ZATCAPaymentMethods {
-  CASH = "10",
-  CREDIT = "30",
-  BANK_ACCOUNT = "42",
-  BANK_CARD = "48",
-}
-
-export enum ZATCAInvoiceTypes {
-  INVOICE = "388",
-  DEBIT_NOTE = "383",
-  CREDIT_NOTE = "381",
-}
 
 // --- Invoice Types ---
 export const ZATCAInvoiceTypeSchema = z.enum(["INVOICE", "DEBIT_NOTE", "CREDIT_NOTE"]);
