@@ -70,7 +70,7 @@ interface CSRConfigProps {
 export default function populate(props: CSRConfigProps): string {
     let populated_template = template;
     populated_template = populated_template.replace("SET_PRIVATE_KEY_PASS", props.privateKeyPass ?? "SET_PRIVATE_KEY_PASS");
-    populated_template = populated_template.replace("SET_PRODUCTION_VALUE",  "PREZATCA-Code-Signing");
+    populated_template = populated_template.replace("SET_PRODUCTION_VALUE", props.production ? "ZATCA-Code-Signing" : "PREZATCA-Code-Signing");
     populated_template = populated_template.replace("SET_EGS_SERIAL_NUMBER", `1-${props.solutionName}|2-${props.egsModel}|3-${props.egsSerialNumber}`);
     populated_template = populated_template.replace("SET_VAT_REGISTRATION_NUMBER", props.vatNumber);
     populated_template = populated_template.replace("SET_BRANCH_LOCATION", props.branchLocation);
