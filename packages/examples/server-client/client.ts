@@ -4,17 +4,15 @@ import {
   ZATCAInvoice,
   type ZATCAInvoiceLineItem,
   type ZATCAInvoiceProps,
+  type ClientInvoiceRecord,
 } from "@jaicome/zatca-core";
 import {
   egsInfo,
   GENESIS_PREVIOUS_INVOICE_HASH,
-  type OnboardResult,
   onboardEGS,
-  type SingleReportResult,
   signAndReportBatch,
   signAndReportInvoice,
 } from "./server";
-import { type ClientInvoiceRecord } from "@jaicome/zatca-server";
 
 // Get OTP from environment variable or use default for testing
 const ZATCA_OTP = "112534";
@@ -51,7 +49,6 @@ const customerInfo = {
   postalZone: "11564",
   street: "Test Street",
 };
-
 
 // ============================================================================
 // CLIENT STATE
