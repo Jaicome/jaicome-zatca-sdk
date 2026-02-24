@@ -10,7 +10,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsc --project tsconfig.build.json",
+    "build": "tsc --project tsconfig.json",
     "test": "vitest run"
   },
   "devDependencies": {
@@ -35,9 +35,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Repzo/zatca-xml-js",
+    "url": "https://github.com/Jaicome/zatca-xml-js",
     "directory": "packages/zatca-server"
   },
+  "author": "Ali Alshaikh, Jaicome company",
   "license": "MIT",
   "keywords": [
     "zatca",

@@ -10,7 +10,7 @@
   "scripts": {
     "build": "npm run build --workspaces",
     "clean": "rm -rf lib packages/*/lib",
-    "example": "tsc --project tsconfig.build.json && node lib/full.js",
+    "example": "tsc --project tsconfig.json && node lib/full.js",
     "test": "npm run test --workspaces",
     "lint": "npx prettier@2.8.8 --write .",
     "check-boundaries": "bash scripts/check-boundaries.sh"
@@ -39,7 +39,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Repzo/zatca-xml-js"
+    "url": "https://github.com/Jaicome/jaicome-zatca-sdk"
   },
   "keywords": [
     "zatca",
@@ -55,6 +55,6 @@
     "phase 1",
     "phase 2"
   ],
-  "author": "Mohammad Alnatour",
+  "author": "Ali Alshaikh",
   "license": "MIT"
 }
