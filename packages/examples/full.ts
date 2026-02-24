@@ -133,7 +133,7 @@ const buildInvoicePropsForComplianceStep = (
     invoiceType: is_credit_note
       ? ZATCAInvoiceTypes.CREDIT_NOTE
       : ZATCAInvoiceTypes.DEBIT_NOTE,
-    invoiceCode: isStandardNote ? "0100000" : "0200000",
+    invoiceCode: is_standard_note ? "0100000" : "0200000",
     cancelation: {
       canceledSerialInvoiceNumber,
       paymentMethod: ZATCAPaymentMethods.CASH,
@@ -171,7 +171,7 @@ const main = async () => {
     console.log("Keys and CSR generated successfully");
 
     // 3. Issue compliance certificate
-    const otp = "647065";
+    const otp = "231324";
     const complianceCertResult = await egs.issueComplianceCertificate(otp);
     if (complianceCertResult.isErr()) {
       console.error("Failed to issue compliance certificate:", complianceCertResult.error);
@@ -221,12 +221,12 @@ const main = async () => {
       const invoiceHash = result.invoiceHash;
       complianceChecks[step] = { signedInvoiceString, invoiceHash };
       serialByStep[step] = `EGS1-886431145-${101 + index}`;
-      previousHash = invoice_hash;
+      previousHash = invoiceHash;
       previousSerial = serialByStep[step];
 
       fs.writeFileSync(
         path.join(outputDir, `invoice_${step}.xml`),
-        signed_invoice_string,
+        signedInvoiceString,
         "utf8",
       );
       console.log(`✅ Signed invoice for ${step} generated`);
