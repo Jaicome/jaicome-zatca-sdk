@@ -56,7 +56,7 @@ This reference documents the public APIs of `@jaicome/zatca-core` and
 - `class EGS`
   - `get()`
   - `set(egsInfo: Partial<EGSInfo>)`
-  - `generateNewKeysAndCSR(production: boolean, solution_name: string): Promise<void>`
+  - `generateNewKeysAndCSR(solution_name: string): Promise<void>`
   - `issueComplianceCertificate(OTP: string): Promise<string>`
   - `issueProductionCertificate(compliance_request_id: string): Promise<string>`
   - `checkInvoiceCompliance(signed_invoice_string: string, invoice_hash: string): Promise<any>`

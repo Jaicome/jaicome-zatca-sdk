@@ -81,7 +81,7 @@ const result = await invoice.sign(certificate_string, private_key_string);
 ```typescript
 import { EGS } from "@jaicome/zatca-server";
 const egs = new EGS(egsunit);
-await egs.generateNewKeysAndCSR(false, "solution_name");
+await egs.generateNewKeysAndCSR("solution_name");
 const compliance_rid = await egs.issueComplianceCertificate("123345");
 await egs.issueProductionCertificate(compliance_rid);
 ```

@@ -90,7 +90,7 @@ const egsInfo: EGSInfo = {
 };
 
 const egs = new EGS(egsInfo, "simulation");
-await egs.generateNewKeysAndCSR(false, "solution_name");
+await egs.generateNewKeysAndCSR("solution_name");
 const complianceRequestId = await egs.issueComplianceCertificate(otp);
 await egs.issueProductionCertificate(complianceRequestId);
 ```

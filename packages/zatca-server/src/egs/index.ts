@@ -194,6 +194,7 @@ export interface EGSSnapshot {
 export class EGS {
 
     private info: EGSInfo;
+    private env: "production" | "simulation" | "development";
     private api: API;
     private privateKey?: string;
     private csr?: string;
@@ -208,6 +209,7 @@ export class EGS {
             throw new ZodValidationError(result.error.issues);
         }
         this.info = info;
+        this.env = env;
         this.api = new API(env);
     }
 
@@ -262,11 +264,11 @@ export class EGS {
         return egs;
     }
 
-    async generateNewKeysAndCSR(production: boolean, solution_name: string): Promise<void> {
+    async generateNewKeysAndCSR(solution_name: string): Promise<void> {
         const new_private_key = await generatePrime256v1KeyPair();
         this.privateKey = new_private_key;
 
-        const new_csr = await generateCSR(this.info, this.privateKey, production, solution_name);    
+        const new_csr = await generateCSR(this.info, this.privateKey, this.env === "production", solution_name);
         this.csr = new_csr;
     }
 

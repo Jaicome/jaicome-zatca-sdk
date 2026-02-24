@@ -165,7 +165,7 @@ const main = async () => {
     const egs = new EGS(egsunit, "simulation");
 
     // 2. Generate Keys & CSR
-    await egs.generateNewKeysAndCSR(false, "solution_name");
+    await egs.generateNewKeysAndCSR("solution_name");
     console.log("Keys and CSR generated successfully");
 
     // 3. Issue compliance certificate

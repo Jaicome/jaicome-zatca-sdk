@@ -117,7 +117,7 @@ const result = await invoice.sign(certificatePem, privateKeyPem);
 import { EGS } from "@jaicome/zatca-server";
 
 const egs = new EGS(egsUnitInfo, "simulation");
-await egs.generateNewKeysAndCSR(false, "solution_name");
+await egs.generateNewKeysAndCSR("solution_name");
 const complianceRequestId = await egs.issueComplianceCertificate(otp);
 await egs.issueProductionCertificate(complianceRequestId);
 ```
