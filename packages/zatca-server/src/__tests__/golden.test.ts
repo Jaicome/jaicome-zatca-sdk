@@ -4,8 +4,6 @@ import { describe, expect, it } from "vitest";
 import {
 	buildInvoice,
 	generatePhaseOneQR,
-	ZATCAInvoiceTypes,
-	ZATCAPaymentMethods,
 } from "@jaicome/zatca-core";
 import type { ZATCAInvoiceProps } from "@jaicome/zatca-core";
 import { generateSignedXMLString, getInvoiceHash } from "@jaicome/zatca-server";
@@ -15,44 +13,44 @@ const SAMPLE_ZATCA_TEST_CERT_BODY =
 
 const SAMPLE_CERT_PEM = `-----BEGIN CERTIFICATE-----\n${SAMPLE_ZATCA_TEST_CERT_BODY}\n-----END CERTIFICATE-----`;
 
-function makeFixtureProps(invoice_counter_number: number = 1): ZATCAInvoiceProps {
+function makeFixtureProps(invoiceCounterNumber: number = 1): ZATCAInvoiceProps {
 	return {
-		egs_info: {
-			uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
-			custom_id: "EGS1-GOLDEN",
+		egsInfo: {
+			id: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
+			name: "EGS1-GOLDEN",
 			model: "IOS",
-			CRN_number: "7032256278",
-			VAT_name: "Jaicome Information Technology",
-			VAT_number: "311497191800003",
-			branch_name: "Main",
-			branch_industry: "Software",
+			vatName: "Jaicome Information Technology",
+			vatNumber: "311497191800003",
+			branchName: "Main",
+			branchIndustry: "Software",
 			location: {
 				city: "Khobar",
-				city_subdivision: "West",
+				citySubdivision: "West",
 				street: "King Fahd st",
-				plot_identification: "0000",
+				plotIdentification: "0000",
 				building: "0000",
-				postal_zone: "31952",
+				postalZone: "31952",
 			},
 		},
-		invoice_counter_number,
-		invoice_serial_number: "EGS1-GOLDEN-001",
-		issue_date: "2024-01-15",
-		issue_time: "10:00:00",
-		previous_invoice_hash:
+		crnNumber: "7032256278",
+		invoiceCounterNumber,
+		invoiceSerialNumber: "EGS1-GOLDEN-001",
+		issueDate: "2024-01-15",
+		issueTime: "10:00:00",
+		previousInvoiceHash:
 			"NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==",
-		line_items: [
+		lineItems: [
 			{
 				id: "1",
 				name: "Golden Fixture Product",
 				quantity: 1,
-				tax_exclusive_price: 100,
-				VAT_percent: 0.15,
+				taxExclusivePrice: 100,
+				vatPercent: 0.15,
 			},
 		],
-		invoice_type: ZATCAInvoiceTypes.INVOICE,
-		invoice_code: "0200000",
-		payment_method: ZATCAPaymentMethods.CASH,
+		invoiceType: "INVOICE",
+		invoiceCode: "SIMPLIFIED",
+		paymentMethod: "CASH",
 	};
 }
 
@@ -268,9 +266,9 @@ describe("Golden — Perturbation Test (hash sensitivity)", () => {
 		const props_a = makeFixtureProps(1);
 		const props_b: ZATCAInvoiceProps = {
 			...makeFixtureProps(1),
-			egs_info: {
-				...makeFixtureProps(1).egs_info,
-				VAT_name: "PERTURBED Company Name",
+			egsInfo: {
+				...makeFixtureProps(1).egsInfo,
+				vatName: "PERTURBED Company Name",
 			},
 		};
 

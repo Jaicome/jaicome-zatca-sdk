@@ -1,18 +1,36 @@
-import { XMLDocument } from "./parser";
-import { Calc } from "./calc";
-import { Signer, SignatureResult } from "./contracts/signer";
+import { XMLDocument } from "./parser/index.js";
+import { Calc } from "./calc.js";
+import { Signer, SignatureResult } from "./contracts/signer.js";
 import defaultSimplifiedTaxInvoice, {
+  ZATCAInvoiceTypeSchema,
+  ZATCAPaymentMethodSchema,
+  InvoiceCodeSchema,
+  INVOICE_TYPE_CODES,
+  PAYMENT_METHOD_CODES,
+  INVOICE_CODE_VALUES,
+} from "./templates/simplified_tax_invoice_template.js";
+import type {
   ZATCAInvoiceLineItem,
   ZATCAInvoiceProps,
-  ZATCAInvoiceTypes,
-  ZATCAPaymentMethods,
-} from "./templates/simplified_tax_invoice_template";
+  ZATCAInvoiceType,
+  ZATCAPaymentMethod,
+  InvoiceCode,
+} from "./templates/simplified_tax_invoice_template.js";
 
-export {
+export type {
   ZATCAInvoiceLineItem,
   ZATCAInvoiceProps,
-  ZATCAInvoiceTypes,
-  ZATCAPaymentMethods,
+  ZATCAInvoiceType,
+  ZATCAPaymentMethod,
+  InvoiceCode,
+};
+export {
+  ZATCAInvoiceTypeSchema,
+  ZATCAPaymentMethodSchema,
+  InvoiceCodeSchema,
+  INVOICE_TYPE_CODES,
+  PAYMENT_METHOD_CODES,
+  INVOICE_CODE_VALUES,
 };
 
 export class ZATCAInvoice {
@@ -39,16 +57,16 @@ export class ZATCAInvoice {
     } else {
       if (!props) throw new Error("Unable to create new XML invoice.");
       this.invoice_xml = new XMLDocument(defaultSimplifiedTaxInvoice(props));
-      this.parseLineItems(props.line_items ?? [], props, acceptWarning);
+      this.parseLineItems(props.lineItems ?? [], props, acceptWarning);
     }
   }
 
   private parseLineItems(
-    line_items: ZATCAInvoiceLineItem[],
+    lineItems: ZATCAInvoiceLineItem[],
     props: ZATCAInvoiceProps,
     acceptWarning: boolean = false
   ) {
-    Calc(line_items, props, this.invoice_xml, acceptWarning);
+    Calc(lineItems, props, this.invoice_xml, acceptWarning);
   }
 
   getXML(): XMLDocument {

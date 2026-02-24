@@ -1,64 +1,17 @@
-import axios, { AxiosError, InternalAxiosRequestConfig, AxiosResponse } from "axios";
-import { cleanUpCertificateString } from "../signing";
-
-const debugLog = (message: string, data?: any, isError: boolean = false) => {
-  const timestamp = new Date().toISOString();
-  const logData = data ? `\n${JSON.stringify(data, null, 2)}` : '';
-  const logMessage = `[${timestamp}] ${message}${logData}`;
-  
-  if (isError) {
-    console.error('\x1b[31m%s\x1b[0m', logMessage);
-  } else {
-    console.log('\x1b[36m%s\x1b[0m', logMessage);
-  }
-};
-
-axios.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    debugLog(`Request: ${config.method?.toUpperCase()} ${config.url}`, {
-      headers: config.headers,
-      params: config.params,
-      data: config.data ? JSON.parse(JSON.stringify(config.data)) : undefined
-    });
-    return config;
-  },
-  (error) => {
-    debugLog('Request Error:', error, true);
-    return Promise.reject(error);
-  }
-);
-
-axios.interceptors.response.use(
-  (response: AxiosResponse) => {
-    debugLog(`Response: ${response.status} ${response.statusText}`, {
-      status: response.status,
-      statusText: response.statusText,
-      headers: response.headers,
-      data: response.data
-    });
-    return response;
-  },
-  (error: AxiosError) => {
-    if (error.response) {
-      debugLog('API Error Response:', {
-        status: error.response.status,
-        statusText: error.response.statusText,
-        headers: error.response.headers,
-        data: error.response.data,
-        config: {
-          url: error.config?.url,
-          method: error.config?.method,
-          headers: error.config?.headers,
-        }
-      }, true);
-    } else if (error.request) {
-      debugLog('No response received:', error.request, true);
-    } else {
-      debugLog('Request setup error:', error.message, true);
-    }
-    return Promise.reject(error);
-  }
-);
+import { Result } from "better-result";
+import { cleanUpCertificateString } from "../signing/index.js";
+import {
+  ApiError,
+  NetworkError,
+  TimeoutError,
+  type ZatcaApiError,
+} from "./errors.js";
+import { logger } from "./logger.js";
+import type {
+  CertificateResponse,
+  InvoiceResponse,
+  IssuedCertificate,
+} from "./types.js";
 
 const settings = {
   API_VERSION: "V2",
@@ -72,37 +25,28 @@ interface ComplianceAPIInterface {
   issueCertificate: (
     csr: string,
     otp: string
-  ) => Promise<{
-    issued_certificate: string;
-    api_secret: string;
-    request_id: string;
-  }>;
-
+  ) => Promise<Result<IssuedCertificate, ZatcaApiError>>;
   checkInvoiceCompliance: (
-    signed_xml_string: string,
-    invoice_hash: string,
-    egs_uuid: string
-  ) => Promise<any>;
+    signedXmlString: string,
+    invoiceHash: string,
+    egsId: string
+  ) => Promise<Result<InvoiceResponse, ZatcaApiError>>;
 }
 
 interface ProductionAPIInterface {
-  issueCertificate: (compliance_request_id: string) => Promise<{
-    issued_certificate: string;
-    api_secret: string;
-    request_id: string;
-  }>;
-
+  issueCertificate: (
+    complianceRequestId: string
+  ) => Promise<Result<IssuedCertificate, ZatcaApiError>>;
   reportInvoice: (
-    signed_xml_string: string,
-    invoice_hash: string,
-    egs_uuid: string
-  ) => Promise<any>;
-
+    signedXmlString: string,
+    invoiceHash: string,
+    egsId: string
+  ) => Promise<Result<InvoiceResponse, ZatcaApiError>>;
   clearanceInvoice: (
-    signed_xml_string: string,
-    invoice_hash: string,
-    egs_uuid: string
-  ) => Promise<any>;
+    signedXmlString: string,
+    invoiceHash: string,
+    egsId: string
+  ) => Promise<Result<InvoiceResponse, ZatcaApiError>>;
 }
 
 class API {
@@ -112,22 +56,98 @@ class API {
     this.env = env;
   }
 
-  private getAuthHeaders = (certificate?: string, secret?: string): any => {
+  private getAuthHeaders = (
+    certificate?: string,
+    secret?: string
+  ): Record<string, string> => {
     if (certificate && secret) {
       const certificate_stripped = cleanUpCertificateString(certificate);
       const basic = Buffer.from(
         `${Buffer.from(certificate_stripped).toString("base64")}:${secret}`
       ).toString("base64");
-      return {
-        Authorization: `Basic ${basic}`,
-      };
+      return { Authorization: `Basic ${basic}` };
     }
+
     return {};
   };
 
+  private async fetchJson<T>(
+    url: string,
+    body: unknown,
+    headers: Record<string, string>,
+    timeoutMs: number = 30000
+  ): Promise<Result<T, ZatcaApiError>> {
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const fetchResult = await Result.tryPromise({
+        try: () =>
+          fetch(url, {
+            method: "POST",
+            signal: controller.signal,
+            headers: {
+              "Content-Type": "application/json",
+              ...headers,
+            },
+            body: JSON.stringify(body),
+          }),
+        catch: (cause) => {
+          if (cause instanceof Error && cause.name === "AbortError") {
+            return new TimeoutError({
+              url,
+              timeoutMs,
+              message: `Request timed out after ${timeoutMs}ms`,
+            });
+          }
+
+          return new NetworkError({
+            url,
+            message: cause instanceof Error ? cause.message : String(cause),
+          });
+        },
+      });
+
+      if (fetchResult.isErr()) {
+        logger.error({ err: fetchResult.error, url }, "ZATCA API request failed");
+        return fetchResult;
+      }
+
+      const response = fetchResult.value;
+      const text = await response.text();
+
+      let parsedBody: unknown;
+      try {
+        parsedBody = JSON.parse(text);
+      } catch {
+        parsedBody = text;
+      }
+
+      if (!response.ok || ![200, 202].includes(response.status)) {
+        const err = new ApiError({
+          url,
+          status: response.status,
+          statusText: response.statusText,
+          body: parsedBody,
+        });
+
+        logger.error(
+          { err, url, status: response.status },
+          "ZATCA API error response"
+        );
+
+        return Result.err(err);
+      }
+
+      return Result.ok(parsedBody as T);
+    } finally {
+      clearTimeout(tid);
+    }
+  }
+
   compliance(certificate?: string, secret?: string): ComplianceAPIInterface {
-    const auth_headers = this.getAuthHeaders(certificate, secret);
-    const base_url =
+    const authHeaders = this.getAuthHeaders(certificate, secret);
+    const baseUrl =
       this.env === "production"
         ? settings.PRODUCTION_BASEURL
         : this.env === "simulation"
@@ -137,127 +157,67 @@ class API {
     const issueCertificate = async (
       csr: string,
       otp: string
-    ): Promise<{
-      issued_certificate: string;
-      api_secret: string;
-      request_id: string;
-    }> => {
+    ): Promise<Result<IssuedCertificate, ZatcaApiError>> => {
       const headers = {
         "Accept-Version": settings.API_VERSION,
         OTP: otp,
+        ...authHeaders,
       };
 
-      const response = await axios.post(
-        `${base_url}/compliance`,
+      const result = await this.fetchJson<CertificateResponse>(
+        `${baseUrl}/compliance`,
         { csr: Buffer.from(csr).toString("base64") },
-        { headers: { ...auth_headers, ...headers } }
+        headers
       );
 
-      if (![200, 202].includes(response.status))
-        throw new Error("Error issuing a compliance certificate.");
+      if (result.isErr()) {
+        return result as Result<IssuedCertificate, ZatcaApiError>;
+      }
 
+      const data = result.value;
       let issued_certificate = Buffer.from(
-        response.data.binarySecurityToken,
+        data.binarySecurityToken,
         "base64"
       ).toString();
       issued_certificate = `-----BEGIN CERTIFICATE-----\n${issued_certificate}\n-----END CERTIFICATE-----`;
-      const api_secret = response.data.secret;
 
-      return {
+      return Result.ok({
         issued_certificate,
-        api_secret,
-        request_id: response.data.requestID,
-      };
+        api_secret: data.secret,
+        request_id: data.requestID,
+      }) as Result<IssuedCertificate, ZatcaApiError>;
     };
 
     const checkInvoiceCompliance = async (
-      signed_xml_string: string,
-      invoice_hash: string,
-      egs_uuid: string
-    ): Promise<any> => {
-      try {
-        debugLog('Starting compliance check with parameters:', {
-          invoice_hash,
-          egs_uuid,
-          signed_xml_length: signed_xml_string.length,
-          signed_xml_start: signed_xml_string.substring(0, 200) + '...'
-        });
+      signedXmlString: string,
+      invoiceHash: string,
+      egsId: string
+    ): Promise<Result<InvoiceResponse, ZatcaApiError>> => {
+      const headers = {
+        "Accept-Version": settings.API_VERSION,
+        "Accept-Language": "en",
+        ...authHeaders,
+      };
 
-        const headers = {
-          "Accept-Version": settings.API_VERSION,
-          "Accept-Language": "en",
-        };
+      const result = await this.fetchJson<InvoiceResponse>(
+        `${baseUrl}/compliance/invoices`,
+        {
+          invoiceHash: invoiceHash,
+          uuid: egsId,
+          invoice: Buffer.from(signedXmlString).toString("base64"),
+        },
+        headers
+      );
 
-        const requestData = {
-          invoiceHash: invoice_hash,
-          uuid: egs_uuid,
-          invoice: Buffer.from(signed_xml_string).toString("base64"),
-        };
-
-        debugLog('Sending compliance check request', {
-          url: `${base_url}/compliance/invoices`,
-          headers: { ...auth_headers, ...headers },
-          data: { ...requestData, invoice: '[BASE64_ENCODED_XML]' }
-        });
-
-        const response = await axios.post(
-          `${base_url}/compliance/invoices`,
-          requestData,
-          { 
-            headers: { ...auth_headers, ...headers },
-            timeout: 30000
-          }
-        );
-
-        debugLog('Compliance check successful', {
-          status: response.status,
-          data: response.data
-        });
-
-        if (![200, 202].includes(response.status)) {
-          throw new Error(`Unexpected status code: ${response.status}`);
-        }
-
-        return response.data;
-      } catch (error: any) {
-        debugLog('Compliance check failed', error, true);
-        
-        let errorDetails = 'Unknown error';
-        if (error.response) {
-          errorDetails = `Status: ${error.response.status} - ${JSON.stringify(error.response.data)}`;
-          
-          if (error.response.data?.validationResults?.errorMessages?.length) {
-            errorDetails += '\nValidation Errors:';
-            error.response.data.validationResults.errorMessages.forEach((err: any, index: number) => {
-              errorDetails += `\n${index + 1}. ${err.message} (${err.code})`;
-            });
-          }
-          
-          if (error.response.data?.validationResults?.warningMessages?.length) {
-            errorDetails += '\nValidation Warnings:';
-            error.response.data.validationResults.warningMessages.forEach((warn: any, index: number) => {
-              errorDetails += `\n${index + 1}. ${warn.message} (${warn.code})`;
-            });
-          }
-        } else if (error.request) {
-          errorDetails = 'No response received from server';
-        } else {
-          errorDetails = error.message;
-        }
-        
-        throw new Error(`Compliance check failed: ${errorDetails}`);
-      }
+      return result as Result<InvoiceResponse, ZatcaApiError>;
     };
 
-    return {
-      issueCertificate,
-      checkInvoiceCompliance,
-    };
+    return { issueCertificate, checkInvoiceCompliance };
   }
 
   production(certificate?: string, secret?: string): ProductionAPIInterface {
-    const auth_headers = this.getAuthHeaders(certificate, secret);
-    const base_url =
+    const authHeaders = this.getAuthHeaders(certificate, secret);
+    const baseUrl =
       this.env === "production"
         ? settings.PRODUCTION_BASEURL
         : this.env === "simulation"
@@ -265,97 +225,98 @@ class API {
         : settings.SANDBOX_BASEURL;
 
     const issueCertificate = async (
-      compliance_request_id: string
-    ): Promise<{
-      issued_certificate: string;
-      api_secret: string;
-      request_id: string;
-    }> => {
+      complianceRequestId: string
+    ): Promise<Result<IssuedCertificate, ZatcaApiError>> => {
       const headers = {
         "Accept-Version": settings.API_VERSION,
+        ...authHeaders,
       };
 
-      const response = await axios.post(
-        `${base_url}/production/csids`,
-        { compliance_request_id: compliance_request_id },
-        { headers: { ...auth_headers, ...headers } }
+      const result = await this.fetchJson<CertificateResponse>(
+        `${baseUrl}/production/csids`,
+        { compliance_request_id: complianceRequestId },
+        headers
       );
 
-      if (![200, 202].includes(response.status))
-        throw new Error("Error issuing a production certificate.");
+      if (result.isErr()) {
+        return result as Result<IssuedCertificate, ZatcaApiError>;
+      }
 
+      const data = result.value;
       let issued_certificate = Buffer.from(
-        response.data.binarySecurityToken,
+        data.binarySecurityToken,
         "base64"
       ).toString();
       issued_certificate = `-----BEGIN CERTIFICATE-----\n${issued_certificate}\n-----END CERTIFICATE-----`;
-      const api_secret = response.data.secret;
 
-      return {
+      return Result.ok({
         issued_certificate,
-        api_secret,
-        request_id: response.data.requestID,
-      };
+        api_secret: data.secret,
+        request_id: data.requestID,
+      }) as Result<IssuedCertificate, ZatcaApiError>;
     };
 
     const reportInvoice = async (
-      signed_xml_string: string,
-      invoice_hash: string,
-      egs_uuid: string
-    ): Promise<any> => {
+      signedXmlString: string,
+      invoiceHash: string,
+      egsId: string
+    ): Promise<Result<InvoiceResponse, ZatcaApiError>> => {
       const headers = {
         "Accept-Version": settings.API_VERSION,
         "Accept-Language": "en",
         "Clearance-Status": "0",
+        ...authHeaders,
       };
 
-      const response = await axios.post(
-        `${base_url}/invoices/reporting/single`,
+      const result = await this.fetchJson<InvoiceResponse>(
+        `${baseUrl}/invoices/reporting/single`,
         {
-          invoiceHash: invoice_hash,
-          uuid: egs_uuid,
-          invoice: Buffer.from(signed_xml_string).toString("base64"),
+          invoiceHash: invoiceHash,
+          uuid: egsId,
+          invoice: Buffer.from(signedXmlString).toString("base64"),
         },
-        { headers: { ...auth_headers, ...headers } }
+        headers
       );
 
-      if (![200, 202].includes(response.status))
-        throw new Error("Error in reporting invoice.");
-      return response.data;
+      return result as Result<InvoiceResponse, ZatcaApiError>;
     };
 
     const clearanceInvoice = async (
-      signed_xml_string: string,
-      invoice_hash: string,
-      egs_uuid: string
-    ): Promise<any> => {
+      signedXmlString: string,
+      invoiceHash: string,
+      egsId: string
+    ): Promise<Result<InvoiceResponse, ZatcaApiError>> => {
       const headers = {
         "Accept-Version": settings.API_VERSION,
         "Accept-Language": "en",
         "Clearance-Status": "1",
+        ...authHeaders,
       };
 
-      const response = await axios.post(
-        `${base_url}/invoices/clearance/single`,
+      const result = await this.fetchJson<InvoiceResponse>(
+        `${baseUrl}/invoices/clearance/single`,
         {
-          invoiceHash: invoice_hash,
-          uuid: egs_uuid,
-          invoice: Buffer.from(signed_xml_string).toString("base64"),
+          invoiceHash: invoiceHash,
+          uuid: egsId,
+          invoice: Buffer.from(signedXmlString).toString("base64"),
         },
-        { headers: { ...auth_headers, ...headers } }
+        headers
       );
 
-      if (![200, 202].includes(response.status))
-        throw new Error("Error in clearance invoice.");
-      return response.data;
+      return result as Result<InvoiceResponse, ZatcaApiError>;
     };
 
-    return {
-      issueCertificate,
-      reportInvoice,
-      clearanceInvoice,
-    };
+    return { issueCertificate, reportInvoice, clearanceInvoice };
   }
 }
 
 export default API;
+export type { ComplianceAPIInterface, ProductionAPIInterface };
+export { ApiError, NetworkError, TimeoutError } from "./errors.js";
+export type { ZatcaApiError } from "./errors.js";
+export type {
+  CertificateResponse,
+  InvoiceResponse,
+  IssuedCertificate,
+  ValidationMessage,
+} from "./types.js";

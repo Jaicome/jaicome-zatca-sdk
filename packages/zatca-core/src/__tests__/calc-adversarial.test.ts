@@ -1,18 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { buildInvoice } from "../api";
-import { ZodValidationError } from "../schemas";
-import {
-	ZATCAPaymentMethods,
-	ZATCAInvoiceTypes,
-	type ZATCAInvoiceLineItem,
-	type ZATCAInvoiceProps,
-} from "../ZATCASimplifiedTaxInvoice";
+import { buildInvoice } from "../api.js";
+import { ZodValidationError } from "../schemas/index.js";
+import type { ZATCAInvoiceLineItem, ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice.js";
 
 type SimplifiedCashInvoiceProps = Extract<
 	ZATCAInvoiceProps,
 	{
-		invoice_type: ZATCAInvoiceTypes.INVOICE;
-		invoice_code: "0200000";
+		invoiceType: "INVOICE";
+		invoiceCode: "SIMPLIFIED";
 	}
 >;
 
@@ -20,32 +15,32 @@ function makeProps(
 	overrides?: Partial<SimplifiedCashInvoiceProps>,
 ): SimplifiedCashInvoiceProps {
 	return {
-		egs_info: {
-			uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
-			custom_id: "EGS1-ADV",
+		egsInfo: {
+			id: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
+			name: "EGS1-ADV",
 			model: "IOS",
-			CRN_number: "7032256278",
-			VAT_name: "Adversarial Test Co",
-			VAT_number: "311497191800003",
-			branch_name: "Main",
-			branch_industry: "Software",
+			vatName: "Adversarial Test Co",
+			vatNumber: "311497191800003",
+			branchName: "Main",
+			branchIndustry: "Software",
 		},
-		invoice_counter_number: 1,
-		invoice_serial_number: "ADV-TEST-001",
-		issue_date: "2024-01-15",
-		issue_time: "10:00:00",
-		previous_invoice_hash:
+		crnNumber: "7032256278",
+		invoiceCounterNumber: 1,
+		invoiceSerialNumber: "ADV-TEST-001",
+		issueDate: "2024-01-15",
+		issueTime: "10:00:00",
+		previousInvoiceHash:
 			"NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==",
-		invoice_type: ZATCAInvoiceTypes.INVOICE,
-		invoice_code: "0200000",
-		payment_method: ZATCAPaymentMethods.CASH,
-		line_items: [
+		invoiceType: "INVOICE",
+		invoiceCode: "SIMPLIFIED",
+		paymentMethod: "CASH",
+		lineItems: [
 			{
 				id: "1",
 				name: "Item 1",
 				quantity: 1,
-				tax_exclusive_price: 100,
-				VAT_percent: 0.15,
+				taxExclusivePrice: 100,
+				vatPercent: 0.15,
 			},
 		],
 		...overrides,
@@ -59,8 +54,8 @@ function makeLineItem(
 		id: "1",
 		name: "Item 1",
 		quantity: 1,
-		tax_exclusive_price: 100,
-		VAT_percent: 0.15,
+		taxExclusivePrice: 100,
+		vatPercent: 0.15,
 		...overrides,
 	} as ZATCAInvoiceLineItem;
 }
@@ -130,7 +125,7 @@ describe("Single line item - happy path calculations", () => {
 	it("5% VAT: qty=1, price=100 -> LineExtension=100.00, Tax=5.00, TaxInclusive=105.00", () => {
 		const invoice = buildInvoice(
 			makeProps({
-				line_items: [makeLineItem({ VAT_percent: 0.05 })],
+				lineItems: [makeLineItem({ vatPercent: 0.05 })],
 			}),
 		);
 		const xml = invoice.getXML();
@@ -147,12 +142,12 @@ describe("Single line item - happy path calculations", () => {
 	it("Zero VAT with code O: qty=1, price=100 -> LineExtension=100.00, TaxAmount=0", () => {
 		const invoice = buildInvoice(
 			makeProps({
-				line_items: [
+				lineItems: [
 					makeLineItem({
-						VAT_percent: 0,
-						vat_category: {
+						vatPercent: 0,
+						vatCategory: {
 							code: "O",
-							reason_code: "VATEX-SA-OOS",
+							reasonCode: "VATEX-SA-OOS",
 							reason: "Out of scope",
 						},
 					}),
@@ -172,12 +167,12 @@ describe("Single line item - happy path calculations", () => {
 	it("Zero VAT with code Z: qty=1, price=100 -> TaxAmount=0", () => {
 		const invoice = buildInvoice(
 			makeProps({
-				line_items: [
+				lineItems: [
 					makeLineItem({
-						VAT_percent: 0,
-						vat_category: {
+						vatPercent: 0,
+						vatCategory: {
 							code: "Z",
-							reason_code: "VATEX-SA-32",
+							reasonCode: "VATEX-SA-32",
 							reason: "Export",
 						},
 					}),
@@ -194,12 +189,12 @@ describe("Single line item - happy path calculations", () => {
 	it("Zero VAT with code E: qty=1, price=100 -> TaxAmount=0", () => {
 		const invoice = buildInvoice(
 			makeProps({
-				line_items: [
+				lineItems: [
 					makeLineItem({
-						VAT_percent: 0,
-						vat_category: {
+						vatPercent: 0,
+						vatCategory: {
 							code: "E",
-							reason_code: "VATEX-SA-29",
+							reasonCode: "VATEX-SA-29",
 							reason: "Exempt",
 						},
 					}),
@@ -216,7 +211,7 @@ describe("Single line item - happy path calculations", () => {
 	it("qty=2, price=100, 15% -> LineExtension=200.00, Tax=30.00", () => {
 		const invoice = buildInvoice(
 			makeProps({
-				line_items: [makeLineItem({ quantity: 2 })],
+				lineItems: [makeLineItem({ quantity: 2 })],
 			}),
 		);
 		const xml = invoice.getXML();
@@ -232,7 +227,7 @@ describe("Edge case inputs", () => {
 	it("Zero quantity (qty=0, price=100) succeeds and LineExtension=0.00", () => {
 		const invoice = buildInvoice(
 			makeProps({
-				line_items: [makeLineItem({ quantity: 0 })],
+				lineItems: [makeLineItem({ quantity: 0 })],
 			}),
 		);
 		const xml = invoice.getXML();
@@ -245,7 +240,7 @@ describe("Edge case inputs", () => {
 	it("Zero price (qty=5, price=0) succeeds with LineExtension=0.00 and TaxAmount=0.00", () => {
 		const invoice = buildInvoice(
 			makeProps({
-				line_items: [makeLineItem({ quantity: 5, tax_exclusive_price: 0 })],
+				lineItems: [makeLineItem({ quantity: 5, taxExclusivePrice: 0 })],
 			}),
 		);
 		const xml = invoice.getXML();
@@ -259,10 +254,10 @@ describe("Edge case inputs", () => {
 	it("Very large numbers (qty=999999, price=999999.99, 15%) produce stable numeric XML", () => {
 		const invoice = buildInvoice(
 			makeProps({
-				line_items: [
+				lineItems: [
 					makeLineItem({
 						quantity: 999999,
-						tax_exclusive_price: 999999.99,
+						taxExclusivePrice: 999999.99,
 					}),
 				],
 			}),
@@ -283,8 +278,8 @@ describe("Edge case inputs", () => {
 	it("Floating point trap (0.30000000000000004) is normalized via Decimal.js", () => {
 		const invoice = buildInvoice(
 			makeProps({
-				line_items: [
-					makeLineItem({ tax_exclusive_price: 0.30000000000000004 }),
+				lineItems: [
+					makeLineItem({ taxExclusivePrice: 0.30000000000000004 }),
 				],
 			}),
 		);
@@ -302,7 +297,7 @@ describe("Edge case inputs", () => {
 	it("Very small price (0.001) rounds to 2 decimals", () => {
 		const invoice = buildInvoice(
 			makeProps({
-				line_items: [makeLineItem({ tax_exclusive_price: 0.001 })],
+				lineItems: [makeLineItem({ taxExclusivePrice: 0.001 })],
 			}),
 		);
 		const xml = invoice.getXML();
@@ -317,7 +312,7 @@ describe("Edge case inputs", () => {
 		expect(() =>
 			buildInvoice(
 				makeProps({
-					line_items: [makeLineItem({ quantity: -5 })],
+					lineItems: [makeLineItem({ quantity: -5 })],
 				}),
 			),
 		).toThrow("quantity must be non-negative, got -5");
@@ -327,10 +322,10 @@ describe("Edge case inputs", () => {
 		expect(() =>
 			buildInvoice(
 				makeProps({
-					line_items: [makeLineItem({ tax_exclusive_price: -100 })],
+					lineItems: [makeLineItem({ taxExclusivePrice: -100 })],
 				}),
 			),
-		).toThrow("tax_exclusive_price must be non-negative, got -100");
+		).toThrow("taxExclusivePrice must be non-negative, got -100");
 	});
 });
 
@@ -338,7 +333,7 @@ describe("Discounts", () => {
 	it("Single discount (100 - 10) -> LineExtension=90.00, Tax=13.50, TaxInclusive=103.50", () => {
 		const invoice = buildInvoice(
 			makeProps({
-				line_items: [
+				lineItems: [
 					makeLineItem({ discounts: [{ amount: 10, reason: "Promo" }] }),
 				],
 			}),
@@ -357,7 +352,7 @@ describe("Discounts", () => {
 	it("Multiple discounts (10 + 5) from 100 -> LineExtension=85.00", () => {
 		const invoice = buildInvoice(
 			makeProps({
-				line_items: [
+				lineItems: [
 					makeLineItem({
 						discounts: [
 							{ amount: 10, reason: "Promo A" },
@@ -381,7 +376,7 @@ describe("Discounts", () => {
 	it("Discount equals price (100 - 100) -> LineExtension=0.00, Tax=0.00", () => {
 		const invoice = buildInvoice(
 			makeProps({
-				line_items: [
+				lineItems: [
 					makeLineItem({ discounts: [{ amount: 100, reason: "Full promo" }] }),
 				],
 			}),
@@ -397,9 +392,9 @@ describe("Discounts", () => {
 	it("Discount exceeds price (50 - 100) currently creates negative taxable amounts", () => {
 		const invoice = buildInvoice(
 			makeProps({
-				line_items: [
+				lineItems: [
 					makeLineItem({
-						tax_exclusive_price: 50,
+						taxExclusivePrice: 50,
 						discounts: [{ amount: 100, reason: "Over-discount bug case" }],
 					}),
 				],
@@ -420,13 +415,13 @@ describe("Discounts", () => {
 describe("Zero-tax items - validation errors", () => {
 	it("Zero VAT without vat_category throws ZodValidationError", () => {
 		const props = makeProps({
-			line_items: [
+			lineItems: [
 				{
 					id: "1",
 					name: "Zero VAT item",
 					quantity: 1,
-					tax_exclusive_price: 100,
-					VAT_percent: 0,
+					taxExclusivePrice: 100,
+					vatPercent: 0,
 				} as unknown as ZATCAInvoiceLineItem,
 			],
 		});
@@ -435,14 +430,14 @@ describe("Zero-tax items - validation errors", () => {
 
 	it("Zero VAT with invalid vat_category.code='X' throws ZodValidationError", () => {
 		const props = makeProps({
-			line_items: [
+			lineItems: [
 				{
 					id: "1",
 					name: "Invalid category",
 					quantity: 1,
-					tax_exclusive_price: 100,
-					VAT_percent: 0,
-					vat_category: {
+					taxExclusivePrice: 100,
+					vatPercent: 0,
+					vatCategory: {
 						code: "X",
 					},
 				} as unknown as ZATCAInvoiceLineItem,
@@ -454,34 +449,34 @@ describe("Zero-tax items - validation errors", () => {
 	it("Zero VAT with valid vat_category across multiple items groups by category code", () => {
 		const invoice = buildInvoice(
 			makeProps({
-				line_items: [
+				lineItems: [
 					makeLineItem({
 						id: "1",
-						VAT_percent: 0,
-						vat_category: {
+						vatPercent: 0,
+						vatCategory: {
 							code: "O",
-							reason_code: "RC1",
+							reasonCode: "RC1",
 							reason: "Out of scope",
 						},
 					}),
 					makeLineItem({
 						id: "2",
 						quantity: 2,
-						tax_exclusive_price: 10,
-						VAT_percent: 0,
-						vat_category: {
+						taxExclusivePrice: 10,
+						vatPercent: 0,
+						vatCategory: {
 							code: "O",
-							reason_code: "RC1",
+							reasonCode: "RC1",
 							reason: "Out of scope",
 						},
 					}),
 					makeLineItem({
 						id: "3",
-						tax_exclusive_price: 30,
-						VAT_percent: 0,
-						vat_category: {
+						taxExclusivePrice: 30,
+						vatPercent: 0,
+						vatCategory: {
 							code: "Z",
-							reason_code: "RC2",
+							reasonCode: "RC2",
 							reason: "Zero rate",
 						},
 					}),
@@ -507,18 +502,18 @@ describe("Multiple line items", () => {
 	it("2 items at 15% -> TaxTotal sums to 30.00", () => {
 		const invoice = buildInvoice(
 			makeProps({
-				line_items: [
+				lineItems: [
 					makeLineItem({
 						id: "1",
 						quantity: 1,
-						tax_exclusive_price: 100,
-						VAT_percent: 0.15,
+						taxExclusivePrice: 100,
+						vatPercent: 0.15,
 					}),
 					makeLineItem({
 						id: "2",
 						quantity: 1,
-						tax_exclusive_price: 100,
-						VAT_percent: 0.15,
+						taxExclusivePrice: 100,
+						vatPercent: 0.15,
 					}),
 				],
 			}),
@@ -531,13 +526,13 @@ describe("Multiple line items", () => {
 	it("3 items at 15%, 5%, 0%/O -> 3 tax subtotal categories", () => {
 		const invoice = buildInvoice(
 			makeProps({
-				line_items: [
-					makeLineItem({ id: "1", VAT_percent: 0.15 }),
-					makeLineItem({ id: "2", VAT_percent: 0.05 }),
+				lineItems: [
+					makeLineItem({ id: "1", vatPercent: 0.15 }),
+					makeLineItem({ id: "2", vatPercent: 0.05 }),
 					makeLineItem({
 						id: "3",
-						VAT_percent: 0,
-						vat_category: { code: "O", reason: "Out", reason_code: "OUT" },
+						vatPercent: 0,
+						vatCategory: { code: "O", reason: "Out", reasonCode: "OUT" },
 					}),
 				],
 			}),
@@ -552,7 +547,7 @@ describe("Multiple line items", () => {
 	});
 
 	it("Invoice with empty line_items throws ZodValidationError", () => {
-		expect(() => buildInvoice(makeProps({ line_items: [] }))).toThrow(
+		expect(() => buildInvoice(makeProps({ lineItems: [] }))).toThrow(
 			ZodValidationError,
 		);
 	});
@@ -560,9 +555,9 @@ describe("Multiple line items", () => {
 	it("LineExtensionAmount values preserve per-line exact totals", () => {
 		const invoice = buildInvoice(
 			makeProps({
-				line_items: [
-					makeLineItem({ id: "1", quantity: 2, tax_exclusive_price: 10 }),
-					makeLineItem({ id: "2", quantity: 3, tax_exclusive_price: 20 }),
+				lineItems: [
+					makeLineItem({ id: "1", quantity: 2, taxExclusivePrice: 10 }),
+					makeLineItem({ id: "2", quantity: 3, taxExclusivePrice: 20 }),
 				],
 			}),
 		);
@@ -578,18 +573,18 @@ describe("Multiple line items", () => {
 	it("TaxExclusiveAmount equals sum of line extensions for multiple lines", () => {
 		const invoice = buildInvoice(
 			makeProps({
-				line_items: [
+				lineItems: [
 					makeLineItem({
 						id: "1",
 						quantity: 2,
-						tax_exclusive_price: 10,
-						VAT_percent: 0.15,
+						taxExclusivePrice: 10,
+						vatPercent: 0.15,
 					}),
 					makeLineItem({
 						id: "2",
 						quantity: 3,
-						tax_exclusive_price: 20,
-						VAT_percent: 0.05,
+						taxExclusivePrice: 20,
+						vatPercent: 0.05,
 					}),
 				],
 			}),
@@ -608,12 +603,12 @@ describe("Multiple line items", () => {
 	it("Both Invoice/cac:TaxTotal nodes carry same total tax amount", () => {
 		const invoice = buildInvoice(
 			makeProps({
-				line_items: [
+				lineItems: [
 					makeLineItem({
 						id: "1",
 						quantity: 1,
-						tax_exclusive_price: 200,
-						VAT_percent: 0.15,
+						taxExclusivePrice: 200,
+						vatPercent: 0.15,
 					}),
 				],
 			}),

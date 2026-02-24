@@ -1,6 +1,6 @@
 import { XMLBuilder, XmlBuilderOptions, XMLParser } from "fast-xml-parser";
 import _ from "lodash";
-import { log } from "../logger";
+import { log } from "../logger/index.js";
 
 export interface XMLObject {[tag: string]: any};
 export type XMLQueryResult = XMLObject[] | undefined;

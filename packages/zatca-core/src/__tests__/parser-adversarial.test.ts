@@ -1,43 +1,43 @@
 import { describe, expect, it } from "vitest";
-import { XMLDocument } from "../parser";
-import { buildInvoice } from "../api";
-import { ZATCAInvoiceTypes, ZATCAPaymentMethods } from "../ZATCASimplifiedTaxInvoice";
-import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice";
-import { valid_simplified_invoice_xml_sample } from "../samples";
+import { XMLDocument } from "../parser/index.js";
+import { buildInvoice } from "../api.js";
+import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice.js";
+import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice.js";
+import { valid_simplified_invoice_xml_sample } from "../samples/index.js";
 
 const now = new Date();
 const issueDate = now.toISOString().split("T")[0];
 const issueTime = now.toISOString().split("T")[1].slice(0, 8);
 
 const minimalInvoiceProps: ZATCAInvoiceProps = {
-	egs_info: {
-		uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
-		custom_id: "PARSER-TEST",
+	egsInfo: {
+		id: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
+		name: "PARSER-TEST",
 		model: "IOS",
-		CRN_number: "7032256278",
-		VAT_name: "Parser Test Co",
-		VAT_number: "311497191800003",
-		branch_name: "Main",
-		branch_industry: "Software",
+		vatName: "Parser Test Co",
+		vatNumber: "311497191800003",
+		branchName: "Main",
+		branchIndustry: "Software",
 	},
-	invoice_counter_number: 1,
-	invoice_serial_number: "PARSER-001",
-	issue_date: issueDate,
-	issue_time: issueTime,
-	previous_invoice_hash:
+	crnNumber: "7032256278",
+	invoiceCounterNumber: 1,
+	invoiceSerialNumber: "PARSER-001",
+	issueDate: issueDate,
+	issueTime: issueTime,
+	previousInvoiceHash:
 		"NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==",
-	line_items: [
+	lineItems: [
 		{
 			id: "1",
 			name: "Product",
 			quantity: 1,
-			tax_exclusive_price: 100,
-			VAT_percent: 0.15,
+			taxExclusivePrice: 100,
+			vatPercent: 0.15,
 		},
 	],
-	invoice_type: ZATCAInvoiceTypes.INVOICE,
-	invoice_code: "0200000",
-	payment_method: ZATCAPaymentMethods.CASH,
+	invoiceType: "INVOICE",
+	invoiceCode: "SIMPLIFIED",
+	paymentMethod: "CASH",
 };
 
 describe("XMLDocument constructor edge cases", () => {

@@ -2,6 +2,7 @@
   "name": "@jaicome/zatca-server",
   "version": "1.0.0-alpha.0",
   "description": "ZATCA server library - Node.js only (signing, EGS, API integration)",
+  "type": "module",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
@@ -13,7 +14,7 @@
     "test": "vitest run"
   },
   "devDependencies": {
-    "@types/node": "^18.7.16",
+    "@types/node": "^22.19.11",
     "@types/uuid": "^9.0.0",
     "@types/xmldom": "^0.1.31",
     "typescript": "^4.8.3",
@@ -21,8 +22,9 @@
   },
   "dependencies": {
     "@fidm/x509": "^1.2.1",
-    "axios": "^1.4.0",
+    "better-result": "^2.7.0",
     "moment": "^2.29.4",
+    "pino": "^10.3.1",
     "uuid": "^9.0.0",
     "xmldom": "^0.6.0",
     "xmldsigjs": "^2.5.0",
@@ -49,9 +51,9 @@
   ],
   "exports": {
     ".": {
+      "types": "./lib/index.d.ts",
       "import": "./lib/index.js",
-      "require": "./lib/index.js",
-      "types": "./lib/index.d.ts"
+      "default": "./lib/index.js"
     }
   }
 }

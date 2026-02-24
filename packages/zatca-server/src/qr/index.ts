@@ -1,7 +1,7 @@
 import moment from "moment";
 
 import { generatePhaseOneQRFromXml, type XMLDocument } from "@jaicome/zatca-core";
-import { getInvoiceHash } from "../signing";
+import { getInvoiceHash } from "../signing/index.js";
 
 interface QRParams {
     invoice_xml: XMLDocument;

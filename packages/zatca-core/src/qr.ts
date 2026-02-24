@@ -1,10 +1,10 @@
 import moment from "moment";
-import type { XMLDocument } from "./parser";
+import type { XMLDocument } from "./parser/index.js";
 import {
   concatUint8Arrays,
   stringToUint8Array,
   uint8ArrayToBase64,
-} from "./utils/bytes";
+} from "./utils/bytes.js";
 
 function encodeTLVTag(tag: number, value: string): Uint8Array {
   const valueBytes = stringToUint8Array(value);

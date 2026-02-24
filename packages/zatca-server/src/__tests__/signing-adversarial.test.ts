@@ -3,8 +3,6 @@ import {
 	buildInvoice,
 	prepareSigningInput,
 	XMLDocument,
-	ZATCAInvoiceTypes,
-	ZATCAPaymentMethods,
 } from "@jaicome/zatca-core";
 import { describe, expect, it } from "vitest";
 import {
@@ -16,7 +14,7 @@ import {
 	getCertificateInfo,
 	getInvoiceHash,
 	NodeSigner,
-} from "../signing";
+} from "../signing/index.js";
 
 const SAMPLE_ZATCA_TEST_CERT_BODY =
 	"MIID9jCCA5ugAwIBAgITbwAAeCy9aKcLA99HrAABAAB4LDAKBggqhkjOPQQDAjBjMRUwEwYKCZImiZPyLGQBGRYFbG9jYWwxEzARBgoJkiaJk/IsZAEZFgNnb3YxFzAVBgoJkiaJk/IsZAEZFgdleHRnYXp0MRwwGgYDVQQDExNUU1pFSU5WT0lDRS1TdWJDQS0xMB4XDTIyMDQxOTIwNDkwOVoXDTI0MDQxODIwNDkwOVowWTELMAkGA1UEBhMCU0ExEzARBgNVBAoTCjMxMjM0NTY3ODkxDDAKBgNVBAsTA1RTVDEnMCUGA1UEAxMeVFNULS05NzA1NjAwNDAtMzEyMzQ1Njc4OTAwMDAzMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEYYMMoOaFYAhMO/steotfZyavr6p11SSlwsK9azmsLY7b1b+FLhqMArhB2dqHKboxqKNfvkKDePhpqjui5hcn0aOCAjkwggI1MIGaBgNVHREEgZIwgY+kgYwwgYkxOzA5BgNVBAQMMjEtVFNUfDItVFNUfDMtNDdmMTZjMjYtODA2Yi00ZTE1LWIyNjktN2E4MDM4ODRiZTljMR8wHQYKCZImiZPyLGQBAQwPMzEyMzQ1Njc4OTAwMDAzMQ0wCwYDVQQMDAQxMTAwMQwwCgYDVQQaDANUU1QxDDAKBgNVBA8MA1RTVDAdBgNVHQ4EFgQUO5ZiU7NakU3eejVa3I2S1B2sDwkwHwYDVR0jBBgwFoAUdmCM+wagrGdXNZ3PmqynK5k1tS8wTgYDVR0fBEcwRTBDoEGgP4Y9aHR0cDovL3RzdGNybC56YXRjYS5nb3Yuc2EvQ2VydEVucm9sbC9UU1pFSU5WT0lDRS1TdWJDQS0xLmNybDCBrQYIKwYBBQUHAQEEgaAwgZ0wbgYIKwYBBQUHMAGGYmh0dHA6Ly90c3RjcmwuemF0Y2EuZ292LnNhL0NlcnRFbnJvbGwvVFNaRWludm9pY2VTQ0ExLmV4dGdhenQuZ292LmxvY2FsX1RTWkVJTlZPSUNFLVN1YkNBLTEoMSkuY3J0MCsGCCsGAQUFBzABhh9odHRwOi8vdHN0Y3JsLnphdGNhLmdvdi5zYS9vY3NwMA4GA1UdDwEB/wQEAwIHgDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwMwJwYJKwYBBAGCNxUKBBowGDAKBggrBgEFBQcDAjAKBggrBgEFBQcDAzAKBggqhkjOPQQDAgNJADBGAiEA7mHT6yg85jtQGWp3M7tPT7Jk2+zsvVHGs3bU5Z7YE68CIQD60ebQamYjYvdebnFjNfx4X4dop7LsEBFCNSsLY0IFaQ==";
@@ -24,26 +22,26 @@ const SAMPLE_CERT_PEM = `-----BEGIN CERTIFICATE-----\n${SAMPLE_ZATCA_TEST_CERT_B
 
 function buildTestInvoiceXml(price = 100): string {
 	const invoice = buildInvoice({
-		egs_info: {
-			uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
-			custom_id: "SIGN-TEST",
+		egsInfo: {
+			id: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
+			name: "SIGN-TEST",
 			model: "IOS",
-			CRN_number: "7032256278",
-			VAT_name: "Signing Test Co",
-			VAT_number: "311497191800003",
-			branch_name: "Main",
-			branch_industry: "Software",
+			vatName: "Signing Test Co",
+			vatNumber: "311497191800003",
+			branchName: "Main",
+			branchIndustry: "Software",
 		},
-		invoice_counter_number: 1,
-		invoice_serial_number: "SIGN-001",
-		issue_date: "2024-01-15",
-		issue_time: "10:00:00",
-		previous_invoice_hash:
+		crnNumber: "7032256278",
+		invoiceCounterNumber: 1,
+		invoiceSerialNumber: "SIGN-001",
+		issueDate: "2024-01-15",
+		issueTime: "10:00:00",
+		previousInvoiceHash:
 			"NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==",
-		line_items: [{ id: "1", name: "P", quantity: 1, tax_exclusive_price: price, VAT_percent: 0.15 }],
-		invoice_type: ZATCAInvoiceTypes.INVOICE,
-		invoice_code: "0200000",
-		payment_method: ZATCAPaymentMethods.CASH,
+		lineItems: [{ id: "1", name: "P", quantity: 1, taxExclusivePrice: price, vatPercent: 0.15 }],
+		invoiceType: "INVOICE",
+		invoiceCode: "SIMPLIFIED",
+		paymentMethod: "CASH",
 	});
 
 	return invoice.getXML().toString({});
@@ -51,26 +49,26 @@ function buildTestInvoiceXml(price = 100): string {
 
 function buildInvoiceForSigning() {
 	return buildInvoice({
-		egs_info: {
-			uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
-			custom_id: "SIGN-TEST",
+		egsInfo: {
+			id: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
+			name: "SIGN-TEST",
 			model: "IOS",
-			CRN_number: "7032256278",
-			VAT_name: "Signing Test Co",
-			VAT_number: "311497191800003",
-			branch_name: "Main",
-			branch_industry: "Software",
+			vatName: "Signing Test Co",
+			vatNumber: "311497191800003",
+			branchName: "Main",
+			branchIndustry: "Software",
 		},
-		invoice_counter_number: 1,
-		invoice_serial_number: "SIGN-001",
-		issue_date: "2024-01-15",
-		issue_time: "10:00:00",
-		previous_invoice_hash:
+		crnNumber: "7032256278",
+		invoiceCounterNumber: 1,
+		invoiceSerialNumber: "SIGN-001",
+		issueDate: "2024-01-15",
+		issueTime: "10:00:00",
+		previousInvoiceHash:
 			"NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==",
-		line_items: [{ id: "1", name: "P", quantity: 1, tax_exclusive_price: 100, VAT_percent: 0.15 }],
-		invoice_type: ZATCAInvoiceTypes.INVOICE,
-		invoice_code: "0200000",
-		payment_method: ZATCAPaymentMethods.CASH,
+		lineItems: [{ id: "1", name: "P", quantity: 1, taxExclusivePrice: 100, vatPercent: 0.15 }],
+		invoiceType: "INVOICE",
+		invoiceCode: "SIMPLIFIED",
+		paymentMethod: "CASH",
 	});
 }
 

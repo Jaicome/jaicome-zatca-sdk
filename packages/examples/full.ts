@@ -4,13 +4,11 @@ import {
   ZATCAInvoice,
   type ZATCAInvoiceLineItem,
   type ZATCAInvoiceProps,
-  ZATCAInvoiceTypes,
-  ZATCAPaymentMethods,
 } from "@jaicome/zatca-core";
 import {
   type ComplianceCheckPayload,
   EGS,
-  type EGSUnitInfo,
+  type EGSInfo,
   NodeSigner,
   REQUIRED_COMPLIANCE_STEPS,
   type ZATCAComplianceStep,
@@ -25,99 +23,99 @@ const GENESIS_PREVIOUS_INVOICE_HASH =
   "NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==";
 
 // Sample line items
-const line_item_1: ZATCAInvoiceLineItem = {
+const lineItem1: ZATCAInvoiceLineItem = {
   id: "1",
   name: "TEST NAME",
   quantity: 44,
-  tax_exclusive_price: 22,
-  VAT_percent: 0.15,
+  taxExclusivePrice: 22,
+  vatPercent: 0.15,
   discounts: [{ amount: 1, reason: "discount" }],
 };
 
-const line_item_2: ZATCAInvoiceLineItem = {
+const lineItem2: ZATCAInvoiceLineItem = {
   id: "2",
   name: "TEST NAME 1",
   quantity: 10,
-  tax_exclusive_price: 5,
-  VAT_percent: 0.05,
+  taxExclusivePrice: 5,
+  vatPercent: 0.05,
   discounts: [{ amount: 2, reason: "discount" }],
 };
 
-const line_item_3: ZATCAInvoiceLineItem = {
+const lineItem3: ZATCAInvoiceLineItem = {
   id: "3",
   name: "TEST NAME 2",
   quantity: 10,
-  tax_exclusive_price: 5,
-  VAT_percent: 0.0,
-  vat_category: {
+  taxExclusivePrice: 5,
+  vatPercent: 0.0,
+  vatCategory: {
     code: "Z",
-    reason_code: "VATEX-SA-34-4",
+    reasonCode: "VATEX-SA-34-4",
     reason: "Supply of a qualifying means of transport",
   },
 };
 
 // Sample EGSUnit
-const egsunit: EGSUnitInfo = {
-  uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
-  custom_id: "EGS2",
+const egsunit: EGSInfo = {
+  id: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
+  name: "EGS2",
   model: "IOS",
-  CRN_number: "7032256278",
-  VAT_name: "شركة جاي كوم لتقنية المعلومات",
-  VAT_number: "311497191800003",
+  vatName: "شركة جاي كوم لتقنية المعلومات",
+  vatNumber: "311497191800003",
   location: {
     city: "Khobar",
-    city_subdivision: "West",
+    citySubdivision: "West",
     street: "King Fahahd st",
-    plot_identification: "0000",
+    plotIdentification: "0000",
     building: "0000",
-    postal_zone: "31952",
+    postalZone: "31952",
   },
-  customer_info: {
-    city: "jeddah",
-    city_subdivision: "ssss",
-    buyer_name: "S7S",
-    building: "00",
-    postal_zone: "00000",
-    street: "__",
-    vat_number: "311498192800003",
-    customer_crn_number: "7052156278", // 10-digit CRN for the buyer
-  },
-  branch_name: "My Branch Name",
-  branch_industry: "Food",
+  branchName: "My Branch Name",
+  branchIndustry: "Food",
 };
 
 const buildInvoicePropsForComplianceStep = (
   step: ZATCAComplianceStep,
-  invoice_counter_number: number,
-  previous_invoice_hash: string,
-  canceled_serial_invoice_number: string,
+  invoiceCounterNumber: number,
+  previousInvoiceHash: string,
+  canceledSerialInvoiceNumber: string,
 ): ZATCAInvoiceProps => {
-  const invoice_serial_number = `EGS1-886431145-${100 + invoice_counter_number}`;
+  const invoiceSerialNumber = `EGS1-886431145-${100 + invoiceCounterNumber}`;
   const shared = {
-    egs_info: egsunit,
-    invoice_counter_number,
-    invoice_serial_number,
-    issue_date: issueDate,
-    issue_time: `${issueTime}Z`,
-    previous_invoice_hash,
-    line_items: [line_item_1, line_item_2, line_item_3],
+    egsInfo: egsunit,
+    invoiceCounterNumber,
+    invoiceSerialNumber,
+    issueDate,
+    issueTime: `${issueTime}Z`,
+    previousInvoiceHash,
+    lineItems: [lineItem1, lineItem2, lineItem3],
+    crnNumber: "7032256278",
+    customerInfo: {
+      buyerName: "S7S",
+      city: "jeddah",
+      citySubdivision: "ssss",
+      building: "00",
+      postalZone: "00000",
+      street: "__",
+      vatNumber: "311498192800003",
+      customerCrnNumber: "7052156278",
+    },
   };
 
   if (step === "standard-compliant") {
     return {
       ...shared,
-      invoice_type: ZATCAInvoiceTypes.INVOICE,
-      invoice_code: "0100000",
-      actual_delivery_date: "2024-02-29",
+      invoiceType: "INVOICE",
+      invoiceCode: "STANDARD",
+      actualDeliveryDate: "2024-02-29",
     };
   }
 
   if (step === "simplified-compliant") {
     return {
       ...shared,
-      invoice_type: ZATCAInvoiceTypes.INVOICE,
-      invoice_code: "0200000",
-      actual_delivery_date: "2024-02-29",
+      invoiceType: "INVOICE",
+      invoiceCode: "SIMPLIFIED",
+      actualDeliveryDate: "2024-02-29",
     };
   }
 
@@ -130,13 +128,13 @@ const buildInvoicePropsForComplianceStep = (
 
   return {
     ...shared,
-    invoice_type: is_credit_note
-      ? ZATCAInvoiceTypes.CREDIT_NOTE
-      : ZATCAInvoiceTypes.DEBIT_NOTE,
-    invoice_code: is_standard_note ? "0100000" : "0200000",
+    invoiceType: is_credit_note
+      ? "CREDIT_NOTE"
+      : "DEBIT_NOTE",
+    invoiceCode: is_standard_note ? "STANDARD" : "SIMPLIFIED",
     cancelation: {
-      canceled_serial_invoice_number,
-      payment_method: ZATCAPaymentMethods.CASH,
+      canceledSerialInvoiceNumber,
+      paymentMethod: "CASH",
       reason: "Compliance onboarding reference",
     },
   };
@@ -167,19 +165,24 @@ const main = async () => {
     const egs = new EGS(egsunit, "simulation");
 
     // 2. Generate Keys & CSR
-    await egs.generateNewKeysAndCSR(false, "solution_name");
+    await egs.generateNewKeysAndCSR("Jaicome ZATCA Test");
     console.log("Keys and CSR generated successfully");
 
     // 3. Issue compliance certificate
-    const otp = "086338";
-    const compliance_request_id = await egs.issueComplianceCertificate(otp);
+    const otp = "255013";
+    const complianceCertResult = await egs.issueComplianceCertificate(otp);
+    if (complianceCertResult.isErr()) {
+      console.error("Failed to issue compliance certificate:", complianceCertResult.error);
+      return;
+    }
+    const compliance_request_id = complianceCertResult.value;
     console.log(
       "Compliance certificate issued with request ID:",
       compliance_request_id,
     );
 
     // 4. Create NodeSigner using compliance certificate
-    const signer = new NodeSigner(egs.get().compliance_certificate!);
+    const signer = new NodeSigner(egs.getComplianceCertificate()!);
 
     const complianceChecks: Partial<
       Record<ZATCAComplianceStep, ComplianceCheckPayload>
@@ -209,26 +212,31 @@ const main = async () => {
       });
 
       const result = await invoice.sign(
-        egs.get().compliance_certificate!,
-        egs.get().private_key!,
+        egs.getComplianceCertificate()!,
+        egs.getPrivateKey()!,
       );
-      const signed_invoice_string = result.signedXml;
-      const invoice_hash = result.invoiceHash;
-      complianceChecks[step] = { signed_invoice_string, invoice_hash };
+      const signedInvoiceString = result.signedXml;
+      const invoiceHash = result.invoiceHash;
+      complianceChecks[step] = { signedInvoiceString, invoiceHash };
       serialByStep[step] = `EGS1-886431145-${101 + index}`;
-      previousHash = invoice_hash;
+      previousHash = invoiceHash;
       previousSerial = serialByStep[step];
 
       fs.writeFileSync(
         path.join(outputDir, `invoice_${step}.xml`),
-        signed_invoice_string,
+        signedInvoiceString,
         "utf8",
       );
       console.log(`✅ Signed invoice for ${step} generated`);
     }
 
-    const complianceResults =
+    const complianceResultsResult =
       await egs.runComplianceChecksForProduction(complianceChecks);
+    if (complianceResultsResult.isErr()) {
+      console.error("Compliance checks failed:", complianceResultsResult.error);
+      return;
+    }
+    const complianceResults = complianceResultsResult.value;
     REQUIRED_COMPLIANCE_STEPS.forEach((step) => {
       const stepResult = complianceResults[step];
       console.log(
@@ -237,9 +245,14 @@ const main = async () => {
       );
     });
 
-    const production_request_id = await egs.issueProductionCertificate(
+    const productionResult = await egs.issueProductionCertificate(
       compliance_request_id,
     );
+    if (productionResult.isErr()) {
+      console.error("Failed to issue production certificate:", productionResult.error);
+      return;
+    }
+    const production_request_id = productionResult.value;
     console.log(
       "Production certificate issued with request ID:",
       production_request_id,
@@ -256,17 +269,20 @@ const main = async () => {
       acceptWarning: true,
     });
     const reportResult = await reportInvoice.sign(
-      egs.get().compliance_certificate!,
-      egs.get().private_key!,
+      egs.getComplianceCertificate()!,
+      egs.getPrivateKey()!,
     );
-    const signed_invoice_string = reportResult.signedXml;
-    const invoice_hash = reportResult.invoiceHash;
-
-    const reportedInvoice = await egs.reportInvoice(
-      signed_invoice_string,
-      invoice_hash,
+    const signedInvoiceString = reportResult.signedXml;
+    const invoiceHash = reportResult.invoiceHash;
+    const reportedInvoiceResult = await egs.reportInvoice(
+      signedInvoiceString,
+      invoiceHash,
     );
-    console.log("Invoice reporting status:", reportedInvoice?.reportingStatus);
+    if (reportedInvoiceResult.isErr()) {
+      console.error("Failed to report invoice:", reportedInvoiceResult.error);
+      return;
+    }
+    console.log("Invoice reporting status:", reportedInvoiceResult.value?.reportingStatus);
 
     console.log("Process completed successfully!");
   } catch (error: any) {

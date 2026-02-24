@@ -1,8 +1,8 @@
-import type { Signer, SigningInput } from "./contracts/signer";
-import { generatePhaseOneQRFromXml } from "./qr";
-import type { ZATCAInvoiceProps } from "./ZATCASimplifiedTaxInvoice";
-import { ZATCAInvoice } from "./ZATCASimplifiedTaxInvoice";
-import { ZATCAInvoicePropsSchema, SigningInputSchema, ZodValidationError } from "./schemas";
+import type { Signer, SigningInput } from "./contracts/signer.js";
+import { generatePhaseOneQRFromXml } from "./qr.js";
+import type { ZATCAInvoiceProps } from "./ZATCASimplifiedTaxInvoice.js";
+import { ZATCAInvoice } from "./ZATCASimplifiedTaxInvoice.js";
+import { ZATCAInvoicePropsSchema, SigningInputSchema, ZodValidationError } from "./schemas/index.js";
 
 export function buildInvoice(
 	props: ZATCAInvoiceProps,

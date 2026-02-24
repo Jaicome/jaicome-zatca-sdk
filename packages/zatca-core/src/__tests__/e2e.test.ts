@@ -5,8 +5,6 @@ import {
 	prepareSigningInput,
 	generatePhaseOneQR,
 	ZodValidationError,
-	ZATCAInvoiceTypes,
-	ZATCAPaymentMethods,
 	valid_simplified_invoice_xml_sample,
 } from "@jaicome/zatca-core";
 import type { ZATCAInvoiceProps } from "@jaicome/zatca-core";
@@ -16,42 +14,42 @@ const issueDate = now.toISOString().split("T")[0];
 const issueTime = now.toISOString().split("T")[1].slice(0, 8);
 
 const validSampleProps: ZATCAInvoiceProps = {
-	egs_info: {
-		uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
-		custom_id: "EGS1",
+	egsInfo: {
+		id: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
+		name: "EGS1",
 		model: "IOS",
-		CRN_number: "7032256278",
-		VAT_name: "Jaicome Information Technology",
-		VAT_number: "311497191800003",
-		branch_name: "Main",
-		branch_industry: "Software",
+		vatName: "Jaicome Information Technology",
+		vatNumber: "311497191800003",
+		branchName: "Main",
+		branchIndustry: "Software",
 		location: {
 			city: "Khobar",
-			city_subdivision: "West",
+			citySubdivision: "West",
 			street: "King Fahd st",
-			plot_identification: "0000",
+			plotIdentification: "0000",
 			building: "0000",
-			postal_zone: "31952",
+			postalZone: "31952",
 		},
 	},
-	invoice_counter_number: 1,
-	invoice_serial_number: "EGS1-886431145-101",
-	issue_date: issueDate,
-	issue_time: issueTime,
-	previous_invoice_hash:
+	crnNumber: "7032256278",
+	invoiceCounterNumber: 1,
+	invoiceSerialNumber: "EGS1-886431145-101",
+	issueDate: issueDate,
+	issueTime: issueTime,
+	previousInvoiceHash:
 		"NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==",
-	line_items: [
+	lineItems: [
 		{
 			id: "1",
 			name: "Sample Product",
 			quantity: 2,
-			tax_exclusive_price: 100,
-			VAT_percent: 0.15,
+			taxExclusivePrice: 100,
+			vatPercent: 0.15,
 		},
 	],
-	invoice_type: ZATCAInvoiceTypes.INVOICE,
-	invoice_code: "0200000",
-	payment_method: ZATCAPaymentMethods.CASH,
+	invoiceType: "INVOICE",
+	invoiceCode: "SIMPLIFIED",
+	paymentMethod: "CASH",
 };
 
 describe("@jaicome/zatca-core — end-to-end pipeline", () => {
@@ -123,14 +121,14 @@ describe("@jaicome/zatca-core — end-to-end pipeline", () => {
 	});
 
 	it("buildInvoice throws ZodValidationError when invoice_serial_number is empty", () => {
-		const invalidProps = { ...validSampleProps, invoice_serial_number: "" };
+		const invalidProps = { ...validSampleProps, invoiceSerialNumber: "" };
 		expect(() =>
 			buildInvoice(invalidProps as ZATCAInvoiceProps),
 		).toThrow(ZodValidationError);
 	});
 
 	it("ZodValidationError includes field path info for invalid invoice", () => {
-		const invalidProps = { ...validSampleProps, invoice_serial_number: "" };
+		const invalidProps = { ...validSampleProps, invoiceSerialNumber: "" };
 		try {
 			buildInvoice(invalidProps as ZATCAInvoiceProps);
 			expect.fail("should have thrown ZodValidationError");
@@ -140,7 +138,7 @@ describe("@jaicome/zatca-core — end-to-end pipeline", () => {
 			expect(zodErr.message).toContain("Validation failed");
 			expect(zodErr.name).toBe("ZodValidationError");
 			const paths = zodErr.issues.map((i) => i.path.join("."));
-			expect(paths.some((p) => p.includes("invoice_serial_number"))).toBe(true);
+			expect(paths.some((p) => p.includes("invoiceSerialNumber"))).toBe(true);
 		}
 	});
 });
