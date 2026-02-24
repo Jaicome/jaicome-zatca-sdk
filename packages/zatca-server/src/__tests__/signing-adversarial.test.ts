@@ -3,8 +3,6 @@ import {
 	buildInvoice,
 	prepareSigningInput,
 	XMLDocument,
-	ZATCAInvoiceTypes,
-	ZATCAPaymentMethods,
 } from "@jaicome/zatca-core";
 import { describe, expect, it } from "vitest";
 import {
@@ -41,9 +39,9 @@ function buildTestInvoiceXml(price = 100): string {
 		previousInvoiceHash:
 			"NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==",
 		lineItems: [{ id: "1", name: "P", quantity: 1, taxExclusivePrice: price, vatPercent: 0.15 }],
-		invoiceType: ZATCAInvoiceTypes.INVOICE,
-		invoiceCode: "0200000",
-		paymentMethod: ZATCAPaymentMethods.CASH,
+		invoiceType: "INVOICE",
+		invoiceCode: "SIMPLIFIED",
+		paymentMethod: "CASH",
 	});
 
 	return invoice.getXML().toString({});
@@ -68,9 +66,9 @@ function buildInvoiceForSigning() {
 		previousInvoiceHash:
 			"NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==",
 		lineItems: [{ id: "1", name: "P", quantity: 1, taxExclusivePrice: 100, vatPercent: 0.15 }],
-		invoiceType: ZATCAInvoiceTypes.INVOICE,
-		invoiceCode: "0200000",
-		paymentMethod: ZATCAPaymentMethods.CASH,
+		invoiceType: "INVOICE",
+		invoiceCode: "SIMPLIFIED",
+		paymentMethod: "CASH",
 	});
 }
 

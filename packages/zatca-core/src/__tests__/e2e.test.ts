@@ -5,8 +5,6 @@ import {
 	prepareSigningInput,
 	generatePhaseOneQR,
 	ZodValidationError,
-	ZATCAInvoiceTypes,
-	ZATCAPaymentMethods,
 	valid_simplified_invoice_xml_sample,
 } from "@jaicome/zatca-core";
 import type { ZATCAInvoiceProps } from "@jaicome/zatca-core";
@@ -49,9 +47,9 @@ const validSampleProps: ZATCAInvoiceProps = {
 			vatPercent: 0.15,
 		},
 	],
-	invoiceType: ZATCAInvoiceTypes.INVOICE,
-	invoiceCode: "0200000",
-	paymentMethod: ZATCAPaymentMethods.CASH,
+	invoiceType: "INVOICE",
+	invoiceCode: "SIMPLIFIED",
+	paymentMethod: "CASH",
 };
 
 describe("@jaicome/zatca-core — end-to-end pipeline", () => {

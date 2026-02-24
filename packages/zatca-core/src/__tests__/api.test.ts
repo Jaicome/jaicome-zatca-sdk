@@ -9,10 +9,7 @@ import { ZodValidationError } from "../schemas/index.js";
 import { valid_simplified_invoice_xml_sample } from "../samples/index.js";
 import { base64ToUint8Array } from "../utils/index.js";
 import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice.js";
-import {
-	ZATCAInvoiceTypes,
-	ZATCAPaymentMethods,
-} from "../ZATCASimplifiedTaxInvoice.js";
+import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice.js";
 
 const now = new Date();
 const issueDate = now.toISOString().split("T")[0];
@@ -53,9 +50,9 @@ const validInvoiceProps: ZATCAInvoiceProps = {
 			discounts: [{ amount: 5, reason: "discount" }],
 		},
 	],
-	invoiceType: ZATCAInvoiceTypes.INVOICE,
-	invoiceCode: "0200000",
-	paymentMethod: ZATCAPaymentMethods.CASH,
+	invoiceType: "INVOICE",
+	invoiceCode: "SIMPLIFIED",
+	paymentMethod: "CASH",
 };
 
 describe("core public api", () => {

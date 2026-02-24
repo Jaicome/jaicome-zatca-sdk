@@ -89,12 +89,10 @@ describe("@jaicome/zatca-server — end-to-end", () => {
 
 	describe("signing flow wiring (no network)", () => {
 		it("NodeSigner.sign() returns a SignatureResult shape for a built invoice", async () => {
-			const {
-				buildInvoice,
-				prepareSigningInput,
-				ZATCAInvoiceTypes,
-				ZATCAPaymentMethods,
-			} = await import("@jaicome/zatca-core");
+const {
+			buildInvoice,
+			prepareSigningInput,
+		} = await import("@jaicome/zatca-core");
 
 			const { privateKey } = generateKeyPairSync("ec", {
 				namedCurve: "prime256v1",
@@ -129,9 +127,9 @@ describe("@jaicome/zatca-server — end-to-end", () => {
 					vatPercent: 0.15,
 					},
 				],
-			invoiceType: ZATCAInvoiceTypes.INVOICE,
-			invoiceCode: "0200000",
-			paymentMethod: ZATCAPaymentMethods.CASH,
+			invoiceType: "INVOICE",
+			invoiceCode: "SIMPLIFIED",
+			paymentMethod: "CASH",
 			});
 
 			const signingInput = prepareSigningInput(invoice);

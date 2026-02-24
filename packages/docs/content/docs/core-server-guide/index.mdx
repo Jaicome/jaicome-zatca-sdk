@@ -63,8 +63,6 @@ Typical deployment:
 ```ts
 import {
   buildInvoice,
-  ZATCAInvoiceTypes,
-  ZATCAPaymentMethods,
   type ZATCAInvoiceProps,
 } from "@jaicome/zatca-core";
 
@@ -95,9 +93,9 @@ const props: ZATCAInvoiceProps = {
       VAT_percent: 0.15,
     },
   ],
-  invoice_type: ZATCAInvoiceTypes.INVOICE,
+  invoice_type: "INVOICE",
   invoice_code: "0200000",
-  payment_method: ZATCAPaymentMethods.CASH,
+  payment_method: "CASH",
 };
 
 const invoice = buildInvoice(props);

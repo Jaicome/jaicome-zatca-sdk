@@ -1,12 +1,8 @@
 import Decimal from "decimal.js";
 import { afterAll, afterEach, describe, expect, it } from "vitest";
 import { buildInvoice } from "../api.js";
-import {
-	ZATCAInvoice,
-	type ZATCAInvoiceProps,
-	ZATCAInvoiceTypes,
-	ZATCAPaymentMethods,
-} from "../ZATCASimplifiedTaxInvoice.js";
+import { ZATCAInvoice } from "../ZATCASimplifiedTaxInvoice.js";
+import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice.js";
 
 const ORIGINAL_DECIMAL_ROUNDING = Decimal.rounding;
 
@@ -27,8 +23,8 @@ const BASE_PROPS = {
 	issueTime: "10:00:00",
 	previousInvoiceHash:
 		"NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==",
-	invoiceType: ZATCAInvoiceTypes.INVOICE,
-	invoiceCode: "0200000",
+	invoiceType: "INVOICE",
+	invoiceCode: "SIMPLIFIED",
 } as const;
 
 const asText = (value: unknown): string | undefined => {
@@ -49,7 +45,7 @@ const makeProps = (
 ): ZATCAInvoiceProps => {
 	return {
 		...BASE_PROPS,
-		paymentMethod: ZATCAPaymentMethods.CASH,
+		paymentMethod: "CASH",
 		lineItems,
 		...overrides,
 	} as ZATCAInvoiceProps;

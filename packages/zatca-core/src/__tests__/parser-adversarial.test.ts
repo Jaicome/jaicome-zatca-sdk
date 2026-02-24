@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { XMLDocument } from "../parser/index.js";
 import { buildInvoice } from "../api.js";
-import { ZATCAInvoiceTypes, ZATCAPaymentMethods } from "../ZATCASimplifiedTaxInvoice.js";
+import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice.js";
 import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice.js";
 import { valid_simplified_invoice_xml_sample } from "../samples/index.js";
 
@@ -35,9 +35,9 @@ const minimalInvoiceProps: ZATCAInvoiceProps = {
 			vatPercent: 0.15,
 		},
 	],
-	invoiceType: ZATCAInvoiceTypes.INVOICE,
-	invoiceCode: "0200000",
-	paymentMethod: ZATCAPaymentMethods.CASH,
+	invoiceType: "INVOICE",
+	invoiceCode: "SIMPLIFIED",
+	paymentMethod: "CASH",
 };
 
 describe("XMLDocument constructor edge cases", () => {

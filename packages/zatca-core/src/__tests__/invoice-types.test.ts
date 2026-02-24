@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildInvoice } from "../api.js";
 import { ZodValidationError } from "../schemas/index.js";
-import { ZATCAInvoiceTypes, ZATCAPaymentMethods } from "../ZATCASimplifiedTaxInvoice.js";
+import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice.js";
 import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice.js";
 
 function makeBaseProps(): ZATCAInvoiceProps {
@@ -31,8 +31,8 @@ function makeBaseProps(): ZATCAInvoiceProps {
 				vatPercent: 0.15,
 			},
 		],
-		invoiceType: ZATCAInvoiceTypes.INVOICE,
-		invoiceCode: "0200000",
+		invoiceType: "INVOICE",
+		invoiceCode: "SIMPLIFIED",
 	};
 }
 
@@ -95,10 +95,10 @@ describe("Invoice type 388 — invoice code variations", () => {
 describe("Credit Note (type 381) — cancelation flow", () => {
 	const creditNoteBase = {
 		...makeBaseProps(),
-		invoiceType: ZATCAInvoiceTypes.CREDIT_NOTE,
+		invoiceType: "CREDIT_NOTE",
 		cancelation: {
 			canceledSerialInvoiceNumber: "ORIG-001",
-			paymentMethod: ZATCAPaymentMethods.CASH,
+			paymentMethod: "CASH",
 			reason: "Incorrect invoice amount",
 		},
 	};
@@ -139,7 +139,7 @@ describe("Credit Note (type 381) — cancelation flow", () => {
 	it("Credit note WITHOUT cancelation throws ZodValidationError", () => {
 		const invalidProps = {
 			...makeBaseProps(),
-			invoiceType: ZATCAInvoiceTypes.CREDIT_NOTE,
+		invoiceType: "CREDIT_NOTE",
 
 		};
 		expect(() =>
@@ -152,10 +152,10 @@ describe("Credit Note (type 381) — cancelation flow", () => {
 describe("Debit Note (type 383) — cancelation flow", () => {
 	const debitNoteBase = {
 		...makeBaseProps(),
-		invoiceType: ZATCAInvoiceTypes.DEBIT_NOTE,
+		invoiceType: "DEBIT_NOTE",
 		cancelation: {
 			canceledSerialInvoiceNumber: "DEBIT-ORIG-001",
-			paymentMethod: ZATCAPaymentMethods.CREDIT,
+			paymentMethod: "CREDIT",
 			reason: "Underbilling correction",
 		},
 	};
@@ -184,7 +184,7 @@ describe("Debit Note (type 383) — cancelation flow", () => {
 	it("Debit note WITHOUT cancelation throws ZodValidationError", () => {
 		const invalidProps = {
 			...makeBaseProps(),
-			invoiceType: ZATCAInvoiceTypes.DEBIT_NOTE,
+		invoiceType: "DEBIT_NOTE",
 
 		};
 		expect(() =>
@@ -198,7 +198,7 @@ describe("Payment methods — all 4 values", () => {
 	it("Cash (10): buildInvoice succeeds and PaymentMeansCode = '10'", () => {
 		const props = {
 			...makeBaseProps(),
-			paymentMethod: ZATCAPaymentMethods.CASH,
+			paymentMethod: "CASH",
 		} as unknown as ZATCAInvoiceProps;
 		const invoice = buildInvoice(props);
 		const paymentCode = getXMLValue(invoice, "Invoice/cac:PaymentMeans/cbc:PaymentMeansCode");
@@ -208,7 +208,7 @@ describe("Payment methods — all 4 values", () => {
 	it("Credit (30): PaymentMeansCode = '30'", () => {
 		const props = {
 			...makeBaseProps(),
-			paymentMethod: ZATCAPaymentMethods.CREDIT,
+			paymentMethod: "CREDIT",
 		} as unknown as ZATCAInvoiceProps;
 		const invoice = buildInvoice(props);
 		const paymentCode = getXMLValue(invoice, "Invoice/cac:PaymentMeans/cbc:PaymentMeansCode");
@@ -218,7 +218,7 @@ describe("Payment methods — all 4 values", () => {
 	it("BankAccount (42): PaymentMeansCode = '42'", () => {
 		const props = {
 			...makeBaseProps(),
-			paymentMethod: ZATCAPaymentMethods.BANK_ACCOUNT,
+			paymentMethod: "BANK_ACCOUNT",
 		} as unknown as ZATCAInvoiceProps;
 		const invoice = buildInvoice(props);
 		const paymentCode = getXMLValue(invoice, "Invoice/cac:PaymentMeans/cbc:PaymentMeansCode");
@@ -228,7 +228,7 @@ describe("Payment methods — all 4 values", () => {
 	it("BankCard (48): PaymentMeansCode = '48'", () => {
 		const props = {
 			...makeBaseProps(),
-			paymentMethod: ZATCAPaymentMethods.BANK_CARD,
+			paymentMethod: "BANK_CARD"
 		} as unknown as ZATCAInvoiceProps;
 		const invoice = buildInvoice(props);
 		const paymentCode = getXMLValue(invoice, "Invoice/cac:PaymentMeans/cbc:PaymentMeansCode");

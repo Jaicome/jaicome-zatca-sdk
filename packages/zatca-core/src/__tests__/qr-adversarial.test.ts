@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-	type ZATCAInvoiceProps,
-	ZATCAInvoiceTypes,
-} from "../ZATCASimplifiedTaxInvoice.js";
+import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice.js";
 import { buildInvoice, generatePhaseOneQR } from "../api.js";
 
 // TLV binary format: [tag (1 byte)] [length (1 byte)] [value (length bytes)]
@@ -48,8 +45,8 @@ function makeQRProps(vatName?: string): ZATCAInvoiceProps {
 				vatPercent: 0.15,
 			},
 		],
-		invoiceType: ZATCAInvoiceTypes.INVOICE,
-		invoiceCode: "0200000",
+		invoiceType: "INVOICE",
+		invoiceCode: "SIMPLIFIED",
 	};
 }
 

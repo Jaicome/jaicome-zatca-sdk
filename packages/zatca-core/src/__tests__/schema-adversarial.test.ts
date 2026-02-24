@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { buildInvoice } from "../api.js";
 import { ZodValidationError } from "../schemas/index.js";
-import { ZATCAInvoiceTypes, ZATCAPaymentMethods } from "../ZATCASimplifiedTaxInvoice.js";
+import type { ZATCAInvoiceProps, ZATCAInvoiceType, ZATCAPaymentMethod } from "../ZATCASimplifiedTaxInvoice.js";
 import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice.js";
 
 type CancelationShape = {
   canceledSerialInvoiceNumber: string;
-  paymentMethod: ZATCAPaymentMethods;
+  paymentMethod: ZATCAPaymentMethod;
   reason: string;
 };
 
@@ -36,16 +36,16 @@ const validBase: ZATCAInvoiceProps = {
       vatPercent: 0.15,
     },
   ],
-  invoiceType: ZATCAInvoiceTypes.INVOICE,
-  invoiceCode: "0200000",
+  invoiceType: "INVOICE",
+  invoiceCode: "SIMPLIFIED",
 };
 
 const creditBase = {
   ...validBase,
-  invoiceType: ZATCAInvoiceTypes.CREDIT_NOTE,
+  invoiceType: "CREDIT_NOTE",
   cancelation: {
     canceledSerialInvoiceNumber: "ORIG-001",
-    paymentMethod: ZATCAPaymentMethods.CASH,
+    paymentMethod: "CASH",
     reason: "Test reason",
   } as CancelationShape,
 } as ZATCAInvoiceProps;
@@ -328,10 +328,10 @@ describe("ZATCAInvoicePropsSchema — invoice type discriminated union", () => {
   it("accepts valid debit note 383 WITH cancelation", () => {
     const debitBase = {
       ...validBase,
-      invoiceType: ZATCAInvoiceTypes.DEBIT_NOTE,
+      invoiceType: "DEBIT_NOTE",
       cancelation: {
         canceledSerialInvoiceNumber: "ORIG-001",
-        paymentMethod: ZATCAPaymentMethods.CASH,
+        paymentMethod: "CASH",
         reason: "Test reason",
       } as CancelationShape,
     } as ZATCAInvoiceProps;
@@ -341,7 +341,7 @@ describe("ZATCAInvoicePropsSchema — invoice type discriminated union", () => {
   it("rejects credit note 381 WITHOUT cancelation", () => {
     const invalidCredit = {
       ...validBase,
-      invoiceType: ZATCAInvoiceTypes.CREDIT_NOTE,
+      invoiceType: "CREDIT_NOTE",
     };
     expect(() => buildInvoice(invalidCredit as ZATCAInvoiceProps)).toThrow(ZodValidationError);
   });
@@ -349,7 +349,7 @@ describe("ZATCAInvoicePropsSchema — invoice type discriminated union", () => {
   it("rejects debit note 383 WITHOUT cancelation", () => {
     const invalidDebit = {
       ...validBase,
-      invoiceType: ZATCAInvoiceTypes.DEBIT_NOTE,
+      invoiceType: "DEBIT_NOTE",
     };
     expect(() => buildInvoice(invalidDebit as ZATCAInvoiceProps)).toThrow(ZodValidationError);
   });
@@ -358,7 +358,7 @@ describe("ZATCAInvoicePropsSchema — invoice type discriminated union", () => {
     expect(() =>
       buildInvoice({
         ...validBase,
-        invoiceType: "999" as unknown as ZATCAInvoiceTypes,
+        invoiceType: "999" as unknown as ZATCAInvoiceType,
       } as ZATCAInvoiceProps),
     ).toThrow(ZodValidationError);
   });
@@ -458,7 +458,7 @@ describe("ZATCAInvoicePropsSchema — invoice type discriminated union", () => {
 describe("CancelationSchema — adversarial", () => {
   const baseCancelation: CancelationShape = {
     canceledSerialInvoiceNumber: "ORIG-001",
-    paymentMethod: ZATCAPaymentMethods.CASH,
+    paymentMethod: "CASH",
     reason: "Test reason",
   };
 
@@ -496,7 +496,7 @@ describe("CancelationSchema — adversarial", () => {
         ...creditBase,
         cancelation: {
           ...baseCancelation,
-          paymentMethod: "99" as unknown as ZATCAPaymentMethods,
+          paymentMethod: "99" as unknown as ZATCAPaymentMethod,
         },
       } as ZATCAInvoiceProps),
     ).toThrow(ZodValidationError);
@@ -559,7 +559,7 @@ describe("buildInvoice validation integration", () => {
   it("accepts valid props with invoiceCode '0100000'", () => {
     const taxInvoice = {
       ...validBase,
-      invoiceCode: "0100000",
+      invoiceCode: "STANDARD",
     } as ZATCAInvoiceProps;
     expect(() => buildInvoice(taxInvoice)).not.toThrow();
   });

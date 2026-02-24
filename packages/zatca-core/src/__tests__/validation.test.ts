@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildInvoice, prepareSigningInput } from "../api.js";
 import { ZodValidationError } from "../schemas/index.js";
-import { ZATCAInvoiceTypes, ZATCAPaymentMethods } from "../ZATCASimplifiedTaxInvoice.js";
+import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice.js";
 import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice.js";
 
 const now = new Date();
@@ -34,9 +34,9 @@ const validProps: ZATCAInvoiceProps = {
 			vatPercent: 0.15,
 		},
 	],
-	invoiceType: ZATCAInvoiceTypes.INVOICE,
-	invoiceCode: "0200000",
-	paymentMethod: ZATCAPaymentMethods.CASH,
+	invoiceType: "INVOICE",
+	invoiceCode: "SIMPLIFIED",
+	paymentMethod: "CASH",
 };
 
 describe("validation contracts - zatca-core", () => {

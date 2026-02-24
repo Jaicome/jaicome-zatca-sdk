@@ -4,8 +4,6 @@ import {
   ZATCAInvoice,
   type ZATCAInvoiceLineItem,
   type ZATCAInvoiceProps,
-  ZATCAInvoiceTypes,
-  ZATCAPaymentMethods,
 } from "@jaicome/zatca-core";
 import {
   type ComplianceCheckPayload,
@@ -106,8 +104,8 @@ const buildInvoicePropsForComplianceStep = (
   if (step === "standard-compliant") {
     return {
       ...shared,
-      invoiceType: ZATCAInvoiceTypes.INVOICE,
-      invoiceCode: "0100000",
+      invoiceType: "INVOICE",
+      invoiceCode: "STANDARD",
       actualDeliveryDate: "2024-02-29",
     };
   }
@@ -115,8 +113,8 @@ const buildInvoicePropsForComplianceStep = (
   if (step === "simplified-compliant") {
     return {
       ...shared,
-      invoiceType: ZATCAInvoiceTypes.INVOICE,
-      invoiceCode: "0200000",
+      invoiceType: "INVOICE",
+      invoiceCode: "SIMPLIFIED",
       actualDeliveryDate: "2024-02-29",
     };
   }
@@ -131,12 +129,12 @@ const buildInvoicePropsForComplianceStep = (
   return {
     ...shared,
     invoiceType: is_credit_note
-      ? ZATCAInvoiceTypes.CREDIT_NOTE
-      : ZATCAInvoiceTypes.DEBIT_NOTE,
-    invoiceCode: is_standard_note ? "0100000" : "0200000",
+      ? "CREDIT_NOTE"
+      : "DEBIT_NOTE",
+    invoiceCode: is_standard_note ? "STANDARD" : "SIMPLIFIED",
     cancelation: {
       canceledSerialInvoiceNumber,
-      paymentMethod: ZATCAPaymentMethods.CASH,
+      paymentMethod: "CASH",
       reason: "Compliance onboarding reference",
     },
   };

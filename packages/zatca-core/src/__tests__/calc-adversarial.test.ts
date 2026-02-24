@@ -1,18 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { buildInvoice } from "../api.js";
 import { ZodValidationError } from "../schemas/index.js";
-import {
-	ZATCAPaymentMethods,
-	ZATCAInvoiceTypes,
-	type ZATCAInvoiceLineItem,
-	type ZATCAInvoiceProps,
-} from "../ZATCASimplifiedTaxInvoice.js";
+import type { ZATCAInvoiceLineItem, ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice.js";
 
 type SimplifiedCashInvoiceProps = Extract<
 	ZATCAInvoiceProps,
 	{
-		invoiceType: ZATCAInvoiceTypes.INVOICE;
-		invoiceCode: "0200000";
+		invoiceType: "INVOICE";
+		invoiceCode: "SIMPLIFIED";
 	}
 >;
 
@@ -36,9 +31,9 @@ function makeProps(
 		issueTime: "10:00:00",
 		previousInvoiceHash:
 			"NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==",
-		invoiceType: ZATCAInvoiceTypes.INVOICE,
-		invoiceCode: "0200000",
-		paymentMethod: ZATCAPaymentMethods.CASH,
+		invoiceType: "INVOICE",
+		invoiceCode: "SIMPLIFIED",
+		paymentMethod: "CASH",
 		lineItems: [
 			{
 				id: "1",

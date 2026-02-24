@@ -4,8 +4,6 @@ import { describe, expect, it } from "vitest";
 import {
 	buildInvoice,
 	generatePhaseOneQR,
-	ZATCAInvoiceTypes,
-	ZATCAPaymentMethods,
 } from "@jaicome/zatca-core";
 import type { ZATCAInvoiceProps } from "@jaicome/zatca-core";
 import { generateSignedXMLString, getInvoiceHash } from "@jaicome/zatca-server";
@@ -50,9 +48,9 @@ function makeFixtureProps(invoiceCounterNumber: number = 1): ZATCAInvoiceProps {
 				vatPercent: 0.15,
 			},
 		],
-		invoiceType: ZATCAInvoiceTypes.INVOICE,
-		invoiceCode: "0200000",
-		paymentMethod: ZATCAPaymentMethods.CASH,
+		invoiceType: "INVOICE",
+		invoiceCode: "SIMPLIFIED",
+		paymentMethod: "CASH",
 	};
 }
 
