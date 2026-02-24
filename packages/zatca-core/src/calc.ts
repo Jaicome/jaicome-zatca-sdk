@@ -116,7 +116,7 @@ const constructLineItem = (
     lineItemTotalTaxes,
     lineDiscounts,
     lineExtensionAmount,
-  } = constructLineItemTotals(line_item, acceptWarning);
+  } = constructLineItemTotals(lineItem, acceptWarning);
 
   return {
     lineItemXml: {
@@ -146,8 +146,8 @@ const constructLineItem = (
     },
     lineItemTotals: {
       taxesTotal: lineItemTotalTaxes.toNumber(),
-      discounts_total: lineDiscounts,
-      extension_amount: lineExtensionAmount.toNumber(),
+      discountsTotal: lineDiscounts,
+      extensionAmount: lineExtensionAmount.toNumber(),
     },
   };
 };
@@ -268,7 +268,7 @@ const constructTaxTotal = (
 
   lineItems.forEach((line_item) => {
     let totalLineItemDiscount =
-      lineItem.discounts?.reduce((p, c) => p + c.amount, 0) || 0;
+      line_item.discounts?.reduce((p, c) => p + c.amount, 0) || 0;
 
     totalLineItemDiscount = Number(
       new Decimal(totalLineItemDiscount).toFixed(14)
@@ -276,26 +276,26 @@ const constructTaxTotal = (
     const taxableAmount = new Decimal(
       roundingNumber(
         acceptWarning,
-        (lineItem.taxExclusivePrice - totalLineItemDiscount) *
-          lineItem.quantity
+        (line_item.taxExclusivePrice - totalLineItemDiscount) *
+          line_item.quantity
       )
     );
 
     let taxAmount = new Decimal(
       roundingNumber(
         acceptWarning,
-        lineItem.vatPercent * taxableAmount.toNumber()
+        line_item.vatPercent * taxableAmount.toNumber()
       )
     );
 
     addTaxSubtotal(
       taxableAmount.toNumber(),
       taxAmount.toNumber(),
-      lineItem.vatPercent
+      line_item.vatPercent
     );
     taxesTotal += taxAmount.toNumber();
 
-    lineItem.otherTaxes?.forEach((tax) => {
+    line_item.otherTaxes?.forEach((tax) => {
       const otherTaxAmount = new Decimal(
         roundingNumber(
           acceptWarning,
@@ -444,30 +444,30 @@ export const Calc = (
       throw new Error(`Invalid line item: quantity must be non-negative, got ${item.quantity}`);
     }
     if (item.taxExclusivePrice < 0) {
-      throw new Error(`Invalid line item: tax_exclusive_price must be non-negative, got ${item.taxExclusivePrice}`);
+      throw new Error(`Invalid line item: taxExclusivePrice must be non-negative, got ${item.taxExclusivePrice}`);
     }
   });
 
   lineItems.forEach((line_item) => {
-    lineItem.taxExclusivePrice = Number(
-      new Decimal(lineItem.taxExclusivePrice).toFixed(14)
+    line_item.taxExclusivePrice = Number(
+      new Decimal(line_item.taxExclusivePrice).toFixed(14)
     );
     const { lineItemXml, lineItemTotals } = constructLineItem(
       line_item,
       acceptWarning
     );
     totalTaxes += lineItemTotals.taxesTotal;
-    totalExtensionAmount += lineItemTotals.extension_amount;
-    totalDiscounts += lineItemTotals.discounts_total;
+    totalExtensionAmount += lineItemTotals.extensionAmount;
+    totalDiscounts += lineItemTotals.discountsTotal;
     invoiceLineItems.push(lineItemXml);
   });
 
   if (
-    (props.invoice_type === "381" || props.invoice_type === "383") &&
+    (props.invoiceType === "381" || props.invoiceType === "383") &&
     props.cancelation
   ) {
     invoiceXml.set("Invoice/cac:PaymentMeans", false, {
-      "cbc:PaymentMeansCode": props.cancelation.payment_method,
+      "cbc:PaymentMeansCode": props.cancelation.paymentMethod,
       "cbc:InstructionNote": props.cancelation.reason ?? "No note Specified",
     });
   }

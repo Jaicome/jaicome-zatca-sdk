@@ -6,33 +6,33 @@ import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice.js";
 
 function makeBaseProps(): ZATCAInvoiceProps {
 	return {
-		egs_info: {
-			uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
-			custom_id: "EGS1-TYPES",
+		egsInfo: {
+			id: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
+			name: "EGS1-TYPES",
 			model: "IOS",
-			CRN_number: "7032256278",
-			VAT_name: "Invoice Types Test Co",
-			VAT_number: "311497191800003",
-			branch_name: "Main",
-			branch_industry: "Software",
+			vatName: "Invoice Types Test Co",
+			vatNumber: "311497191800003",
+			branchName: "Main",
+			branchIndustry: "Software",
 		},
-		invoice_counter_number: 1,
-		invoice_serial_number: "TYPES-001",
-		issue_date: "2024-01-15",
-		issue_time: "10:00:00",
-		previous_invoice_hash:
+		crnNumber: "7032256278",
+		invoiceCounterNumber: 1,
+		invoiceSerialNumber: "TYPES-001",
+		issueDate: "2024-01-15",
+		issueTime: "10:00:00",
+		previousInvoiceHash:
 			"NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==",
-		line_items: [
+		lineItems: [
 			{
 				id: "1",
 				name: "Test Product",
 				quantity: 1,
-				tax_exclusive_price: 100,
-				VAT_percent: 0.15,
+				taxExclusivePrice: 100,
+				vatPercent: 0.15,
 			},
 		],
-		invoice_type: ZATCAInvoiceTypes.INVOICE,
-		invoice_code: "0200000",
+		invoiceType: ZATCAInvoiceTypes.INVOICE,
+		invoiceCode: "0200000",
 	};
 }
 
@@ -53,7 +53,7 @@ describe("Invoice type 388 — invoice code variations", () => {
 	it("Tax invoice (0100000, type 388): buildInvoice succeeds", () => {
 		const props = {
 			...makeBaseProps(),
-			invoice_code: "0100000",
+			invoiceCode: "0100000",
 		} as unknown as ZATCAInvoiceProps;
 		expect(() => buildInvoice(props)).not.toThrow();
 	});
@@ -67,7 +67,7 @@ describe("Invoice type 388 — invoice code variations", () => {
 	it("Invoice type code in XML is '388' for tax invoice (0100000)", () => {
 		const props = {
 			...makeBaseProps(),
-			invoice_code: "0100000",
+			invoiceCode: "0100000",
 		} as unknown as ZATCAInvoiceProps;
 		const invoice = buildInvoice(props);
 		const typeCode = getXMLValue(invoice, "Invoice/cbc:InvoiceTypeCode");
@@ -83,7 +83,7 @@ describe("Invoice type 388 — invoice code variations", () => {
 	it("invoice_code '0100000' appears as InvoiceTypeCode name attribute", () => {
 		const props = {
 			...makeBaseProps(),
-			invoice_code: "0100000",
+			invoiceCode: "0100000",
 		} as unknown as ZATCAInvoiceProps;
 		const invoice = buildInvoice(props);
 		const typeCodeElement = invoice.getXML().get("Invoice/cbc:InvoiceTypeCode")?.[0];
@@ -95,10 +95,10 @@ describe("Invoice type 388 — invoice code variations", () => {
 describe("Credit Note (type 381) — cancelation flow", () => {
 	const creditNoteBase = {
 		...makeBaseProps(),
-		invoice_type: ZATCAInvoiceTypes.CREDIT_NOTE,
+		invoiceType: ZATCAInvoiceTypes.CREDIT_NOTE,
 		cancelation: {
-			canceled_serial_invoice_number: "ORIG-001",
-			payment_method: ZATCAPaymentMethods.CASH,
+			canceledSerialInvoiceNumber: "ORIG-001",
+			paymentMethod: ZATCAPaymentMethods.CASH,
 			reason: "Incorrect invoice amount",
 		},
 	};
@@ -139,7 +139,7 @@ describe("Credit Note (type 381) — cancelation flow", () => {
 	it("Credit note WITHOUT cancelation throws ZodValidationError", () => {
 		const invalidProps = {
 			...makeBaseProps(),
-			invoice_type: ZATCAInvoiceTypes.CREDIT_NOTE,
+			invoiceType: ZATCAInvoiceTypes.CREDIT_NOTE,
 
 		};
 		expect(() =>
@@ -152,10 +152,10 @@ describe("Credit Note (type 381) — cancelation flow", () => {
 describe("Debit Note (type 383) — cancelation flow", () => {
 	const debitNoteBase = {
 		...makeBaseProps(),
-		invoice_type: ZATCAInvoiceTypes.DEBIT_NOTE,
+		invoiceType: ZATCAInvoiceTypes.DEBIT_NOTE,
 		cancelation: {
-			canceled_serial_invoice_number: "DEBIT-ORIG-001",
-			payment_method: ZATCAPaymentMethods.CREDIT,
+			canceledSerialInvoiceNumber: "DEBIT-ORIG-001",
+			paymentMethod: ZATCAPaymentMethods.CREDIT,
 			reason: "Underbilling correction",
 		},
 	};
@@ -184,7 +184,7 @@ describe("Debit Note (type 383) — cancelation flow", () => {
 	it("Debit note WITHOUT cancelation throws ZodValidationError", () => {
 		const invalidProps = {
 			...makeBaseProps(),
-			invoice_type: ZATCAInvoiceTypes.DEBIT_NOTE,
+			invoiceType: ZATCAInvoiceTypes.DEBIT_NOTE,
 
 		};
 		expect(() =>
@@ -198,7 +198,7 @@ describe("Payment methods — all 4 values", () => {
 	it("Cash (10): buildInvoice succeeds and PaymentMeansCode = '10'", () => {
 		const props = {
 			...makeBaseProps(),
-			payment_method: ZATCAPaymentMethods.CASH,
+			paymentMethod: ZATCAPaymentMethods.CASH,
 		} as unknown as ZATCAInvoiceProps;
 		const invoice = buildInvoice(props);
 		const paymentCode = getXMLValue(invoice, "Invoice/cac:PaymentMeans/cbc:PaymentMeansCode");
@@ -208,7 +208,7 @@ describe("Payment methods — all 4 values", () => {
 	it("Credit (30): PaymentMeansCode = '30'", () => {
 		const props = {
 			...makeBaseProps(),
-			payment_method: ZATCAPaymentMethods.CREDIT,
+			paymentMethod: ZATCAPaymentMethods.CREDIT,
 		} as unknown as ZATCAInvoiceProps;
 		const invoice = buildInvoice(props);
 		const paymentCode = getXMLValue(invoice, "Invoice/cac:PaymentMeans/cbc:PaymentMeansCode");
@@ -218,7 +218,7 @@ describe("Payment methods — all 4 values", () => {
 	it("BankAccount (42): PaymentMeansCode = '42'", () => {
 		const props = {
 			...makeBaseProps(),
-			payment_method: ZATCAPaymentMethods.BANK_ACCOUNT,
+			paymentMethod: ZATCAPaymentMethods.BANK_ACCOUNT,
 		} as unknown as ZATCAInvoiceProps;
 		const invoice = buildInvoice(props);
 		const paymentCode = getXMLValue(invoice, "Invoice/cac:PaymentMeans/cbc:PaymentMeansCode");
@@ -228,19 +228,19 @@ describe("Payment methods — all 4 values", () => {
 	it("BankCard (48): PaymentMeansCode = '48'", () => {
 		const props = {
 			...makeBaseProps(),
-			payment_method: ZATCAPaymentMethods.BANK_CARD,
+			paymentMethod: ZATCAPaymentMethods.BANK_CARD,
 		} as unknown as ZATCAInvoiceProps;
 		const invoice = buildInvoice(props);
 		const paymentCode = getXMLValue(invoice, "Invoice/cac:PaymentMeans/cbc:PaymentMeansCode");
 		expect(paymentCode).toBe("48");
 	});
 
-	it("No payment_method: buildInvoice succeeds (optional for type 388)", () => {
+	it("No paymentMethod: buildInvoice succeeds (optional for type 388)", () => {
 
 		expect(() => buildInvoice(makeBaseProps())).not.toThrow();
 	});
 
-	it("No payment_method: PaymentMeans is absent from XML", () => {
+	it("No paymentMethod: PaymentMeans is absent from XML", () => {
 		const invoice = buildInvoice(makeBaseProps());
 		const paymentMeans = invoice.getXML().get("Invoice/cac:PaymentMeans");
 		expect(paymentMeans).toBeUndefined();
@@ -252,29 +252,29 @@ describe("Customer info — presence and absence", () => {
 	function makePropsWithCustomer(): ZATCAInvoiceProps {
 		return {
 			...makeBaseProps(),
-			egs_info: {
-				...makeBaseProps().egs_info,
-				customer_info: {
-					buyer_name: "Test Buyer",
-					vat_number: "123456789",
+			egsInfo: {
+				...makeBaseProps().egsInfo,
+				customerInfo: {
+					buyerName: "Test Buyer",
+					vatNumber: "123456789",
 				},
 			},
 		} as ZATCAInvoiceProps;
 	}
 
-	it("With customer_info: AccountingCustomerParty has Party element", () => {
+	it("With customerInfo: AccountingCustomerParty has Party element", () => {
 		const invoice = buildInvoice(makePropsWithCustomer());
 		const party = invoice.getXML().get("Invoice/cac:AccountingCustomerParty/cac:Party");
 		expect(party).toBeDefined();
 	});
 
-	it("With customer_info: buyer_name appears in the XML string", () => {
+	it("With customerInfo: buyerName appears in the XML string", () => {
 		const invoice = buildInvoice(makePropsWithCustomer());
 		const xmlString = invoice.getXML().toString({});
 		expect(xmlString).toContain("Test Buyer");
 	});
 
-	it("With customer_info: RegistrationName element contains buyer_name", () => {
+	it("With customerInfo: RegistrationName element contains buyerName", () => {
 		const invoice = buildInvoice(makePropsWithCustomer());
 		const registrationName = getXMLValue(
 			invoice,
@@ -283,7 +283,7 @@ describe("Customer info — presence and absence", () => {
 		expect(registrationName).toBe("Test Buyer");
 	});
 
-	it("Without customer_info: AccountingCustomerParty has no Party element", () => {
+	it("Without customerInfo: AccountingCustomerParty has no Party element", () => {
 		const invoice = buildInvoice(makeBaseProps());
 		const party = invoice.getXML().get("Invoice/cac:AccountingCustomerParty/cac:Party");
 		expect(party).toBeUndefined();
@@ -295,9 +295,9 @@ describe("Multiple line items", () => {
 	it("2 items at 15%: buildInvoice succeeds", () => {
 		const props = {
 			...makeBaseProps(),
-			line_items: [
-				{ id: "1", name: "Product A", quantity: 1, tax_exclusive_price: 100, VAT_percent: 0.15 },
-				{ id: "2", name: "Product B", quantity: 2, tax_exclusive_price: 50, VAT_percent: 0.15 },
+			lineItems: [
+				{ id: "1", name: "Product A", quantity: 1, taxExclusivePrice: 100, vatPercent: 0.15 },
+				{ id: "2", name: "Product B", quantity: 2, taxExclusivePrice: 50, vatPercent: 0.15 },
 			],
 		} as unknown as ZATCAInvoiceProps;
 		expect(() => buildInvoice(props)).not.toThrow();
@@ -306,9 +306,9 @@ describe("Multiple line items", () => {
 	it("2 items: InvoiceLine count is 2", () => {
 		const props = {
 			...makeBaseProps(),
-			line_items: [
-				{ id: "1", name: "Product A", quantity: 1, tax_exclusive_price: 100, VAT_percent: 0.15 },
-				{ id: "2", name: "Product B", quantity: 2, tax_exclusive_price: 50, VAT_percent: 0.15 },
+			lineItems: [
+				{ id: "1", name: "Product A", quantity: 1, taxExclusivePrice: 100, vatPercent: 0.15 },
+				{ id: "2", name: "Product B", quantity: 2, taxExclusivePrice: 50, vatPercent: 0.15 },
 			],
 		} as unknown as ZATCAInvoiceProps;
 		const invoice = buildInvoice(props);
@@ -320,16 +320,16 @@ describe("Multiple line items", () => {
 	it("3 items at different rates (15%, 5%, 0%/O): buildInvoice succeeds", () => {
 		const props = {
 			...makeBaseProps(),
-			line_items: [
-				{ id: "1", name: "Standard 15%", quantity: 1, tax_exclusive_price: 100, VAT_percent: 0.15 },
-				{ id: "2", name: "Reduced 5%", quantity: 1, tax_exclusive_price: 50, VAT_percent: 0.05 },
+			lineItems: [
+				{ id: "1", name: "Standard 15%", quantity: 1, taxExclusivePrice: 100, vatPercent: 0.15 },
+				{ id: "2", name: "Reduced 5%", quantity: 1, taxExclusivePrice: 50, vatPercent: 0.05 },
 				{
 					id: "3",
 					name: "Zero Tax",
 					quantity: 1,
-					tax_exclusive_price: 25,
-					VAT_percent: 0,
-					vat_category: { code: "O", reason: "Out of scope", reason_code: "VATEX-SA-OOS" },
+					taxExclusivePrice: 25,
+					vatPercent: 0,
+					vatCategory: { code: "O", reason: "Out of scope", reasonCode: "VATEX-SA-OOS" },
 				},
 			],
 		} as unknown as ZATCAInvoiceProps;
@@ -339,16 +339,16 @@ describe("Multiple line items", () => {
 	it("3 items at different rates: InvoiceLine count is 3", () => {
 		const props = {
 			...makeBaseProps(),
-			line_items: [
-				{ id: "1", name: "Standard 15%", quantity: 1, tax_exclusive_price: 100, VAT_percent: 0.15 },
-				{ id: "2", name: "Reduced 5%", quantity: 1, tax_exclusive_price: 50, VAT_percent: 0.05 },
+			lineItems: [
+				{ id: "1", name: "Standard 15%", quantity: 1, taxExclusivePrice: 100, vatPercent: 0.15 },
+				{ id: "2", name: "Reduced 5%", quantity: 1, taxExclusivePrice: 50, vatPercent: 0.05 },
 				{
 					id: "3",
 					name: "Zero Tax",
 					quantity: 1,
-					tax_exclusive_price: 25,
-					VAT_percent: 0,
-					vat_category: { code: "O", reason: "Out of scope", reason_code: "VATEX-SA-OOS" },
+					taxExclusivePrice: 25,
+					vatPercent: 0,
+					vatCategory: { code: "O", reason: "Out of scope", reasonCode: "VATEX-SA-OOS" },
 				},
 			],
 		} as unknown as ZATCAInvoiceProps;
@@ -363,41 +363,41 @@ describe("Multiple line items", () => {
 			id: String(i + 1),
 			name: `Product ${i + 1}`,
 			quantity: 1,
-			tax_exclusive_price: 100,
-			VAT_percent: 0.15 as 0.15,
+			taxExclusivePrice: 100,
+			vatPercent: 0.15 as 0.15,
 		}));
-		const props = { ...makeBaseProps(), line_items: items } as unknown as ZATCAInvoiceProps;
+		const props = { ...makeBaseProps(), lineItems: items } as unknown as ZATCAInvoiceProps;
 		expect(() => buildInvoice(props)).not.toThrow();
 	});
 });
 
 
 describe("Delivery dates", () => {
-	it("With actual_delivery_date: Delivery section is present in XML", () => {
+	it("With actualDeliveryDate: Delivery section is present in XML", () => {
 		const props = {
 			...makeBaseProps(),
-			actual_delivery_date: "2024-01-20",
+			actualDeliveryDate: "2024-01-20",
 		} as unknown as ZATCAInvoiceProps;
 		const invoice = buildInvoice(props);
 		const delivery = invoice.getXML().get("Invoice/cac:Delivery");
 		expect(delivery).toBeDefined();
 	});
 
-	it("With actual_delivery_date: ActualDeliveryDate element matches provided date", () => {
+	it("With actualDeliveryDate: ActualDeliveryDate element matches provided date", () => {
 		const props = {
 			...makeBaseProps(),
-			actual_delivery_date: "2024-01-20",
+			actualDeliveryDate: "2024-01-20",
 		} as unknown as ZATCAInvoiceProps;
 		const invoice = buildInvoice(props);
 		const deliveryDate = getXMLValue(invoice, "Invoice/cac:Delivery/cbc:ActualDeliveryDate");
 		expect(deliveryDate).toBe("2024-01-20");
 	});
 
-	it("With latest_delivery_date alongside actual: LatestDeliveryDate present in XML", () => {
+	it("With latestDeliveryDate alongside actual: LatestDeliveryDate present in XML", () => {
 		const props = {
 			...makeBaseProps(),
-			actual_delivery_date: "2024-01-20",
-			latest_delivery_date: "2024-01-25",
+			actualDeliveryDate: "2024-01-20",
+			latestDeliveryDate: "2024-01-25",
 		} as unknown as ZATCAInvoiceProps;
 		const invoice = buildInvoice(props);
 		const latestDate = getXMLValue(invoice, "Invoice/cac:Delivery/cbc:LatestDeliveryDate");
@@ -416,7 +416,7 @@ describe("Invalid invoice code", () => {
 	it("Invalid code '9999999' throws ZodValidationError", () => {
 		const props = {
 			...makeBaseProps(),
-			invoice_code: "9999999",
+			invoiceCode: "9999999",
 		} as unknown as ZATCAInvoiceProps;
 		expect(() => buildInvoice(props)).toThrow(ZodValidationError);
 	});
@@ -424,7 +424,7 @@ describe("Invalid invoice code", () => {
 	it("ZodValidationError from invalid invoice_code contains path info", () => {
 		const props = {
 			...makeBaseProps(),
-			invoice_code: "9999999",
+			invoiceCode: "9999999",
 		} as unknown as ZATCAInvoiceProps;
 		try {
 			buildInvoice(props);

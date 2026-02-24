@@ -9,34 +9,34 @@ const issueDate = now.toISOString().split("T")[0];
 const issueTime = now.toISOString().split("T")[1].slice(0, 8);
 
 const validProps: ZATCAInvoiceProps = {
-	egs_info: {
-		uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
-		custom_id: "EGS1",
+	egsInfo: {
+		id: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
+		name: "EGS1",
 		model: "IOS",
-		CRN_number: "7032256278",
-		VAT_name: "Jaicome Information Technology",
-		VAT_number: "311497191800003",
-		branch_name: "Main",
-		branch_industry: "Software",
+		vatName: "Jaicome Information Technology",
+		vatNumber: "311497191800003",
+		branchName: "Main",
+		branchIndustry: "Software",
 	},
-	invoice_counter_number: 1,
-	invoice_serial_number: "EGS1-886431145-101",
-	issue_date: issueDate,
-	issue_time: issueTime,
-	previous_invoice_hash:
+	crnNumber: "7032256278",
+	invoiceCounterNumber: 1,
+	invoiceSerialNumber: "EGS1-886431145-101",
+	issueDate: issueDate,
+	issueTime: issueTime,
+	previousInvoiceHash:
 		"NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==",
-	line_items: [
+	lineItems: [
 		{
 			id: "1",
 			name: "TEST ITEM",
 			quantity: 2,
-			tax_exclusive_price: 100,
-			VAT_percent: 0.15,
+			taxExclusivePrice: 100,
+			vatPercent: 0.15,
 		},
 	],
-	invoice_type: ZATCAInvoiceTypes.INVOICE,
-	invoice_code: "0200000",
-	payment_method: ZATCAPaymentMethods.CASH,
+	invoiceType: ZATCAInvoiceTypes.INVOICE,
+	invoiceCode: "0200000",
+	paymentMethod: ZATCAPaymentMethods.CASH,
 };
 
 describe("validation contracts - zatca-core", () => {
@@ -46,13 +46,13 @@ describe("validation contracts - zatca-core", () => {
 		expect(invoice.getXML).toBeDefined();
 	});
 
-	it("buildInvoice throws ZodValidationError when invoice_serial_number is missing", () => {
-		const invalid = { ...validProps, invoice_serial_number: "" };
+	it("buildInvoice throws ZodValidationError when invoiceSerialNumber is missing", () => {
+		const invalid = { ...validProps, invoiceSerialNumber: "" };
 		expect(() => buildInvoice(invalid as ZATCAInvoiceProps)).toThrow(ZodValidationError);
 	});
 
-	it("ZodValidationError carries typed issue path for empty invoice_serial_number", () => {
-		const invalid = { ...validProps, invoice_serial_number: "" };
+	it("ZodValidationError carries typed issue path for empty invoiceSerialNumber", () => {
+		const invalid = { ...validProps, invoiceSerialNumber: "" };
 		try {
 			buildInvoice(invalid as ZATCAInvoiceProps);
 			expect.fail("should have thrown");
@@ -60,20 +60,20 @@ describe("validation contracts - zatca-core", () => {
 			expect(err).toBeInstanceOf(ZodValidationError);
 			const zodErr = err as ZodValidationError;
 			const paths = zodErr.issues.map((i) => i.path.join("."));
-			expect(paths.some((p) => p.includes("invoice_serial_number"))).toBe(true);
+			expect(paths.some((p) => p.includes("invoiceSerialNumber"))).toBe(true);
 		}
 	});
 
-	it("buildInvoice throws ZodValidationError when VAT_number is empty string", () => {
+	it("buildInvoice throws ZodValidationError when vatNumber is empty string", () => {
 		const invalid = {
 			...validProps,
-			egs_info: { ...validProps.egs_info, VAT_number: "" },
+			egsInfo: { ...validProps.egsInfo, vatNumber: "" },
 		};
 		expect(() => buildInvoice(invalid as ZATCAInvoiceProps)).toThrow(ZodValidationError);
 	});
 
-	it("buildInvoice throws ZodValidationError when line_items is empty", () => {
-		const invalid = { ...validProps, line_items: [] };
+	it("buildInvoice throws ZodValidationError when lineItems is empty", () => {
+		const invalid = { ...validProps, lineItems: [] };
 		expect(() => buildInvoice(invalid as ZATCAInvoiceProps)).toThrow(ZodValidationError);
 	});
 
@@ -87,7 +87,7 @@ describe("validation contracts - zatca-core", () => {
 	});
 
 	it("ZodValidationError message includes field path info", () => {
-		const invalid = { ...validProps, invoice_serial_number: "" };
+		const invalid = { ...validProps, invoiceSerialNumber: "" };
 		try {
 			buildInvoice(invalid as ZATCAInvoiceProps);
 			expect.fail("should have thrown");

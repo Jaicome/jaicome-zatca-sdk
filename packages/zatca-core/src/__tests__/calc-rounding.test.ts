@@ -11,24 +11,24 @@ import {
 const ORIGINAL_DECIMAL_ROUNDING = Decimal.rounding;
 
 const BASE_PROPS = {
-	egs_info: {
-		uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
-		custom_id: "ROUND-TEST",
+	egsInfo: {
+		id: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
+		name: "ROUND-TEST",
 		model: "IOS",
-		CRN_number: "7032256278",
-		VAT_name: "Rounding Test Co",
-		VAT_number: "311497191800003",
-		branch_name: "Main",
-		branch_industry: "Software",
+		vatName: "Rounding Test Co",
+		vatNumber: "311497191800003",
+		branchName: "Main",
+		branchIndustry: "Software",
 	},
-	invoice_counter_number: 1,
-	invoice_serial_number: "ROUND-001",
-	issue_date: "2024-01-15",
-	issue_time: "10:00:00",
-	previous_invoice_hash:
+	crnNumber: "7032256278",
+	invoiceCounterNumber: 1,
+	invoiceSerialNumber: "ROUND-001",
+	issueDate: "2024-01-15",
+	issueTime: "10:00:00",
+	previousInvoiceHash:
 		"NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==",
-	invoice_type: ZATCAInvoiceTypes.INVOICE,
-	invoice_code: "0200000",
+	invoiceType: ZATCAInvoiceTypes.INVOICE,
+	invoiceCode: "0200000",
 } as const;
 
 const asText = (value: unknown): string | undefined => {
@@ -44,13 +44,13 @@ const asText = (value: unknown): string | undefined => {
 };
 
 const makeProps = (
-	line_items: ZATCAInvoiceProps["line_items"],
+	lineItems: ZATCAInvoiceProps["lineItems"],
 	overrides: Partial<ZATCAInvoiceProps> = {},
 ): ZATCAInvoiceProps => {
 	return {
 		...BASE_PROPS,
-		payment_method: ZATCAPaymentMethods.CASH,
-		line_items,
+		paymentMethod: ZATCAPaymentMethods.CASH,
+		lineItems,
 		...overrides,
 	} as ZATCAInvoiceProps;
 };
@@ -66,8 +66,8 @@ function buildSingleItemInvoice(
 			id: "1",
 			name: "Rounding Item",
 			quantity: qty,
-			tax_exclusive_price: price,
-			VAT_percent: vatPercent,
+			taxExclusivePrice: price,
+			vatPercent: vatPercent,
 		},
 	]);
 
@@ -197,8 +197,8 @@ describe("ZATCA BR-CO-15 — Penny accumulation bug", () => {
 			id: (index + 1).toString(),
 			name: `Penny Item ${index + 1}`,
 			quantity: 1,
-			tax_exclusive_price: price,
-			VAT_percent: vat as 0.15,
+			taxExclusivePrice: price,
+			vatPercent: vat as 0.15,
 		}));
 
 		const invoice = buildInvoice(makeProps(line_items));
@@ -236,8 +236,8 @@ describe("ZATCA BR-CO-15 — Penny accumulation bug", () => {
 			id: (index + 1).toString(),
 			name: `Spec Item ${index + 1}`,
 			quantity: 1,
-			tax_exclusive_price: price,
-			VAT_percent: vat as 0.15,
+			taxExclusivePrice: price,
+			vatPercent: vat as 0.15,
 		}));
 
 		const invoice = buildInvoice(makeProps(line_items));
@@ -262,8 +262,8 @@ describe("ZATCA BR-CO-15 — Penny accumulation bug", () => {
 			id: (index + 1).toString(),
 			name: `Amplified Item ${index + 1}`,
 			quantity: 1,
-			tax_exclusive_price: price,
-			VAT_percent: vat as 0.15,
+			taxExclusivePrice: price,
+			vatPercent: vat as 0.15,
 		}));
 
 		const invoice = buildInvoice(makeProps(line_items));
@@ -308,15 +308,15 @@ describe("ZATCA BR-CO-15 — Penny accumulation bug", () => {
 					id: "1",
 					name: "Tiny A",
 					quantity: 1,
-					tax_exclusive_price: 0.03,
-					VAT_percent: 0.15,
+					taxExclusivePrice: 0.03,
+					vatPercent: 0.15,
 				},
 				{
 					id: "2",
 					name: "Tiny B",
 					quantity: 1,
-					tax_exclusive_price: 0.06,
-					VAT_percent: 0.15,
+					taxExclusivePrice: 0.06,
+					vatPercent: 0.15,
 				},
 			]),
 		);
@@ -361,8 +361,8 @@ describe("acceptWarning flag comparison", () => {
 					id: "1",
 					name: "Accept Warning Compare",
 					quantity: 1,
-					tax_exclusive_price: 100.555,
-					VAT_percent: 0.15,
+					taxExclusivePrice: 100.555,
+					vatPercent: 0.15,
 				},
 			]),
 			acceptWarning: false,
@@ -382,8 +382,8 @@ describe("acceptWarning flag comparison", () => {
 					id: "1",
 					name: "Accept Warning Compare",
 					quantity: 1,
-					tax_exclusive_price: 100.555,
-					VAT_percent: 0.15,
+					taxExclusivePrice: 100.555,
+					vatPercent: 0.15,
 				},
 			]),
 			acceptWarning: true,
@@ -402,8 +402,8 @@ describe("acceptWarning flag comparison", () => {
 				id: "1",
 				name: "Accept Warning Compare",
 				quantity: 1,
-				tax_exclusive_price: 100.555,
-				VAT_percent: 0.15,
+				taxExclusivePrice: 100.555,
+				vatPercent: 0.15,
 			},
 		]);
 

@@ -23,33 +23,33 @@ function parseTLVTags(
 
 function makeQRProps(vatName?: string): ZATCAInvoiceProps {
 	return {
-		egs_info: {
-			uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
-			custom_id: "QR-TEST",
+		egsInfo: {
+			id: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
+			name: "QR-TEST",
 			model: "IOS",
-			CRN_number: "7032256278",
-			VAT_name: vatName ?? "QR Test Company",
-			VAT_number: "311497191800003",
-			branch_name: "Main",
-			branch_industry: "Software",
+			vatName: vatName ?? "QR Test Company",
+			vatNumber: "311497191800003",
+			branchName: "Main",
+			branchIndustry: "Software",
 		},
-		invoice_counter_number: 1,
-		invoice_serial_number: "QR-001",
-		issue_date: "2024-01-15",
-		issue_time: "10:00:00",
-		previous_invoice_hash:
+		crnNumber: "7032256278",
+		invoiceCounterNumber: 1,
+		invoiceSerialNumber: "QR-001",
+		issueDate: "2024-01-15",
+		issueTime: "10:00:00",
+		previousInvoiceHash:
 			"NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==",
-		line_items: [
+		lineItems: [
 			{
 				id: "1",
 				name: "QR Test Product",
 				quantity: 1,
-				tax_exclusive_price: 100,
-				VAT_percent: 0.15,
+				taxExclusivePrice: 100,
+				vatPercent: 0.15,
 			},
 		],
-		invoice_type: ZATCAInvoiceTypes.INVOICE,
-		invoice_code: "0200000",
+		invoiceType: ZATCAInvoiceTypes.INVOICE,
+		invoiceCode: "0200000",
 	};
 }
 
@@ -206,13 +206,13 @@ describe("QR is deterministic", () => {
 		const props1 = makeQRProps();
 		const props2: ZATCAInvoiceProps = {
 			...makeQRProps(),
-			line_items: [
+			lineItems: [
 				{
 					id: "1",
 					name: "QR Test Product",
 					quantity: 1,
-					tax_exclusive_price: 200,
-					VAT_percent: 0.15,
+					taxExclusivePrice: 200,
+					vatPercent: 0.15,
 				},
 			],
 		};
