@@ -2,21 +2,21 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import {
   ZATCAInvoice,
-  type ZATCAInvoiceProps,
   type ZATCAInvoiceLineItem,
+  type ZATCAInvoiceProps,
 } from "@jaicome/zatca-core";
 import {
-  onboardEGS,
-  signAndReportInvoice,
-  signAndReportBatch,
   egsInfo,
   GENESIS_PREVIOUS_INVOICE_HASH,
   type OnboardResult,
+  onboardEGS,
   type SingleReportResult,
+  signAndReportBatch,
+  signAndReportInvoice,
 } from "./server";
 
 // Get OTP from environment variable or use default for testing
-const ZATCA_OTP = process.env.ZATCA_OTP || "123456";
+const ZATCA_OTP = "112534";
 
 // ============================================================================
 // CONSTANTS
@@ -69,7 +69,7 @@ interface ClientInvoiceRecord {
 // CLIENT STATE
 // ============================================================================
 
-let clientInvoices: ClientInvoiceRecord[] = [];
+const clientInvoices: ClientInvoiceRecord[] = [];
 let currentHash: string = GENESIS_PREVIOUS_INVOICE_HASH;
 let currentCounter: number = 1;
 
@@ -79,10 +79,16 @@ let currentCounter: number = 1;
 
 const saveClientState = (): void => {
   fs.mkdirSync(path.dirname(CLIENT_JSON_PATH), { recursive: true });
-  fs.writeFileSync(CLIENT_JSON_PATH, JSON.stringify(clientInvoices, null, 2), "utf8");
+  fs.writeFileSync(
+    CLIENT_JSON_PATH,
+    JSON.stringify(clientInvoices, null, 2),
+    "utf8",
+  );
 };
 
-const buildInvoiceProps = (lineItems: ZATCAInvoiceLineItem[]): ZATCAInvoiceProps => {
+const buildInvoiceProps = (
+  lineItems: ZATCAInvoiceLineItem[],
+): ZATCAInvoiceProps => {
   const now = new Date();
   const issueDate = now.toISOString().split("T")[0];
   const issueTime = now.toISOString().split("T")[1].slice(0, 8);
@@ -120,10 +126,14 @@ async function main() {
   currentHash = onboardResult.previousInvoiceHash;
   currentCounter = onboardResult.invoiceCounterStart;
 
-  console.log(`[CLIENT] Server onboarding complete. Starting hash: ${currentHash.substring(0, 20)}...`);
+  console.log(
+    `[CLIENT] Server onboarding complete. Starting hash: ${currentHash.substring(0, 20)}...`,
+  );
 
   // ========== PHASE 2: INDIVIDUAL INVOICES (Online) ==========
-  console.log("[CLIENT] ========== PHASE 2: INDIVIDUAL INVOICES (Online) ==========");
+  console.log(
+    "[CLIENT] ========== PHASE 2: INDIVIDUAL INVOICES (Online) ==========",
+  );
 
   // Invoice 1
   console.log("[CLIENT] Building invoice 1...");
@@ -142,13 +152,17 @@ async function main() {
   console.log("[CLIENT] Invoice 1 built. Sending to server...");
   const result1 = await signAndReportInvoice(props1);
   currentHash = result1.invoiceHash; // Update hash chain
-  const invoice1 = clientInvoices.find((inv) => inv.invoiceSerialNumber === props1.invoiceSerialNumber);
+  const invoice1 = clientInvoices.find(
+    (inv) => inv.invoiceSerialNumber === props1.invoiceSerialNumber,
+  );
   if (invoice1) {
     invoice1.status = result1.success ? "reported" : "failed";
     invoice1.serverResponse = result1;
   }
   saveClientState();
-  console.log(`[CLIENT] Invoice 1 result: ${result1.reportingStatus || "FAILED"}`);
+  console.log(
+    `[CLIENT] Invoice 1 result: ${result1.reportingStatus || "FAILED"}`,
+  );
 
   // Invoice 2
   console.log("[CLIENT] Building invoice 2...");
@@ -167,16 +181,22 @@ async function main() {
   console.log("[CLIENT] Invoice 2 built. Sending to server...");
   const result2 = await signAndReportInvoice(props2);
   currentHash = result2.invoiceHash; // Update hash chain
-  const invoice2 = clientInvoices.find((inv) => inv.invoiceSerialNumber === props2.invoiceSerialNumber);
+  const invoice2 = clientInvoices.find(
+    (inv) => inv.invoiceSerialNumber === props2.invoiceSerialNumber,
+  );
   if (invoice2) {
     invoice2.status = result2.success ? "reported" : "failed";
     invoice2.serverResponse = result2;
   }
   saveClientState();
-  console.log(`[CLIENT] Invoice 2 result: ${result2.reportingStatus || "FAILED"}`);
+  console.log(
+    `[CLIENT] Invoice 2 result: ${result2.reportingStatus || "FAILED"}`,
+  );
 
   // ========== PHASE 3: OFFLINE BATCH (Simulating offline mode) ==========
-  console.log("[CLIENT] ========== PHASE 3: OFFLINE BATCH (Simulating offline mode) ==========");
+  console.log(
+    "[CLIENT] ========== PHASE 3: OFFLINE BATCH (Simulating offline mode) ==========",
+  );
   console.log("[CLIENT] App is offline. Building invoices locally...");
 
   const offlineInvoices: ZATCAInvoiceProps[] = [];
@@ -195,18 +215,26 @@ async function main() {
     });
 
     offlineInvoices.push(props);
-    console.log(`[CLIENT] Built offline invoice ${i + 1}: ${props.invoiceSerialNumber}`);
+    console.log(
+      `[CLIENT] Built offline invoice ${i + 1}: ${props.invoiceSerialNumber}`,
+    );
   }
 
   saveClientState(); // Now client.json has 4 pending invoices
-  console.log(`[CLIENT] ${offlineInvoices.length} invoices stored locally. Reconnecting to server...`);
+  console.log(
+    `[CLIENT] ${offlineInvoices.length} invoices stored locally. Reconnecting to server...`,
+  );
 
-  console.log(`[CLIENT] Sending batch of ${offlineInvoices.length} invoices to server...`);
+  console.log(
+    `[CLIENT] Sending batch of ${offlineInvoices.length} invoices to server...`,
+  );
   const batchResults = await signAndReportBatch(offlineInvoices);
 
   // Process batch results
   for (const result of batchResults) {
-    const invoice = clientInvoices.find((inv) => inv.invoiceSerialNumber === result.invoiceSerialNumber);
+    const invoice = clientInvoices.find(
+      (inv) => inv.invoiceSerialNumber === result.invoiceSerialNumber,
+    );
     if (invoice) {
       invoice.status = result.success ? "reported" : "failed";
       invoice.serverResponse = result;
@@ -225,7 +253,9 @@ async function main() {
   console.log("[CLIENT] ========== SUMMARY ==========");
 
   const total = clientInvoices.length;
-  const reported = clientInvoices.filter((inv) => inv.status === "reported").length;
+  const reported = clientInvoices.filter(
+    (inv) => inv.status === "reported",
+  ).length;
   const failed = clientInvoices.filter((inv) => inv.status === "failed").length;
   console.log(`[CLIENT] Total invoices: ${total}`);
   console.log(`[CLIENT] Reported: ${reported}, Failed: ${failed}`);
