@@ -25,15 +25,15 @@ import {
 
 const now = new Date();
 const props: ZATCAInvoiceProps = {
-  egs_info: {
-    uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
-    custom_id: "EGS1",
+  egsInfo: {
+    id: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
+    name: "EGS1",
     model: "IOS",
-    CRN_number: "7032256278",
-    VAT_name: "Jaicome Information Technology",
-    VAT_number: "311497191800003",
-    branch_name: "Main",
-    branch_industry: "Software",
+    crnNumber: "7032256278",
+    vatName: "Jaicome Information Technology",
+    vatNumber: "311497191800003",
+    branchName: "Main",
+    branchIndustry: "Software",
   },
   invoice_counter_number: 1,
   invoice_serial_number: "EGS1-886431145-101",
@@ -78,17 +78,17 @@ const result = await invoice.sign(certificatePem, privateKeyPem);
 ## Tutorial 3: EGS Onboarding + Compliance + Reporting
 
 ```ts
-import { EGS, type EGSUnitInfo } from "@jaicome/zatca-server";
+import { EGS, type EGSInfo } from "@jaicome/zatca-server";
 
-const egsInfo: EGSUnitInfo = {
-  uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
-  custom_id: "EGS2",
+const egsInfo: EGSInfo = {
+  id: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
+  name: "EGS2",
   model: "IOS",
-  CRN_number: "7032256278",
-  VAT_name: "Jaicome Information Technology",
-  VAT_number: "311497191800003",
-  branch_name: "Main",
-  branch_industry: "Software",
+  crnNumber: "7032256278",
+  vatName: "Jaicome Information Technology",
+  vatNumber: "311497191800003",
+  branchName: "Main",
+  branchIndustry: "Software",
 };
 
 const egs = new EGS(egsInfo, "simulation");

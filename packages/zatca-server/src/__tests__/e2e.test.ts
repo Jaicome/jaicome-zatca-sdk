@@ -13,14 +13,13 @@ const SAMPLE_ZATCA_TEST_CERT_BODY =
 const SAMPLE_CERT_PEM = `-----BEGIN CERTIFICATE-----\n${SAMPLE_ZATCA_TEST_CERT_BODY}\n-----END CERTIFICATE-----`;
 
 const validEGSUnitInfo: EGSUnitInfo = {
-	uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
-	custom_id: "EGS1",
+	id: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
+	name: "EGS1",
 	model: "IOS",
-	CRN_number: "7032256278",
-	VAT_name: "Jaicome Information Technology",
-	VAT_number: "311497191800003",
-	branch_name: "Main",
-	branch_industry: "Software",
+	vatName: "Jaicome Information Technology",
+	vatNumber: "311497191800003",
+	branchName: "Main",
+	branchIndustry: "Software",
 };
 
 describe("@jaicome/zatca-server — end-to-end", () => {
@@ -54,36 +53,36 @@ describe("@jaicome/zatca-server — end-to-end", () => {
 
 		it("EGS constructor returns instance with correct uuid", () => {
 			const egs = new EGS(validEGSUnitInfo);
-			expect(egs.get().uuid).toBe(validEGSUnitInfo.uuid);
+			expect(egs.getInfo().id).toBe(validEGSUnitInfo.id);
 		});
 
 		it("EGS constructor throws ZodValidationError when uuid is empty", () => {
-			const invalid = { ...validEGSUnitInfo, uuid: "" };
+			const invalid = { ...validEGSUnitInfo, id: "" };
 			expect(() => new EGS(invalid as EGSUnitInfo)).toThrow(ZodValidationError);
 		});
 
 		it("EGS constructor throws ZodValidationError when VAT_number is empty", () => {
-			const invalid = { ...validEGSUnitInfo, VAT_number: "" };
+			const invalid = { ...validEGSUnitInfo, vatNumber: "" };
 			expect(() => new EGS(invalid as EGSUnitInfo)).toThrow(ZodValidationError);
 		});
 
 		it("EGS constructor throws ZodValidationError when VAT_name is missing", () => {
-			const invalid = { ...validEGSUnitInfo, VAT_name: "" };
+			const invalid = { ...validEGSUnitInfo, vatName: "" };
 			expect(() => new EGS(invalid as EGSUnitInfo)).toThrow(ZodValidationError);
 		});
 
 		it("ZodValidationError carries typed issue path for invalid uuid", () => {
-			const invalid = { ...validEGSUnitInfo, uuid: "" };
+			const invalid = { ...validEGSUnitInfo, id: "" };
 			try {
 				new EGS(invalid as EGSUnitInfo);
-				expect.fail("should have thrown ZodValidationError");
+				throw new Error("should have thrown ZodValidationError");
 			} catch (err) {
 				expect(err).toBeInstanceOf(ZodValidationError);
 				const zodErr = err as ZodValidationError;
 				expect(zodErr.message).toContain("Validation failed");
 				expect(zodErr.name).toBe("ZodValidationError");
 				const paths = zodErr.issues.map((i) => i.path.join("."));
-				expect(paths.some((p) => p.includes("uuid"))).toBe(true);
+			expect(paths.some((p) => p.includes("id"))).toBe(true);
 			}
 		});
 	});
@@ -105,34 +104,34 @@ describe("@jaicome/zatca-server — end-to-end", () => {
 
 			const now = new Date();
 			const invoice = buildInvoice({
-				egs_info: {
-					uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
-					custom_id: "EGS1",
-					model: "IOS",
-					CRN_number: "7032256278",
-					VAT_name: "Jaicome Information Technology",
-					VAT_number: "311497191800003",
-					branch_name: "Main",
-					branch_industry: "Software",
-				},
-				invoice_counter_number: 1,
-				invoice_serial_number: "EGS1-886431145-101",
-				issue_date: now.toISOString().split("T")[0],
-				issue_time: now.toISOString().split("T")[1].slice(0, 8),
-				previous_invoice_hash:
+			egsInfo: {
+				id: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
+				name: "EGS1",
+				model: "IOS",
+				vatName: "Jaicome Information Technology",
+				vatNumber: "311497191800003",
+				branchName: "Main",
+				branchIndustry: "Software",
+			},
+			crnNumber: "7032256278",
+			invoiceCounterNumber: 1,
+			invoiceSerialNumber: "EGS1-886431145-101",
+			issueDate: now.toISOString().split("T")[0],
+			issueTime: now.toISOString().split("T")[1].slice(0, 8),
+			previousInvoiceHash:
 					"NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==",
-				line_items: [
+			lineItems: [
 					{
 						id: "1",
-						name: "Sample Product",
+					name: "Sample Product",
 						quantity: 2,
-						tax_exclusive_price: 100,
-						VAT_percent: 0.15,
+					taxExclusivePrice: 100,
+					vatPercent: 0.15,
 					},
 				],
-				invoice_type: ZATCAInvoiceTypes.INVOICE,
-				invoice_code: "0200000",
-				payment_method: ZATCAPaymentMethods.CASH,
+			invoiceType: ZATCAInvoiceTypes.INVOICE,
+			invoiceCode: "0200000",
+			paymentMethod: ZATCAPaymentMethods.CASH,
 			});
 
 			const signingInput = prepareSigningInput(invoice);

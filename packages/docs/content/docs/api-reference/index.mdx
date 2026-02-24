@@ -42,7 +42,7 @@ This reference documents the public APIs of `@jaicome/zatca-core` and
 - `ZodValidationError`
 - `ZATCAInvoicePropsSchema`
 - `ZATCAInvoiceLineItemSchema`
-- `EGSUnitInfoSchema`
+- `EGSInfoSchema`
 - `EGSUnitLocationSchema`
 - `EGSUnitCustomerInfoSchema`
 - `SigningInputSchema`
@@ -55,7 +55,7 @@ This reference documents the public APIs of `@jaicome/zatca-core` and
   - `sign(input: SigningInput): Promise<SignatureResult>`
 - `class EGS`
   - `get()`
-  - `set(egs_info: Partial<EGSUnitInfo>)`
+  - `set(egsInfo: Partial<EGSInfo>)`
   - `generateNewKeysAndCSR(production: boolean, solution_name: string): Promise<void>`
   - `issueComplianceCertificate(OTP: string): Promise<string>`
   - `issueProductionCertificate(compliance_request_id: string): Promise<string>`
@@ -86,9 +86,9 @@ This reference documents the public APIs of `@jaicome/zatca-core` and
 - `REQUIRED_COMPLIANCE_STEPS`
 - `ZATCAComplianceStep`
 - `ComplianceCheckPayload`
-- `EGSUnitInfo`, `EGSUnitLocation`, `EGSUnitCustomerInfo`
+- `EGSInfo`, `EGSUnitLocation`, `EGSUnitCustomerInfo`
 
 ### Re-exports from core
 
 - `ZodValidationError`
-- `EGSUnitInfoSchema`
+- `EGSInfoSchema`

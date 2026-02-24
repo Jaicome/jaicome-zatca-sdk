@@ -8,14 +8,13 @@ import { EGS, type EGSUnitInfo } from "../egs/index.js";
 import { ZodValidationError } from "../schemas/index.js";
 
 const validEGSUnit: EGSUnitInfo = {
-	uuid: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
-	custom_id: "EGS1",
+	id: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
+	name: "EGS1",
 	model: "IOS",
-	CRN_number: "7032256278",
-	VAT_name: "Jaicome Information Technology",
-	VAT_number: "311497191800003",
-	branch_name: "Main",
-	branch_industry: "Software",
+	vatName: "Jaicome Information Technology",
+	vatNumber: "311497191800003",
+	branchName: "Main",
+	branchIndustry: "Software",
 };
 
 function inspectCsrText(csr: string): string {
@@ -31,120 +30,104 @@ function inspectCsrText(csr: string): string {
 }
 
 describe("EGS constructor — required field validation", () => {
-	it("throws ZodValidationError when uuid is empty", () => {
-		expect(() => new EGS({ ...validEGSUnit, uuid: "" })).toThrow(ZodValidationError);
+	it("throws ZodValidationError when id is empty", () => {
+		expect(() => new EGS({ ...validEGSUnit, id: "" })).toThrow(ZodValidationError);
 	});
 
-	it("throws ZodValidationError when custom_id is empty", () => {
-		expect(() => new EGS({ ...validEGSUnit, custom_id: "" })).toThrow(ZodValidationError);
+	it("throws ZodValidationError when name is empty", () => {
+		expect(() => new EGS({ ...validEGSUnit, name: "" })).toThrow(ZodValidationError);
 	});
 
-	it("throws ZodValidationError when model is empty", () => {
-		expect(() => new EGS({ ...validEGSUnit, model: "" })).toThrow(ZodValidationError);
+	it("throws ZodValidationError when vatName is empty", () => {
+		expect(() => new EGS({ ...validEGSUnit, vatName: "" })).toThrow(ZodValidationError);
 	});
 
-	it("throws ZodValidationError when CRN_number is empty", () => {
-		expect(() => new EGS({ ...validEGSUnit, CRN_number: "" })).toThrow(ZodValidationError);
+	it("throws ZodValidationError when vatNumber is empty", () => {
+		expect(() => new EGS({ ...validEGSUnit, vatNumber: "" })).toThrow(ZodValidationError);
 	});
 
-	it("throws ZodValidationError when VAT_name is empty", () => {
-		expect(() => new EGS({ ...validEGSUnit, VAT_name: "" })).toThrow(ZodValidationError);
+	it("throws ZodValidationError when branchName is empty", () => {
+		expect(() => new EGS({ ...validEGSUnit, branchName: "" })).toThrow(ZodValidationError);
 	});
 
-	it("throws ZodValidationError when VAT_number is empty", () => {
-		expect(() => new EGS({ ...validEGSUnit, VAT_number: "" })).toThrow(ZodValidationError);
-	});
-
-	it("throws ZodValidationError when branch_name is empty", () => {
-		expect(() => new EGS({ ...validEGSUnit, branch_name: "" })).toThrow(ZodValidationError);
-	});
-
-	it("throws ZodValidationError when branch_industry is empty", () => {
-		expect(() => new EGS({ ...validEGSUnit, branch_industry: "" })).toThrow(ZodValidationError);
+	it("throws ZodValidationError when branchIndustry is empty", () => {
+		expect(() => new EGS({ ...validEGSUnit, branchIndustry: "" })).toThrow(ZodValidationError);
 	});
 
 	it("does not throw with valid EGSUnitInfo", () => {
 		expect(() => new EGS(validEGSUnit)).not.toThrow();
 	});
 
-	it("get() returns the unit info with correct uuid after construction", () => {
+	it("getInfo() returns the unit info with correct id after construction", () => {
 		const egs = new EGS(validEGSUnit);
-		expect(egs.get().uuid).toBe(validEGSUnit.uuid);
+		expect(egs.getInfo().id).toBe(validEGSUnit.id);
 	});
 
-	it("get() returns the unit info with correct VAT_name after construction", () => {
+	it("getInfo() returns the unit info with correct vatName after construction", () => {
 		const egs = new EGS(validEGSUnit);
-		expect(egs.get().VAT_name).toBe(validEGSUnit.VAT_name);
+		expect(egs.getInfo().vatName).toBe(validEGSUnit.vatName);
 	});
 });
 
-describe("EGS.get() and set()", () => {
-	it("get() returns all required fields from validEGSUnit", () => {
+describe("EGS.getInfo()", () => {
+	it("getInfo() returns all required fields from validEGSUnit", () => {
 		const egs = new EGS(validEGSUnit);
-		const info = egs.get();
-		expect(info.uuid).toBe(validEGSUnit.uuid);
-		expect(info.VAT_name).toBe(validEGSUnit.VAT_name);
-		expect(info.branch_name).toBe(validEGSUnit.branch_name);
-		expect(info.branch_industry).toBe(validEGSUnit.branch_industry);
-	});
-
-	it("set() updates a field without affecting other fields", () => {
-		const egs = new EGS(validEGSUnit);
-		egs.set({ VAT_name: "Updated Company Name" });
-		expect(egs.get().VAT_name).toBe("Updated Company Name");
-		expect(egs.get().uuid).toBe(validEGSUnit.uuid);
-		expect(egs.get().branch_name).toBe(validEGSUnit.branch_name);
+		const info = egs.getInfo();
+		expect(info.id).toBe(validEGSUnit.id);
+		expect(info.vatName).toBe(validEGSUnit.vatName);
+		expect(info.branchName).toBe(validEGSUnit.branchName);
+		expect(info.branchIndustry).toBe(validEGSUnit.branchIndustry);
 	});
 });
 
 describe("ZodValidationError structure", () => {
-	it("has name ZodValidationError, message containing 'Validation failed', and field path in issues for uuid", () => {
+	it("has name ZodValidationError, message containing 'Validation failed', and field path in issues for id", () => {
 		try {
-			new EGS({ ...validEGSUnit, uuid: "" });
-			expect.fail("should have thrown");
+			new EGS({ ...validEGSUnit, id: "" });
+			throw new Error("should have thrown");
 		} catch (err) {
 			expect(err).toBeInstanceOf(ZodValidationError);
 			const zodErr = err as ZodValidationError;
 			expect(zodErr.name).toBe("ZodValidationError");
 			expect(zodErr.message).toContain("Validation failed");
 			const paths = zodErr.issues.map((i) => i.path.join("."));
-			expect(paths.some((p) => p.includes("uuid"))).toBe(true);
+			expect(paths.some((p) => p.includes("id"))).toBe(true);
 		}
 	});
 
-	it("ZodValidationError.issues contains field path for VAT_number", () => {
+	it("ZodValidationError.issues contains field path for vatNumber", () => {
 		try {
-			new EGS({ ...validEGSUnit, VAT_number: "" });
-			expect.fail("should have thrown");
+			new EGS({ ...validEGSUnit, vatNumber: "" });
+			throw new Error("should have thrown");
 		} catch (err) {
 			expect(err).toBeInstanceOf(ZodValidationError);
 			const zodErr = err as ZodValidationError;
 			const paths = zodErr.issues.map((i) => i.path.join("."));
-			expect(paths.some((p) => p.includes("VAT_number"))).toBe(true);
+			expect(paths.some((p) => p.includes("vatNumber"))).toBe(true);
 		}
 	});
 });
 
 describe("EGS.signInvoice() — missing credentials", () => {
-	it("throws when no private_key and no certificate are set", () => {
+	it("throws when no privateKey and no certificate are set", () => {
 		const egs = new EGS(validEGSUnit);
 		expect(() => egs.signInvoice({} as unknown as ZATCAInvoice)).toThrow(
 			"EGS is missing a certificate/private key to sign the invoice.",
 		);
 	});
 
-	it("throws when private_key is set but compliance_certificate is not", () => {
-		const egs = new EGS(validEGSUnit);
-		egs.set({ private_key: "-----BEGIN EC PRIVATE KEY-----\nfake\n-----END EC PRIVATE KEY-----" });
-		expect(() => egs.signInvoice({} as unknown as ZATCAInvoice, false)).toThrow(
+	it("throws when privateKey is set but complianceCertificate is not", () => {
+		const privateKey = "-----BEGIN EC PRIVATE KEY-----\nfake\n-----END EC PRIVATE KEY-----";
+		const restored = EGS.restore({ info: validEGSUnit, privateKey });
+		expect(() => restored.signInvoice({} as unknown as ZATCAInvoice, false)).toThrow(
 			"EGS is missing a certificate/private key to sign the invoice.",
 		);
 	});
 
-	it("throws when compliance_certificate is set but private_key is not", () => {
-		const egs = new EGS(validEGSUnit);
-		egs.set({ compliance_certificate: "-----BEGIN CERTIFICATE-----\nfake\n-----END CERTIFICATE-----" });
-		expect(() => egs.signInvoice({} as unknown as ZATCAInvoice, false)).toThrow(
+	it("throws when complianceCertificate is set but privateKey is not", () => {
+		const complianceCertificate = "-----BEGIN CERTIFICATE-----\nfake\n-----END CERTIFICATE-----";
+		const restored = EGS.restore({ info: validEGSUnit, complianceCertificate });
+		expect(() => restored.signInvoice({} as unknown as ZATCAInvoice, false)).toThrow(
 			"EGS is missing a certificate/private key to sign the invoice.",
 		);
 	});
@@ -214,7 +197,7 @@ describe("CSR production flag behavior", () => {
 	it("uses PREZATCA-Code-Signing OID value when production=false", async () => {
 		const egs = new EGS(validEGSUnit);
 		await egs.generateNewKeysAndCSR(false, "SDK-Test");
-		const csr = egs.get().csr;
+		const csr = egs.getCsr();
 
 		expect(typeof csr).toBe("string");
 		expect(csr).toContain("BEGIN CERTIFICATE REQUEST");
@@ -226,7 +209,7 @@ describe("CSR production flag behavior", () => {
 	it("uses ZATCA-Code-Signing OID value when production=true", async () => {
 		const egs = new EGS(validEGSUnit);
 		await egs.generateNewKeysAndCSR(true, "SDK-Test");
-		const csr = egs.get().csr;
+		const csr = egs.getCsr();
 
 		expect(typeof csr).toBe("string");
 		expect(csr).toContain("BEGIN CERTIFICATE REQUEST");
