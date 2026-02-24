@@ -194,8 +194,8 @@ describe("EGS environment selection", () => {
 });
 
 describe("CSR production flag behavior", () => {
-	it("uses PREZATCA-Code-Signing OID value when environment is simulation/development", async () => {
-		const egs = new EGS(validEGSUnit);
+	it("uses PREZATCA-Code-Signing OID value when environment is development", async () => {
+		const egs = new EGS(validEGSUnit, "development");
 		await egs.generateNewKeysAndCSR("SDK-Test");
 		const csr = egs.getCsr();
 
@@ -206,8 +206,8 @@ describe("CSR production flag behavior", () => {
 		expect(csrText).toContain("PREZATCA-Code-Signing");
 	});
 
-	it("uses ZATCA-Code-Signing OID value when environment is production", async () => {
-		const egs = new EGS(validEGSUnit, "production");
+	it("uses ZATCA-Code-Signing OID value when environment is simulation or production", async () => {
+		const egs = new EGS(validEGSUnit, "simulation");
 		await egs.generateNewKeysAndCSR("SDK-Test");
 		const csr = egs.getCsr();
 

@@ -268,7 +268,7 @@ export class EGS {
         const new_private_key = await generatePrime256v1KeyPair();
         this.privateKey = new_private_key;
 
-        const new_csr = await generateCSR(this.info, this.privateKey, this.env === "production", solution_name);
+        const new_csr = await generateCSR(this.info, this.privateKey, this.env !== "development", solution_name);
         this.csr = new_csr;
     }
 
