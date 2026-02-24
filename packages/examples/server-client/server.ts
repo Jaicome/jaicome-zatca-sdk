@@ -190,7 +190,7 @@ const buildInvoicePropsForComplianceStep = (
 // EXPORTED FUNCTIONS
 // ============================================================================
 
-export const onboardEGS = async (): Promise<OnboardResult> => {
+export const onboardEGS = async (otp: string): Promise<OnboardResult> => {
   console.log("[SERVER] Starting EGS onboarding...");
 
   // 1. Initialize EGS
@@ -202,7 +202,8 @@ export const onboardEGS = async (): Promise<OnboardResult> => {
 
   // 3. Issue compliance certificate
   console.log("[SERVER] Issuing compliance certificate...");
-  const complianceCertResult = await egs.issueComplianceCertificate("123456");
+  console.log(`[SERVER] Received OTP from client: ${otp.substring(0, 3)}***`); // Masked for security
+  const complianceCertResult = await egs.issueComplianceCertificate(otp);
   if (complianceCertResult.isErr()) {
     throw new Error(`Failed to issue compliance certificate: ${complianceCertResult.error}`);
   }

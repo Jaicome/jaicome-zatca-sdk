@@ -15,6 +15,9 @@ import {
   type SingleReportResult,
 } from "./server";
 
+// Get OTP from environment variable or use default for testing
+const ZATCA_OTP = process.env.ZATCA_OTP || "123456";
+
 // ============================================================================
 // CONSTANTS
 // ============================================================================
@@ -112,7 +115,8 @@ async function main() {
   console.log("[CLIENT] ========== PHASE 1: ONBOARDING ==========");
   console.log("[CLIENT] Requesting server to onboard EGS...");
 
-  const onboardResult = await onboardEGS();
+  const onboardResult = await onboardEGS(ZATCA_OTP);
+  console.log(`[CLIENT] Using OTP: ${ZATCA_OTP}`);
   currentHash = onboardResult.previousInvoiceHash;
   currentCounter = onboardResult.invoiceCounterStart;
 
