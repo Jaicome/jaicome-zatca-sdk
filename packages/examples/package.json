@@ -1,6 +1,8 @@
 {
   "name": "examples",
   "private": true,
+  "author": "Ali Alshaikh, Jaicome company",
+  "license": "MIT",
   "scripts": {
     "build": "node -e \"process.exit(0)\"",
     "test": "node -e \"process.exit(0)\""

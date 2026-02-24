@@ -14,7 +14,7 @@
     "declaration": true,
     "declarationMap": true,
 
-    "outDir": "testing_lib"
+    "outDir": "lib"
   },
 
   "include": ["packages/examples/**/*"]

@@ -1,6 +1,8 @@
 {
   "name": "docs",
   "private": true,
+  "author": "Ali Alshaikh, Jaicome company",
+  "license": "MIT",
   "type": "module",
   "sideEffects": false,
   "scripts": {
