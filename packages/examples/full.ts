@@ -165,11 +165,11 @@ const main = async () => {
     const egs = new EGS(egsunit, "simulation");
 
     // 2. Generate Keys & CSR
-    await egs.generateNewKeysAndCSR("solution_name");
+    await egs.generateNewKeysAndCSR("Jaicome ZATCA Test");
     console.log("Keys and CSR generated successfully");
 
     // 3. Issue compliance certificate
-    const otp = "231324";
+    const otp = "255013";
     const complianceCertResult = await egs.issueComplianceCertificate(otp);
     if (complianceCertResult.isErr()) {
       console.error("Failed to issue compliance certificate:", complianceCertResult.error);
