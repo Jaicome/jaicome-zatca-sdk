@@ -354,10 +354,15 @@ export class EGS {
         const certificate_string = production ? this.productionCertificate : this.complianceCertificate;
         if (!certificate_string || !this.privateKey) throw new Error("EGS is missing a certificate/private key to sign the invoice.");
 
-        return generateSignedXMLString({
+        const result = generateSignedXMLString({
             invoice_xml: invoice.getXML(),
             certificate_string,
             private_key_string: this.privateKey,
         });
+        return {
+            signedInvoiceString: result.signed_invoice_string,
+            invoiceHash: result.invoice_hash,
+            qr: result.qr
+        };
     }
 }

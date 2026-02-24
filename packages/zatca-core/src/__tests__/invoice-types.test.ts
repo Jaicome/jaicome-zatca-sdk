@@ -254,10 +254,10 @@ describe("Customer info — presence and absence", () => {
 			...makeBaseProps(),
 			egsInfo: {
 				...makeBaseProps().egsInfo,
-				customerInfo: {
-					buyerName: "Test Buyer",
-					vatNumber: "123456789",
-				},
+			},
+			customerInfo: {
+				buyerName: "Test Buyer",
+				vatNumber: "123456789",
 			},
 		} as ZATCAInvoiceProps;
 	}

@@ -234,7 +234,7 @@ class API {
 
       const result = await this.fetchJson<CertificateResponse>(
         `${baseUrl}/production/csids`,
-        { compliance_request_id },
+        { compliance_request_id: complianceRequestId },
         headers
       );
 
