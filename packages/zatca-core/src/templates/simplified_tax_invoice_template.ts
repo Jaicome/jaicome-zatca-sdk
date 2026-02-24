@@ -1,3 +1,4 @@
+import { z } from "zod";
 import Mustache from "mustache";
 import type { EGSInfo, CustomerInfo } from "../schemas/index.js";
 
@@ -157,6 +158,36 @@ export enum ZATCAInvoiceTypes {
   CREDIT_NOTE = "381",
 }
 
+// --- Invoice Types ---
+export const ZATCAInvoiceTypeSchema = z.enum(["INVOICE", "DEBIT_NOTE", "CREDIT_NOTE"]);
+export type ZATCAInvoiceType = z.infer<typeof ZATCAInvoiceTypeSchema>;
+
+export const INVOICE_TYPE_CODES = {
+  INVOICE: "388",
+  DEBIT_NOTE: "383",
+  CREDIT_NOTE: "381",
+} as const satisfies Record<ZATCAInvoiceType, string>;
+
+// --- Payment Methods ---
+export const ZATCAPaymentMethodSchema = z.enum(["CASH", "CREDIT", "BANK_ACCOUNT", "BANK_CARD"]);
+export type ZATCAPaymentMethod = z.infer<typeof ZATCAPaymentMethodSchema>;
+
+export const PAYMENT_METHOD_CODES = {
+  CASH: "10",
+  CREDIT: "30",
+  BANK_ACCOUNT: "42",
+  BANK_CARD: "48",
+} as const satisfies Record<ZATCAPaymentMethod, string>;
+
+// --- Invoice Codes ---
+export const InvoiceCodeSchema = z.enum(["STANDARD", "SIMPLIFIED"]);
+export type InvoiceCode = z.infer<typeof InvoiceCodeSchema>;
+
+export const INVOICE_CODE_VALUES = {
+  STANDARD: "0100000",
+  SIMPLIFIED: "0200000",
+} as const satisfies Record<InvoiceCode, string>;
+
 export interface ZATCAInvoiceLineItemDiscount {
   amount: number;
   reason: string;
@@ -192,7 +223,7 @@ export type ZATCAInvoiceLineItem = LineItem | ZeroTaxLineItem;
 
 export interface ZATCAInvoiceCancellation {
   canceledSerialInvoiceNumber: string;
-  paymentMethod: ZATCAPaymentMethods;
+  paymentMethod: ZATCAPaymentMethod | "10" | "30" | "42" | "48";
   reason: string;
 }
 
@@ -214,30 +245,43 @@ interface ZatcaInvoiceBase {
 }
 
 type CreditDebitInvoice = ZatcaInvoiceBase & {
-  invoiceType: ZATCAInvoiceTypes.CREDIT_NOTE | ZATCAInvoiceTypes.DEBIT_NOTE;
+  invoiceType: "CREDIT_NOTE" | "DEBIT_NOTE" | "381" | "383";
   cancelation: ZATCAInvoiceCancellation;
 };
 
 type CashInvoice = ZatcaInvoiceBase & {
-  invoiceType: ZATCAInvoiceTypes.INVOICE;
+  invoiceType: "INVOICE" | "388";
   actualDeliveryDate?: string;
   latestDeliveryDate?: string;
-  paymentMethod?: "10" | "30" | "42" | "48";
+  paymentMethod?: ZATCAPaymentMethod | "10" | "30" | "42" | "48";
 };
 
 type TaxInvoice = (CashInvoice | CreditDebitInvoice) & {
-  invoiceCode: "0100000";
+  invoiceCode: "STANDARD" | "0100000";
   actualDeliveryDate?: string;
 };
 
 type SimplifiedInvoice = (CashInvoice | CreditDebitInvoice) & {
-  invoiceCode: "0200000";
+  invoiceCode: "SIMPLIFIED" | "0200000";
 };
 
 export type ZATCAInvoiceProps = SimplifiedInvoice | TaxInvoice;
 
 const rendering = (props: ZATCAInvoiceProps): string => {
-  const result = Mustache.render(template, props);
+  // Map string keys to numeric codes before passing to Mustache template
+  // Handle both old format (numeric codes) and new format (string keys)
+  const invoiceTypeCode = (INVOICE_TYPE_CODES as any)[props.invoiceType] ?? props.invoiceType;
+  const invoiceCodeValue = (INVOICE_CODE_VALUES as any)[props.invoiceCode] ?? props.invoiceCode;
+  
+  const mappedProps = {
+    ...props,
+    invoiceType: invoiceTypeCode,
+    invoiceCode: invoiceCodeValue,
+    ...((props as any).paymentMethod
+      ? { paymentMethod: (PAYMENT_METHOD_CODES as any)[(props as any).paymentMethod] ?? (props as any).paymentMethod }
+      : {}),
+  };
+  const result = Mustache.render(template, mappedProps);
   return result;
 };
 

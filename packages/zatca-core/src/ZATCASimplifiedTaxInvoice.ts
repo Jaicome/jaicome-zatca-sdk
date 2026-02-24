@@ -4,19 +4,37 @@ import { Signer, SignatureResult } from "./contracts/signer.js";
 import defaultSimplifiedTaxInvoice, {
   ZATCAInvoiceTypes,
   ZATCAPaymentMethods,
+  ZATCAInvoiceTypeSchema,
+  ZATCAPaymentMethodSchema,
+  InvoiceCodeSchema,
+  INVOICE_TYPE_CODES,
+  PAYMENT_METHOD_CODES,
+  INVOICE_CODE_VALUES,
 } from "./templates/simplified_tax_invoice_template.js";
 import type {
   ZATCAInvoiceLineItem,
   ZATCAInvoiceProps,
+  ZATCAInvoiceType,
+  ZATCAPaymentMethod,
+  InvoiceCode,
 } from "./templates/simplified_tax_invoice_template.js";
 
 export type {
   ZATCAInvoiceLineItem,
   ZATCAInvoiceProps,
+  ZATCAInvoiceType,
+  ZATCAPaymentMethod,
+  InvoiceCode,
 };
 export {
   ZATCAInvoiceTypes,
   ZATCAPaymentMethods,
+  ZATCAInvoiceTypeSchema,
+  ZATCAPaymentMethodSchema,
+  InvoiceCodeSchema,
+  INVOICE_TYPE_CODES,
+  PAYMENT_METHOD_CODES,
+  INVOICE_CODE_VALUES,
 };
 
 export class ZATCAInvoice {

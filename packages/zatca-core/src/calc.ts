@@ -2,6 +2,11 @@ import {
   ZATCAInvoiceLineItem,
   ZATCAInvoiceProps,
 } from "./ZATCASimplifiedTaxInvoice.js";
+import {
+  INVOICE_TYPE_CODES,
+  INVOICE_CODE_VALUES,
+  PAYMENT_METHOD_CODES,
+} from "./templates/simplified_tax_invoice_template.js";
 import { XMLDocument } from "./parser/index.js";
 import Decimal from "decimal.js";
 
@@ -462,12 +467,15 @@ export const Calc = (
     invoiceLineItems.push(lineItemXml);
   });
 
+  // Handle both old format (numeric codes like "381", "383") and new format (string keys like "CREDIT_NOTE", "DEBIT_NOTE")
   if (
-    (props.invoiceType === "381" || props.invoiceType === "383") &&
+    (props.invoiceType === "CREDIT_NOTE" || props.invoiceType === "DEBIT_NOTE" ||
+     props.invoiceType === "381" || props.invoiceType === "383") &&
     props.cancelation
   ) {
+    const paymentMethodCode = (PAYMENT_METHOD_CODES as any)[props.cancelation.paymentMethod] ?? props.cancelation.paymentMethod;
     invoiceXml.set("Invoice/cac:PaymentMeans", false, {
-      "cbc:PaymentMeansCode": props.cancelation.paymentMethod,
+      "cbc:PaymentMeansCode": paymentMethodCode,
       "cbc:InstructionNote": props.cancelation.reason ?? "No note Specified",
     });
   }
