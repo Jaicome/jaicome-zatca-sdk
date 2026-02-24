@@ -65,30 +65,30 @@ countryName = SA
 `;
 
 interface CSRConfigProps {
-    private_key_pass?: string,
+    privateKeyPass?: string,
     production?: boolean,
-    egs_model: string,
-    egs_serial_number: string,
-    solution_name: string,
-    vat_number: string,
-    branch_location: string,
-    branch_industry: string,
-    branch_name: string,
-    taxpayer_name: string,
-    taxpayer_provided_id: string
+    egsModel: string,
+    egsSerialNumber: string,
+    solutionName: string,
+    vatNumber: string,
+    branchLocation: string,
+    branchIndustry: string,
+    branchName: string,
+    taxpayerName: string,
+    taxpayerProvidedId: string
 }
 
 const buildCSRConfig = (props: CSRConfigProps): string => {
     let t = CSR_TEMPLATE;
-    t = t.replace("SET_PRIVATE_KEY_PASS", props.private_key_pass ?? "SET_PRIVATE_KEY_PASS");
+    t = t.replace("SET_PRIVATE_KEY_PASS", props.privateKeyPass ?? "SET_PRIVATE_KEY_PASS");
     t = t.replace("SET_PRODUCTION_VALUE", props.production ? "ZATCA-Code-Signing" : "PREZATCA-Code-Signing");
-    t = t.replace("SET_EGS_SERIAL_NUMBER", `1-${props.solution_name}|2-${props.egs_model}|3-${props.egs_serial_number}`);
-    t = t.replace("SET_VAT_REGISTRATION_NUMBER", props.vat_number);
-    t = t.replace("SET_BRANCH_LOCATION", props.branch_location);
-    t = t.replace("SET_BRANCH_INDUSTRY", props.branch_industry);
-    t = t.replace("SET_COMMON_NAME", props.taxpayer_provided_id);
-    t = t.replace("SET_BRANCH_NAME", props.branch_name);
-    t = t.replace("SET_TAXPAYER_NAME", props.taxpayer_name);
+    t = t.replace("SET_EGS_SERIAL_NUMBER", `1-${props.solutionName}|2-${props.egsModel}|3-${props.egsSerialNumber}`);
+    t = t.replace("SET_VAT_REGISTRATION_NUMBER", props.vatNumber);
+    t = t.replace("SET_BRANCH_LOCATION", props.branchLocation);
+    t = t.replace("SET_BRANCH_INDUSTRY", props.branchIndustry);
+    t = t.replace("SET_COMMON_NAME", props.taxpayerProvidedId);
+    t = t.replace("SET_BRANCH_NAME", props.branchName);
+    t = t.replace("SET_TAXPAYER_NAME", props.taxpayerName);
     return t;
 };
 
@@ -191,15 +191,15 @@ const generateCSR = async (egs_info: EGSUnitInfo, production: boolean, solution_
     const csr_config_file = `${process.env.TEMP_FOLDER ?? "/tmp/"}${uuidv4()}.cnf`;
     fs.writeFileSync(private_key_file, egs_info.private_key);
     fs.writeFileSync(csr_config_file, buildCSRConfig({
-        egs_model: egs_info.model,
-        egs_serial_number: egs_info.uuid,
-        solution_name: solution_name,
-        vat_number: egs_info.VAT_number,
-        branch_location: `${egs_info.location?.building} ${egs_info.location?.street}, ${egs_info.location?.city}`,
-        branch_industry: egs_info.branch_industry,
-        branch_name: egs_info.branch_name,
-        taxpayer_name: egs_info.VAT_name,
-        taxpayer_provided_id: egs_info.custom_id,
+        egsModel: egs_info.model,
+        egsSerialNumber: egs_info.uuid,
+        solutionName: solution_name,
+        vatNumber: egs_info.VAT_number,
+        branchLocation: `${egs_info.location?.building} ${egs_info.location?.street}, ${egs_info.location?.city}`,
+        branchIndustry: egs_info.branch_industry,
+        branchName: egs_info.branch_name,
+        taxpayerName: egs_info.VAT_name,
+        taxpayerProvidedId: egs_info.custom_id,
         production: production
     }));
     
