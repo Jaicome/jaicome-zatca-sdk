@@ -14,6 +14,7 @@ import {
   signAndReportBatch,
   signAndReportInvoice,
 } from "./server";
+import { type ClientInvoiceRecord } from "@jaicome/zatca-server";
 
 // Get OTP from environment variable or use default for testing
 const ZATCA_OTP = "112534";
@@ -51,19 +52,6 @@ const customerInfo = {
   street: "Test Street",
 };
 
-// ============================================================================
-// TYPES
-// ============================================================================
-
-interface ClientInvoiceRecord {
-  invoiceSerialNumber: string;
-  invoiceCounterNumber: number;
-  previousInvoiceHash: string;
-  props: ZATCAInvoiceProps;
-  status: "pending" | "reported" | "failed";
-  serverResponse?: SingleReportResult;
-  createdAt: string;
-}
 
 // ============================================================================
 // CLIENT STATE

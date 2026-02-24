@@ -28,3 +28,31 @@ export interface InvoiceResponse {
   reportingStatus?: string;
   clearanceStatus?: string;
 }
+
+// --- Workflow Result Types ---
+
+export type OnboardResult = {
+  previousInvoiceHash: string;
+  invoiceCounterStart: number;
+};
+
+export type SingleReportResult = {
+  invoiceSerialNumber: string;
+  success: boolean;
+  invoiceHash: string;
+  reportingStatus?: string;
+  clearanceStatus?: string;
+  error?: string;
+};
+
+export type BatchReportResult = SingleReportResult[];
+
+export interface ClientInvoiceRecord {
+  invoiceSerialNumber: string;
+  invoiceCounterNumber: number;
+  previousInvoiceHash: string;
+  props: import("@jaicome/zatca-core").ZATCAInvoiceProps;
+  status: "pending" | "reported" | "failed";
+  serverResponse?: SingleReportResult;
+  createdAt: string;
+}

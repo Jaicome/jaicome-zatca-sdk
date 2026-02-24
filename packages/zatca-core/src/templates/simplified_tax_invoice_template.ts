@@ -185,7 +185,7 @@ export interface ZATCAInvoiceLineItemTax {
   percentAmount: number;
 }
 
-interface InvoiceLineItem {
+export interface InvoiceLineItem {
   id: string;
   name: string;
   quantity: number;
@@ -194,7 +194,7 @@ interface InvoiceLineItem {
   discounts?: ZATCAInvoiceLineItemDiscount[];
 }
 
-type ZeroTaxLineItem = InvoiceLineItem & {
+export type ZeroTaxLineItem = InvoiceLineItem & {
   vatPercent: 0;
   vatCategory: {
     code: "O" | "Z" | "E";
@@ -203,7 +203,7 @@ type ZeroTaxLineItem = InvoiceLineItem & {
   };
 };
 
-type LineItem = InvoiceLineItem & {
+export type LineItem = InvoiceLineItem & {
   vatPercent: 0.15 | 0.05;
 };
 
@@ -220,7 +220,7 @@ export type ZATCAInvoicCancelation = ZATCAInvoiceCancellation;
 
 
 
-interface ZatcaInvoiceBase {
+export interface ZatcaInvoiceBase {
   egsInfo: EGSInfo;
   crnNumber: string;
   customerInfo?: CustomerInfo;
@@ -232,24 +232,24 @@ interface ZatcaInvoiceBase {
   lineItems: ZATCAInvoiceLineItem[];
 }
 
-type CreditDebitInvoice = ZatcaInvoiceBase & {
+export type CreditDebitInvoice = ZatcaInvoiceBase & {
   invoiceType: "CREDIT_NOTE" | "DEBIT_NOTE" | "381" | "383";
   cancelation: ZATCAInvoiceCancellation;
 };
 
-type CashInvoice = ZatcaInvoiceBase & {
+export type CashInvoice = ZatcaInvoiceBase & {
   invoiceType: "INVOICE" | "388";
   actualDeliveryDate?: string;
   latestDeliveryDate?: string;
   paymentMethod?: ZATCAPaymentMethod | "10" | "30" | "42" | "48";
 };
 
-type TaxInvoice = (CashInvoice | CreditDebitInvoice) & {
+export type TaxInvoice = (CashInvoice | CreditDebitInvoice) & {
   invoiceCode: "STANDARD" | "0100000";
   actualDeliveryDate?: string;
 };
 
-type SimplifiedInvoice = (CashInvoice | CreditDebitInvoice) & {
+export type SimplifiedInvoice = (CashInvoice | CreditDebitInvoice) & {
   invoiceCode: "SIMPLIFIED" | "0200000";
 };
 
