@@ -28,6 +28,3 @@ export interface InvoiceResponse {
   reportingStatus?: string;
   clearanceStatus?: string;
 }
-
- // Re-exported from @jaicome/zatca-core for backward compatibility
-export type { OnboardResult, SingleReportResult, BatchReportResult, ClientInvoiceRecord } from "@jaicome/zatca-core";

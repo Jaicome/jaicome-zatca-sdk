@@ -13,4 +13,3 @@ export * from "./templates/ubl_extension_signed_properties_template.js";
 export * from "./templates/ubl_sign_extension_template.js";
 export * from "./utils/index.js";
 export * from "./ZATCASimplifiedTaxInvoice.js";
-export * from "./workflow-types.js";

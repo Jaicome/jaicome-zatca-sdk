@@ -4,12 +4,13 @@ import {
   ZATCAInvoice,
   type ZATCAInvoiceLineItem,
   type ZATCAInvoiceProps,
-  type ClientInvoiceRecord,
 } from "@jaicome/zatca-core";
 import {
   egsInfo,
   GENESIS_PREVIOUS_INVOICE_HASH,
+  type OnboardResult,
   onboardEGS,
+  type SingleReportResult,
   signAndReportBatch,
   signAndReportInvoice,
 } from "./server";
@@ -49,6 +50,20 @@ const customerInfo = {
   postalZone: "11564",
   street: "Test Street",
 };
+
+// ============================================================================
+// TYPES
+// ============================================================================
+
+interface ClientInvoiceRecord {
+  invoiceSerialNumber: string;
+  invoiceCounterNumber: number;
+  previousInvoiceHash: string;
+  props: ZATCAInvoiceProps;
+  status: "pending" | "reported" | "failed";
+  serverResponse?: SingleReportResult;
+  createdAt: string;
+}
 
 // ============================================================================
 // CLIENT STATE

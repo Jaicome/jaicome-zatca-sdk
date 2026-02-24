@@ -7,9 +7,6 @@ import {
   type ComplianceCheckPayload,
   type ZATCAComplianceStep,
   type EGSInfo,
-  type OnboardResult,
-  type SingleReportResult,
-  type BatchReportResult,
 } from "@jaicome/zatca-server";
 import {
   ZATCAInvoice,
@@ -17,6 +14,25 @@ import {
   type ZATCAInvoiceLineItem,
 } from "@jaicome/zatca-core";
 
+// ============================================================================
+// TYPES
+// ============================================================================
+
+export type OnboardResult = {
+  previousInvoiceHash: string;
+  invoiceCounterStart: number;
+};
+
+export type SingleReportResult = {
+  invoiceSerialNumber: string;
+  success: boolean;
+  invoiceHash: string;
+  reportingStatus?: string;
+  clearanceStatus?: string;
+  error?: string;
+};
+
+export type BatchReportResult = SingleReportResult[];
 
 // ============================================================================
 // CONSTANTS & EGS INFO

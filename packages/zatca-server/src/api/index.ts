@@ -319,8 +319,4 @@ export type {
   InvoiceResponse,
   IssuedCertificate,
   ValidationMessage,
-  OnboardResult,
-  SingleReportResult,
-  BatchReportResult,
-  ClientInvoiceRecord,
 } from "./types.js";
