@@ -92,7 +92,6 @@ export const SAMPLE_CUSTOMER_INFO: CustomerInfo = {
 
 /**
  * Sample simplified invoice props (most common use case).
- * Uses string dates as per current schema (Date migration is T7).
  */
 export const SAMPLE_INVOICE_PROPS: ZATCAInvoiceProps = {
   crnNumber: "7032256278",
@@ -101,8 +100,7 @@ export const SAMPLE_INVOICE_PROPS: ZATCAInvoiceProps = {
   invoiceCounterNumber: 1,
   invoiceSerialNumber: "EGS1-886431145-101",
   invoiceType: "INVOICE",
-  issueDate: "2024-01-15",
-  issueTime: "10:00:00",
+  issueDate: new Date("2024-01-15T10:00:00Z"),
   lineItems: [SAMPLE_LINE_ITEM],
   paymentMethod: "CASH",
   previousInvoiceHash:
@@ -119,8 +117,7 @@ export const SAMPLE_CREDIT_NOTE_PROPS: ZATCAInvoiceProps = {
   invoiceCounterNumber: 2,
   invoiceSerialNumber: "EGS1-886431145-102",
   invoiceType: "CREDIT_NOTE",
-  issueDate: "2024-01-16",
-  issueTime: "11:00:00",
+  issueDate: new Date("2024-01-16T11:00:00Z"),
   lineItems: [SAMPLE_LINE_ITEM],
   cancelation: {
     canceledSerialInvoiceNumber: "EGS1-886431145-101",

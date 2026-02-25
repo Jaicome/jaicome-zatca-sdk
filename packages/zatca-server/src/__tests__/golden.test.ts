@@ -1,7 +1,7 @@
 import { generateKeyPairSync } from "node:crypto";
 
-import { buildInvoice, generatePhaseOneQR } from "@jaicome/zatca-core";
-import type { ZATCAInvoiceProps } from "@jaicome/zatca-core";
+import { buildInvoice, generatePhaseOneQR } from "../../../zatca-core/src/api.js";
+import type { ZATCAInvoiceProps } from "../../../zatca-core/src/zatca-simplified-tax-invoice.js";
 import { generateSignedXMLString, getInvoiceHash } from "@jaicome/zatca-server";
 
 const SAMPLE_ZATCA_TEST_CERT_BODY =
@@ -33,8 +33,7 @@ function makeFixtureProps(invoiceCounterNumber: number = 1): ZATCAInvoiceProps {
     invoiceCounterNumber,
     invoiceSerialNumber: "EGS1-GOLDEN-001",
     invoiceType: "INVOICE",
-    issueDate: "2024-01-15",
-    issueTime: "10:00:00",
+    issueDate: new Date("2024-01-15T10:00:00Z"),
     lineItems: [
       {
         id: "1",

@@ -11,7 +11,7 @@ function collectMessages(issues: ZodIssue[]): string[] {
   const messages: string[] = [];
   for (const issue of issues) {
     messages.push(issue.message);
-    if (issue.code === "invalid_union") {
+    if (issue.code === "invalid_union" && issue.unionErrors) {
       for (const ue of issue.unionErrors) {
         messages.push(...collectMessages(ue.issues));
       }

@@ -86,7 +86,7 @@ describe("@jaicome/zatca-server — end-to-end", () => {
   describe("signing flow wiring (no network)", () => {
     it("nodeSigner.sign() returns a SignatureResult shape for a built invoice", async () => {
       const { buildInvoice, prepareSigningInput } =
-        await import("@jaicome/zatca-core");
+        await import("../../../zatca-core/src/api.js");
 
       const { privateKey } = generateKeyPairSync("ec", {
         namedCurve: "prime256v1",
@@ -110,8 +110,7 @@ describe("@jaicome/zatca-server — end-to-end", () => {
         invoiceCounterNumber: 1,
         invoiceSerialNumber: "EGS1-886431145-101",
         invoiceType: "INVOICE",
-        issueDate: now.toISOString().split("T")[0],
-        issueTime: now.toISOString().split("T")[1].slice(0, 8),
+        issueDate: now,
         lineItems: [
           {
             id: "1",

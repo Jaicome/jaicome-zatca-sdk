@@ -18,8 +18,7 @@ function makeBaseProps(): ZATCAInvoiceProps {
     invoiceCounterNumber: 1,
     invoiceSerialNumber: "TYPES-001",
     invoiceType: "INVOICE",
-    issueDate: "2024-01-15",
-    issueTime: "10:00:00",
+    issueDate: new Date("2024-01-15T10:00:00Z"),
     lineItems: [
       {
         id: "1",
@@ -53,6 +52,10 @@ describe("invoice type 388 — invoice code variations", () => {
   it("tax invoice (0100000, type 388): buildInvoice succeeds", () => {
     const props = {
       ...makeBaseProps(),
+      customerInfo: {
+        buyerName: "Tax Buyer",
+        vatNumber: "300000000000003",
+      },
       invoiceCode: "0100000",
     } as unknown as ZATCAInvoiceProps;
     expect(() => buildInvoice(props)).not.toThrow();
@@ -67,6 +70,10 @@ describe("invoice type 388 — invoice code variations", () => {
   it("invoice type code in XML is '388' for tax invoice (0100000)", () => {
     const props = {
       ...makeBaseProps(),
+      customerInfo: {
+        buyerName: "Tax Buyer",
+        vatNumber: "300000000000003",
+      },
       invoiceCode: "0100000",
     } as unknown as ZATCAInvoiceProps;
     const invoice = buildInvoice(props);
@@ -85,6 +92,10 @@ describe("invoice type 388 — invoice code variations", () => {
   it("invoice_code '0100000' appears as InvoiceTypeCode name attribute", () => {
     const props = {
       ...makeBaseProps(),
+      customerInfo: {
+        buyerName: "Tax Buyer",
+        vatNumber: "300000000000003",
+      },
       invoiceCode: "0100000",
     } as unknown as ZATCAInvoiceProps;
     const invoice = buildInvoice(props);
@@ -277,7 +288,7 @@ describe("customer info — presence and absence", () => {
       ...makeBaseProps(),
       customerInfo: {
         buyerName: "Test Buyer",
-        vatNumber: "123456789",
+        vatNumber: "300000000000003",
       },
       egsInfo: {
         ...makeBaseProps().egsInfo,
@@ -460,7 +471,7 @@ describe("delivery dates", () => {
   it("with actualDeliveryDate: Delivery section is present in XML", () => {
     const props = {
       ...makeBaseProps(),
-      actualDeliveryDate: "2024-01-20",
+      actualDeliveryDate: new Date("2024-01-20T00:00:00Z"),
     } as unknown as ZATCAInvoiceProps;
     const invoice = buildInvoice(props);
     const delivery = invoice.getXML().get("Invoice/cac:Delivery");
@@ -470,7 +481,7 @@ describe("delivery dates", () => {
   it("with actualDeliveryDate: ActualDeliveryDate element matches provided date", () => {
     const props = {
       ...makeBaseProps(),
-      actualDeliveryDate: "2024-01-20",
+      actualDeliveryDate: new Date("2024-01-20T00:00:00Z"),
     } as unknown as ZATCAInvoiceProps;
     const invoice = buildInvoice(props);
     const deliveryDate = getXMLValue(
@@ -483,8 +494,8 @@ describe("delivery dates", () => {
   it("with latestDeliveryDate alongside actual: LatestDeliveryDate present in XML", () => {
     const props = {
       ...makeBaseProps(),
-      actualDeliveryDate: "2024-01-20",
-      latestDeliveryDate: "2024-01-25",
+      actualDeliveryDate: new Date("2024-01-20T00:00:00Z"),
+      latestDeliveryDate: new Date("2024-01-25T00:00:00Z"),
     } as unknown as ZATCAInvoiceProps;
     const invoice = buildInvoice(props);
     const latestDate = getXMLValue(

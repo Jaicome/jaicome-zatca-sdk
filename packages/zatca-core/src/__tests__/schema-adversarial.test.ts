@@ -27,8 +27,7 @@ const validBase: ZATCAInvoiceProps = {
   invoiceCounterNumber: 1,
   invoiceSerialNumber: "TEST-001",
   invoiceType: "INVOICE",
-  issueDate: "2024-01-15",
-  issueTime: "10:00:00",
+  issueDate: new Date("2024-01-15T10:00:00Z"),
   lineItems: [
     {
       id: "1",
@@ -569,6 +568,10 @@ describe("buildInvoice validation integration", () => {
   it("accepts valid props with invoiceCode '0100000'", () => {
     const taxInvoice = {
       ...validBase,
+      customerInfo: {
+        buyerName: "Tax Buyer",
+        vatNumber: "300000000000003",
+      },
       invoiceCode: "STANDARD",
     } as ZATCAInvoiceProps;
     expect(() => buildInvoice(taxInvoice)).not.toThrow();

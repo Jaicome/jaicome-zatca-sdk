@@ -4,8 +4,7 @@ import { valid_simplified_invoice_xml_sample } from "../samples/index.js";
 import type { ZATCAInvoiceProps } from "../zatca-simplified-tax-invoice.js";
 
 const now = new Date();
-const issueDate = now.toISOString().split("T")[0];
-const issueTime = now.toISOString().split("T")[1].slice(0, 8);
+const issueDate = now;
 
 const minimalInvoiceProps: ZATCAInvoiceProps = {
   crnNumber: "7032256278",
@@ -22,8 +21,7 @@ const minimalInvoiceProps: ZATCAInvoiceProps = {
   invoiceCounterNumber: 1,
   invoiceSerialNumber: "PARSER-001",
   invoiceType: "INVOICE",
-  issueDate: issueDate,
-  issueTime: issueTime,
+  issueDate,
   lineItems: [
     {
       id: "1",

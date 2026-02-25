@@ -21,8 +21,7 @@ const BASE_PROPS = {
   invoiceCounterNumber: 1,
   invoiceSerialNumber: "ROUND-001",
   invoiceType: "INVOICE",
-  issueDate: "2024-01-15",
-  issueTime: "10:00:00",
+  issueDate: new Date("2024-01-15T10:00:00Z"),
   previousInvoiceHash:
     "NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==",
 } as const;

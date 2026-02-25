@@ -3,8 +3,8 @@ import { generateKeyPairSync } from "node:crypto";
 import {
   buildInvoice,
   prepareSigningInput,
-  XMLDocument,
-} from "@jaicome/zatca-core";
+} from "../../../zatca-core/src/api.js";
+import { XMLDocument } from "../../../zatca-core/src/parser/index.js";
 
 import {
   cleanUpCertificateString,
@@ -37,8 +37,7 @@ function buildTestInvoiceXml(price = 100): string {
     invoiceCounterNumber: 1,
     invoiceSerialNumber: "SIGN-001",
     invoiceType: "INVOICE",
-    issueDate: "2024-01-15",
-    issueTime: "10:00:00",
+    issueDate: new Date("2024-01-15T10:00:00Z"),
     lineItems: [
       {
         id: "1",
@@ -72,8 +71,7 @@ function buildInvoiceForSigning() {
     invoiceCounterNumber: 1,
     invoiceSerialNumber: "SIGN-001",
     invoiceType: "INVOICE",
-    issueDate: "2024-01-15",
-    issueTime: "10:00:00",
+    issueDate: new Date("2024-01-15T10:00:00Z"),
     lineItems: [
       {
         id: "1",

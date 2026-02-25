@@ -4,6 +4,32 @@ import type { ZodIssue } from "zod";
 import { ZATCAPaymentMethodSchema } from "../templates/simplified-tax-invoice-template.js";
 
 /**
+ * Recursively collects all leaf error messages from Zod issues,
+ * including those nested in invalid_union errors.
+ */
+const collectLeafMessages = (issues: ZodIssue[]): string[] => {
+  const messages: string[] = [];
+  for (const issue of issues) {
+    if (issue.code === "invalid_union" && issue.unionErrors?.length) {
+      // Check if this union error has a custom message (from errorMap)
+      // If it does, collect it; otherwise recurse into the union errors
+      if (issue.message !== "Invalid input") {
+        messages.push(issue.message);
+      } else {
+        // Recurse into union errors to find specific messages
+        for (const ue of issue.unionErrors) {
+          messages.push(...collectLeafMessages(ue.issues));
+        }
+      }
+    } else {
+      messages.push(issue.message);
+    }
+  }
+  // Deduplicate
+  return [...new Set(messages)];
+};
+
+/**
  * Thrown when Zod schema validation fails.
  *
  * Wraps one or more Zod issues into a single `Error` with a human-readable message.
@@ -180,11 +206,20 @@ const ZatcaInvoiceBaseSchema = z.object({
         const item = items[i];
         const result = ZATCAInvoiceLineItemSchema.safeParse(item);
         if (!result.success) {
-          for (const issue of result.error.issues) {
+          // Collect all leaf messages from the error tree (including nested union errors)
+          const leafMessages = collectLeafMessages(result.error.issues);
+          for (const msg of leafMessages) {
+            // Emit indexed message (for line-item-errors context)
             ctx.addIssue({
-              code: issue.code,
-              message: `Line item [${i}]: ${issue.message}`,
-              path: [i, ...issue.path],
+              code: z.ZodIssueCode.custom,
+              message: `Line item [${i}]: ${msg}`,
+              path: [i],
+            });
+            // Also emit raw message (for contextual-errors lookup)
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: msg,
+              path: [i],
             });
           }
         }

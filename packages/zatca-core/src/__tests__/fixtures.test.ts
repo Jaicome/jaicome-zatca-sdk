@@ -123,14 +123,12 @@ describe("Shared Test Fixtures", () => {
       expect(SAMPLE_INVOICE_PROPS.invoiceSerialNumber).toBeDefined();
       expect(SAMPLE_INVOICE_PROPS.invoiceType).toBeDefined();
       expect(SAMPLE_INVOICE_PROPS.issueDate).toBeDefined();
-      expect(SAMPLE_INVOICE_PROPS.issueTime).toBeDefined();
       expect(SAMPLE_INVOICE_PROPS.lineItems).toBeDefined();
       expect(SAMPLE_INVOICE_PROPS.previousInvoiceHash).toBeDefined();
     });
 
-    it("uses string dates (not Date objects)", () => {
-      expect(typeof SAMPLE_INVOICE_PROPS.issueDate).toBe("string");
-      expect(typeof SAMPLE_INVOICE_PROPS.issueTime).toBe("string");
+    it("uses Date objects for issueDate", () => {
+      expect(SAMPLE_INVOICE_PROPS.issueDate).toBeInstanceOf(Date);
     });
 
     it("has at least one line item", () => {

@@ -3,8 +3,7 @@ import { ZodValidationError } from "../schemas/index.js";
 import type { ZATCAInvoiceProps } from "../zatca-simplified-tax-invoice.js";
 
 const now = new Date();
-const issueDate = now.toISOString().split("T")[0];
-const issueTime = now.toISOString().split("T")[1].slice(0, 8);
+const issueDate = now;
 
 const validProps: ZATCAInvoiceProps = {
   crnNumber: "7032256278",
@@ -21,8 +20,7 @@ const validProps: ZATCAInvoiceProps = {
   invoiceCounterNumber: 1,
   invoiceSerialNumber: "EGS1-886431145-101",
   invoiceType: "INVOICE",
-  issueDate: issueDate,
-  issueTime: issueTime,
+  issueDate,
   lineItems: [
     {
       id: "1",

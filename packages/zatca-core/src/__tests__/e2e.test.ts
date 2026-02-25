@@ -3,14 +3,13 @@ import {
   parseInvoice,
   prepareSigningInput,
   generatePhaseOneQR,
-  ZodValidationError,
-  valid_simplified_invoice_xml_sample,
-} from "@jaicome/zatca-core";
-import type { ZATCAInvoiceProps } from "@jaicome/zatca-core";
+} from "../api.js";
+import { valid_simplified_invoice_xml_sample } from "../samples/index.js";
+import { ZodValidationError } from "../schemas/index.js";
+import type { ZATCAInvoiceProps } from "../zatca-simplified-tax-invoice.js";
 
 const now = new Date();
-const issueDate = now.toISOString().split("T")[0];
-const issueTime = now.toISOString().split("T")[1].slice(0, 8);
+const issueDate = now;
 
 const validSampleProps: ZATCAInvoiceProps = {
   crnNumber: "7032256278",
@@ -35,8 +34,7 @@ const validSampleProps: ZATCAInvoiceProps = {
   invoiceCounterNumber: 1,
   invoiceSerialNumber: "EGS1-886431145-101",
   invoiceType: "INVOICE",
-  issueDate: issueDate,
-  issueTime: issueTime,
+  issueDate,
   lineItems: [
     {
       id: "1",

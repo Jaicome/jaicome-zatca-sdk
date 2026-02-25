@@ -31,8 +31,7 @@ function makeProps(
     invoiceCounterNumber: 1,
     invoiceSerialNumber: "ADV-TEST-001",
     invoiceType: "INVOICE",
-    issueDate: "2024-01-15",
-    issueTime: "10:00:00",
+    issueDate: new Date("2024-01-15T10:00:00Z"),
     lineItems: [
       {
         id: "1",
