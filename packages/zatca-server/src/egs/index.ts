@@ -303,7 +303,7 @@ export class EGS {
     const new_csr = await generateCSR(
       this.info,
       this.privateKey,
-      this.env !== "development",
+      this.env === "production",
       solution_name
     );
     this.csr = new_csr;
