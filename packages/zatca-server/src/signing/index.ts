@@ -105,12 +105,29 @@ export const cleanUpPrivateKeyString = (private_key_string: string): string =>
     .replace("-----END EC PRIVATE KEY-----", "")
     .trim();
 
+/**
+ * Parameters for {@link generateSignedXMLString}.
+ *
+ * @property {XMLDocument} invoice_xml - Parsed UBL XML document of the invoice to sign.
+ * @property {string} certificate_string - PEM-encoded CSID (compliance or production) issued by ZATCA.
+ * @property {string} private_key_string - PEM-encoded EC prime256v1 private key.
+ *   Despite the name `privateKeyReference`, this is the actual PEM key content, not a path or reference.
+ */
 export interface GenerateSignedXMLStringParams {
   invoice_xml: XMLDocument;
   certificate_string: string;
   private_key_string: string;
 }
 
+/**
+ * The result of {@link generateSignedXMLString}.
+ *
+ * @property {string} signed_invoice_string - The fully signed UBL XML string, ready for submission to ZATCA.
+ * @property {string} invoice_hash - SHA-256 hash of the canonical invoice XML, base64-encoded.
+ *   This is the PIH (Previous Invoice Hash) for the next invoice in the chain.
+ * @property {string} signature_value - Base64-encoded ECDSA digital signature over the invoice hash.
+ * @property {string} qr - Base64-encoded TLV QR code string to embed in the invoice.
+ */
 export interface SignedXMLResult {
   signed_invoice_string: string;
   invoice_hash: string;
@@ -237,9 +254,23 @@ const signedPropertiesIndentationFix = (
 };
 
 /**
- * NodeSigner implements the Signer interface for Node.js environments.
- * Requires a certificate string to be provided at construction time,
- * since the Signer interface's SigningInput only carries the private key.
+ * `NodeSigner` implements the {@link Signer} interface for Node.js environments.
+ * It wraps {@link generateSignedXMLString} and handles the certificate lifecycle
+ * that the generic `Signer` interface cannot carry.
+ *
+ * The certificate is provided at construction time because the `SigningInput` type
+ * only carries `privateKeyReference` (the PEM private key content) — not the certificate.
+ *
+ * **Note on `privateKeyReference`:** despite the field name, this is the PEM-encoded
+ * private key string itself, not a file path or key ID.
+ *
+ * @example
+ * ```typescript
+ * const signer = new NodeSigner(certificatePemString);
+ * const invoice = new ZATCAInvoice({ props, signer, acceptWarning: true });
+ * const result = await invoice.sign(certificatePemString, privateKeyPemString);
+ * // result.signedXml, result.invoiceHash, result.signingCertificate
+ * ```
  */
 export class NodeSigner implements Signer {
   constructor(private certificate_string: string) {}

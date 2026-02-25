@@ -33,10 +33,47 @@ export {
   INVOICE_CODE_VALUES,
 };
 
+/**
+ * Core invoice object for ZATCA e-invoicing.
+ *
+ * Wraps the UBL 2.1 XML document for a ZATCA simplified or standard tax invoice.
+ * Can be constructed from raw props (to generate a new invoice) or from an existing
+ * XML string (to parse and re-sign a previously generated invoice).
+ *
+ * @example
+ * // Build a new invoice from props
+ * const invoice = new ZATCAInvoice({ props, signer });
+ * const { signedXml, invoiceHash } = await invoice.sign(cert, privateKey);
+ *
+ * @example
+ * // Parse an existing XML string
+ * const invoice = new ZATCAInvoice({ invoice_xml_str: xmlString });
+ */
 export class ZATCAInvoice {
+  /** Internal UBL XML document. Mutated in-place during signing. */
   private invoice_xml: XMLDocument;
+  /**
+   * Optional signing implementation.
+   *
+   * Must be provided when calling {@link sign}. Typically a `NodeSigner` from
+   * `@jaicome/zatca-server`. Omit when only building or parsing XML without signing.
+   */
   private signer?: Signer;
 
+  /**
+   * Constructs a `ZATCAInvoice` instance.
+   *
+   * Provide either `invoice_xml_str` (to parse an existing XML) or `props` (to generate
+   * a new invoice from structured data). Exactly one of the two must be supplied.
+   *
+   * @param invoice_xml_str - Raw UBL 2.1 XML string of a previously generated invoice.
+   * @param props - Structured invoice data. See {@link ZATCAInvoiceProps}.
+   * @param acceptWarning - When `true`, suppresses non-fatal ZATCA validation warnings
+   *   (e.g. rounding discrepancies). Defaults to `false`.
+   * @param signer - Signing implementation. Required only if you intend to call {@link sign}.
+   * @throws {Error} If neither `invoice_xml_str` nor `props` is provided.
+   * @throws {Error} If the provided XML string cannot be parsed.
+   */
   constructor({
     invoice_xml_str,
     props,
@@ -72,10 +109,29 @@ export class ZATCAInvoice {
     Calc(lineItems, props, this.invoice_xml, acceptWarning);
   }
 
+  /**
+   * Returns the internal XML document.
+   *
+   * Use this to inspect or serialize the invoice XML before or after signing.
+   *
+   * @returns The mutable {@link XMLDocument} instance.
+   */
   getXML(): XMLDocument {
     return this.invoice_xml;
   }
 
+  /**
+   * Signs the invoice using the provided X.509 certificate and private key.
+   *
+   * Delegates to the `Signer` implementation passed in the constructor.
+   * The signer computes the invoice hash, embeds the digital signature in the XML,
+   * and returns the signed artifacts.
+   *
+   * @param certificate_string - PEM-encoded X.509 signing certificate issued by ZATCA.
+   * @param private_key_string - PEM-encoded ECDSA private key matching the certificate.
+   * @returns A promise resolving to {@link SignatureResult} with `signedXml` and `invoiceHash`.
+   * @throws {Error} If no `signer` was provided to the constructor.
+   */
   sign(
     certificate_string: string,
     private_key_string: string

@@ -4,6 +4,14 @@ import moment from "moment";
 
 import { getInvoiceHash } from "../utils/invoice-hash.js";
 
+/**
+ * Input parameters for {@link generateQR}.
+ *
+ * @property {XMLDocument} invoice_xml - Parsed UBL XML document of the invoice.
+ * @property {string} digital_signature - Base64-encoded ECDSA signature over the invoice hash.
+ * @property {Buffer} public_key - Raw EC public key bytes from the signing certificate.
+ * @property {Buffer} certificate_signature - Raw signature bytes from the signing certificate.
+ */
 interface QRParams {
   invoice_xml: XMLDocument;
   digital_signature: string;
@@ -11,6 +19,14 @@ interface QRParams {
   certificate_signature: Buffer;
 }
 
+/**
+ * Generates a ZATCA Phase 2 QR code as a base64-encoded TLV string.
+ * The QR encodes seller name, VAT number, invoice datetime, totals, hash,
+ * digital signature, public key, and certificate signature.
+ *
+ * @param params - {@link QRParams} containing the invoice XML and cryptographic material.
+ * @returns Base64-encoded TLV buffer suitable for embedding in the invoice QR field.
+ */
 export const generateQR = ({
   invoice_xml,
   digital_signature,

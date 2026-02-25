@@ -102,6 +102,17 @@ const buildCSRConfig = (props: CSRConfigProps): string => {
   return t;
 };
 
+/**
+ * Identifies which ZATCA compliance check scenario an invoice covers.
+ * ZATCA requires passing all six scenarios before a production CSID is issued.
+ *
+ * - `standard-compliant` — a standard (B2B) tax invoice
+ * - `standard-credit-note-compliant` — a standard credit note
+ * - `standard-debit-note-compliant` — a standard debit note
+ * - `simplified-compliant` — a simplified (B2C) tax invoice
+ * - `simplified-credit-note-compliant` — a simplified credit note
+ * - `simplified-debit-note-compliant` — a simplified debit note
+ */
 export type ZATCAComplianceStep =
   | "standard-compliant"
   | "standard-credit-note-compliant"
@@ -110,11 +121,22 @@ export type ZATCAComplianceStep =
   | "simplified-credit-note-compliant"
   | "simplified-debit-note-compliant";
 
+/**
+ * The signed invoice data required for a single ZATCA compliance check.
+ *
+ * @property {string} signedInvoiceString - Base64-encoded signed UBL XML string.
+ * @property {string} invoiceHash - SHA-256 hash of the canonical invoice XML, base64-encoded.
+ */
 export interface ComplianceCheckPayload {
   signedInvoiceString: string;
   invoiceHash: string;
 }
 
+/**
+ * The full set of compliance steps ZATCA requires before issuing a production CSID.
+ * Pass all six payloads to {@link EGS.runComplianceChecksForProduction} to satisfy
+ * the onboarding requirement.
+ */
 export const REQUIRED_COMPLIANCE_STEPS: readonly ZATCAComplianceStep[] = [
   "standard-compliant",
   "standard-credit-note-compliant",
@@ -208,6 +230,19 @@ const generateCSR = async (
   }
 };
 
+/**
+ * A serialisable snapshot of an {@link EGS} instance.
+ * Use {@link EGS.export} to capture state and {@link EGS.restore} to rehydrate it
+ * (e.g. after persisting to a database between requests).
+ *
+ * @property {EGSInfo} info - Static EGS metadata (VAT number, branch details, etc.).
+ * @property {string} [privateKey] - PEM-encoded EC prime256v1 private key. Keep this secret.
+ * @property {string} [csr] - PEM-encoded Certificate Signing Request sent to ZATCA.
+ * @property {string} [complianceCertificate] - PEM-encoded compliance CSID from ZATCA.
+ * @property {string} [complianceApiSecret] - API secret paired with the compliance certificate.
+ * @property {string} [productionCertificate] - PEM-encoded production CSID from ZATCA.
+ * @property {string} [productionApiSecret] - API secret paired with the production certificate.
+ */
 export interface EGSSnapshot {
   info: EGSInfo;
   privateKey?: string;
@@ -218,6 +253,32 @@ export interface EGSSnapshot {
   productionApiSecret?: string;
 }
 
+/**
+ * E-Invoice Generation System (EGS) — manages the full lifecycle of a ZATCA-compliant
+ * invoice generator device, including key generation, CSR creation, certificate issuance,
+ * compliance checking, and invoice signing/reporting.
+ *
+ * **Typical onboarding flow:**
+ * 1. Construct an `EGS` with your device info.
+ * 2. Call {@link generateNewKeysAndCSR} to create an EC key pair and CSR.
+ * 3. Call {@link issueComplianceCertificate} with the OTP from the ZATCA portal.
+ * 4. Run all six compliance checks via {@link runComplianceChecksForProduction}.
+ * 5. Call {@link issueProductionCertificate} with the compliance request ID.
+ * 6. Sign and report invoices with {@link signInvoice} + {@link reportInvoice}.
+ *
+ * @example
+ * ```typescript
+ * const egs = new EGS(
+ *   { name: 'My POS', vatNumber: '300000000000003', ... },
+ *   'production'
+ * );
+ * await egs.generateNewKeysAndCSR('MySolution');
+ * const complianceResult = await egs.issueComplianceCertificate('123456'); // OTP from ZATCA portal
+ * if (complianceResult.isOk()) {
+ *   await egs.issueProductionCertificate(complianceResult.value);
+ * }
+ * ```
+ */
 export class EGS {
   private info: EGSInfo;
   private env: "production" | "simulation" | "development";
@@ -242,34 +303,61 @@ export class EGS {
     this.api = new API(env);
   }
 
+  /** Returns the static EGS device info (VAT number, branch details, etc.). */
   getInfo(): EGSInfo {
     return this.info;
   }
 
+  /** Returns the PEM-encoded EC private key, or `undefined` if keys have not been generated yet. */
   getPrivateKey(): string | undefined {
     return this.privateKey;
   }
 
+  /**
+   * Returns the PEM-encoded Certificate Signing Request (CSR), or `undefined` if not yet generated.
+   * The CSR is sent to ZATCA to obtain a compliance CSID.
+   */
   getCsr(): string | undefined {
     return this.csr;
   }
 
+  /**
+   * Returns the PEM-encoded compliance CSID (Cryptographic Stamp Identifier) issued by ZATCA,
+   * or `undefined` if the compliance certificate has not been issued yet.
+   */
   getComplianceCertificate(): string | undefined {
     return this.complianceCertificate;
   }
 
+  /** Returns the API secret paired with the compliance certificate, or `undefined` if not yet issued. */
   getComplianceApiSecret(): string | undefined {
     return this.complianceApiSecret;
   }
 
+  /**
+   * Returns the PEM-encoded production CSID issued by ZATCA,
+   * or `undefined` if the production certificate has not been issued yet.
+   */
   getProductionCertificate(): string | undefined {
     return this.productionCertificate;
   }
 
+  /** Returns the API secret paired with the production certificate, or `undefined` if not yet issued. */
   getProductionApiSecret(): string | undefined {
     return this.productionApiSecret;
   }
 
+  /**
+   * Serialises the EGS state to a plain object that can be stored and later restored.
+   *
+   * @returns An {@link EGSSnapshot} containing all keys, certificates, and metadata.
+   *
+   * @example
+   * ```typescript
+   * const snapshot = egs.export();
+   * await db.save('egs', snapshot);
+   * ```
+   */
   export(): EGSSnapshot {
     return {
       complianceApiSecret: this.complianceApiSecret,
@@ -282,6 +370,19 @@ export class EGS {
     };
   }
 
+  /**
+   * Rehydrates an EGS instance from a previously exported snapshot.
+   *
+   * @param snapshot - A snapshot produced by {@link EGS.export}.
+   * @param env - Target environment. Defaults to `'development'` (ZATCA sandbox).
+   * @returns A fully restored `EGS` instance.
+   *
+   * @example
+   * ```typescript
+   * const snapshot = await db.load('egs');
+   * const egs = EGS.restore(snapshot, 'production');
+   * ```
+   */
   static restore(
     snapshot: EGSSnapshot,
     env: "production" | "simulation" | "development" = "development"
@@ -296,6 +397,20 @@ export class EGS {
     return egs;
   }
 
+  /**
+   * Generates a new EC prime256v1 key pair and a ZATCA-formatted CSR.
+   * Replaces any existing private key and CSR stored on this instance.
+   *
+   * Requires OpenSSL to be installed on the host system.
+   *
+   * @param solution_name - Free-text name of the software solution (embedded in the CSR serial number field).
+   *
+   * @example
+   * ```typescript
+   * await egs.generateNewKeysAndCSR('MyInvoicingSolution');
+   * console.log(egs.getCsr()); // -----BEGIN CERTIFICATE REQUEST-----...
+   * ```
+   */
   async generateNewKeysAndCSR(solution_name: string): Promise<void> {
     const new_private_key = await generatePrime256v1KeyPair();
     this.privateKey = new_private_key;
@@ -309,6 +424,24 @@ export class EGS {
     this.csr = new_csr;
   }
 
+  /**
+   * Submits the CSR to ZATCA and obtains a compliance CSID (Cryptographic Stamp Identifier).
+   * The compliance certificate is stored internally and used for subsequent compliance checks.
+   *
+   * @param OTP - One-Time Password from the ZATCA portal (Fatoora). Valid for a short window.
+   * @returns `Result.ok(requestId)` where `requestId` is needed to issue the production certificate,
+   *          or `Result.err(ZatcaApiError)` on failure.
+   *
+   * @throws {Error} If no CSR has been generated yet (call {@link generateNewKeysAndCSR} first).
+   *
+   * @example
+   * ```typescript
+   * const result = await egs.issueComplianceCertificate('123456');
+   * if (result.isOk()) {
+   *   const complianceRequestId = result.value; // save this for issueProductionCertificate
+   * }
+   * ```
+   */
   async issueComplianceCertificate(
     OTP: string
   ): Promise<Result<string, ZatcaApiError>> {
@@ -328,6 +461,23 @@ export class EGS {
     return Result.ok(issued_data.value.request_id);
   }
 
+  /**
+   * Exchanges the compliance request ID for a production CSID.
+   * Must be called after all six compliance checks pass.
+   *
+   * @param compliance_request_id - The request ID returned by {@link issueComplianceCertificate}.
+   * @returns `Result.ok(requestId)` on success, or `Result.err(ZatcaApiError)` on failure.
+   *
+   * @throws {Error} If the compliance certificate or API secret is missing.
+   *
+   * @example
+   * ```typescript
+   * const result = await egs.issueProductionCertificate(complianceRequestId);
+   * if (result.isOk()) {
+   *   console.log('Production CSID issued successfully');
+   * }
+   * ```
+   */
   async issueProductionCertificate(
     compliance_request_id: string
   ): Promise<Result<string, ZatcaApiError>> {
@@ -349,6 +499,16 @@ export class EGS {
     return Result.ok(issued_data.value.request_id);
   }
 
+  /**
+   * Sends a signed invoice to the ZATCA compliance API for validation.
+   * Used during the onboarding phase to verify each invoice type before production.
+   *
+   * @param signedInvoiceString - Base64-encoded signed UBL XML.
+   * @param invoiceHash - SHA-256 hash of the canonical invoice, base64-encoded.
+   * @returns `Result.ok(InvoiceResponse)` with ZATCA validation results, or `Result.err(ZatcaApiError)`.
+   *
+   * @throws {Error} If the compliance certificate or API secret is missing.
+   */
   async checkInvoiceCompliance(
     signedInvoiceString: string,
     invoiceHash: string
@@ -368,6 +528,27 @@ export class EGS {
       )) as Result<InvoiceResponse, ZatcaApiError>;
   }
 
+  /**
+   * Runs all required compliance checks against the ZATCA compliance API in sequence.
+   * All six invoice types must pass before ZATCA will issue a production CSID.
+   *
+   * @param checks - A map of {@link ZATCAComplianceStep} to {@link ComplianceCheckPayload}.
+   *   Each entry provides the signed invoice and hash for that scenario.
+   * @param required_steps - Which steps to enforce. Defaults to all six in {@link REQUIRED_COMPLIANCE_STEPS}.
+   * @returns `Result.ok(responses)` mapping each step to its ZATCA response,
+   *          or `Result.err(ZatcaApiError)` if any step fails.
+   *
+   * @throws {Error} If any required step is missing from `checks`.
+   *
+   * @example
+   * ```typescript
+   * const result = await egs.runComplianceChecksForProduction({
+   *   'standard-compliant': { signedInvoiceString, invoiceHash },
+   *   'simplified-compliant': { signedInvoiceString: simplifiedXml, invoiceHash: simplifiedHash },
+   *   // ... all six steps
+   * });
+   * ```
+   */
   async runComplianceChecksForProduction(
     checks: Partial<Record<ZATCAComplianceStep, ComplianceCheckPayload>>,
     required_steps: readonly ZATCAComplianceStep[] = REQUIRED_COMPLIANCE_STEPS
@@ -402,6 +583,16 @@ export class EGS {
     return Result.ok(responses);
   }
 
+  /**
+   * Reports a signed standard (B2B) invoice to ZATCA for archiving.
+   * Use this for standard tax invoices after the production CSID is issued.
+   *
+   * @param signedInvoiceString - Base64-encoded signed UBL XML.
+   * @param invoiceHash - SHA-256 hash of the canonical invoice, base64-encoded.
+   * @returns `Result.ok(InvoiceResponse)` on success, or `Result.err(ZatcaApiError)` on failure.
+   *
+   * @throws {Error} If the production certificate or API secret is missing.
+   */
   async reportInvoice(
     signedInvoiceString: string,
     invoiceHash: string
@@ -420,6 +611,17 @@ export class EGS {
     >;
   }
 
+  /**
+   * Submits a signed standard (B2B) invoice to ZATCA for clearance.
+   * Clearance is required for standard invoices above the threshold; ZATCA validates and
+   * stamps the invoice before it can be shared with the buyer.
+   *
+   * @param signedInvoiceString - Base64-encoded signed UBL XML.
+   * @param invoiceHash - SHA-256 hash of the canonical invoice, base64-encoded.
+   * @returns `Result.ok(InvoiceResponse)` on success, or `Result.err(ZatcaApiError)` on failure.
+   *
+   * @throws {Error} If the production certificate or API secret is missing.
+   */
   async clearanceInvoice(
     signedInvoiceString: string,
     invoiceHash: string
@@ -439,6 +641,26 @@ export class EGS {
       )) as Result<InvoiceResponse, ZatcaApiError>;
   }
 
+  /**
+   * Signs a {@link ZATCAInvoice} using the EGS's stored certificate and private key.
+   * Returns the signed XML string, invoice hash, and QR code — all needed for reporting.
+   *
+   * @param invoice - The invoice to sign.
+   * @param production - If `true`, uses the production certificate; otherwise uses the compliance certificate.
+   *   Defaults to `false` (compliance mode).
+   * @returns An object with:
+   *   - `signedInvoiceString` — base64-encoded signed UBL XML
+   *   - `invoiceHash` — SHA-256 hash of the canonical invoice, base64-encoded
+   *   - `qr` — base64-encoded TLV QR code string
+   *
+   * @throws {Error} If the appropriate certificate or private key is missing.
+   *
+   * @example
+   * ```typescript
+   * const { signedInvoiceString, invoiceHash, qr } = egs.signInvoice(invoice, true);
+   * await egs.reportInvoice(signedInvoiceString, invoiceHash);
+   * ```
+   */
   signInvoice(
     invoice: ZATCAInvoice,
     production?: boolean

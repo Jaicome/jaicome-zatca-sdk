@@ -3,7 +3,23 @@ import type { ZodIssue } from "zod";
 
 import { ZATCAPaymentMethodSchema } from "../templates/simplified-tax-invoice-template.js";
 
+/**
+ * Thrown when Zod schema validation fails.
+ *
+ * Wraps one or more Zod issues into a single `Error` with a human-readable message.
+ * Each issue includes the field path and the validation message.
+ *
+ * @example
+ * try {
+ *   buildInvoice(invalidProps);
+ * } catch (err) {
+ *   if (err instanceof ZodValidationError) {
+ *     console.error(err.issues); // Array of ZodIssue
+ *   }
+ * }
+ */
 export class ZodValidationError extends Error {
+  /** The raw Zod issues that caused validation to fail. */
   constructor(public readonly issues: ZodIssue[]) {
     super(
       `Validation failed: ${issues
@@ -14,6 +30,12 @@ export class ZodValidationError extends Error {
   }
 }
 
+/**
+ * Zod schema for {@link EGSLocation}.
+ *
+ * All fields are optional. ZATCA recommends providing at least `street`, `building`,
+ * `city`, and `postalZone` for compliance.
+ */
 export const EGSLocationSchema = z.object({
   building: z.string().optional(),
   city: z.string().optional(),
@@ -22,8 +44,19 @@ export const EGSLocationSchema = z.object({
   postalZone: z.string().optional(),
   street: z.string().optional(),
 });
+/**
+ * Physical location of the E-Invoice Generation System (EGS) or supplier branch.
+ *
+ * Used in the `<cac:PostalAddress>` element of the supplier party.
+ */
 export type EGSLocation = z.infer<typeof EGSLocationSchema>;
 
+/**
+ * Zod schema for {@link CustomerInfo}.
+ *
+ * `buyerName` is the only required field. All address fields are optional but
+ * recommended for standard (B2B) invoices.
+ */
 export const CustomerInfoSchema = z.object({
   additionalStreet: z.string().optional(),
   building: z.string().optional(),
@@ -37,8 +70,20 @@ export const CustomerInfoSchema = z.object({
   street: z.string().optional(),
   vatNumber: z.string().optional(),
 });
+/**
+ * Buyer (customer) information for the invoice.
+ *
+ * Required for standard (B2B/B2G) invoices. Optional for simplified (B2C) invoices.
+ * When provided, the buyer details appear in the `<cac:AccountingCustomerParty>` element.
+ */
 export type CustomerInfo = z.infer<typeof CustomerInfoSchema>;
 
+/**
+ * Zod schema for {@link EGSInfo}.
+ *
+ * All fields are required. `vatNumber` must be a valid Saudi VAT registration number
+ * (15 digits starting with `3` and ending with `3`).
+ */
 export const EGSInfoSchema = z.object({
   branchIndustry: z.string().min(1),
   branchName: z.string().min(1),
@@ -49,6 +94,14 @@ export const EGSInfoSchema = z.object({
   vatName: z.string().min(1),
   vatNumber: z.string().min(1),
 });
+/**
+ * E-Invoice Generation System (EGS) information.
+ *
+ * The EGS is the software or hardware unit that generates and submits invoices.
+ * Each EGS unit is registered with ZATCA and has a unique identifier.
+ *
+ * This data populates the `<cac:AccountingSupplierParty>` element in the invoice XML.
+ */
 export type EGSInfo = z.infer<typeof EGSInfoSchema>;
 
 const LineItemDiscountSchema = z.object({
@@ -82,6 +135,12 @@ const ZeroTaxLineItemSchema = BaseLineItemSchema.extend({
   vatPercent: z.literal(0),
 });
 
+/**
+ * Zod schema for a single ZATCA invoice line item.
+ *
+ * Validates either a standard VAT line item (15% or 5%) or a zero/exempt/out-of-scope
+ * line item with a required VAT category.
+ */
 export const ZATCAInvoiceLineItemSchema = z.union([
   StandardLineItemSchema,
   ZeroTaxLineItemSchema,
@@ -132,6 +191,14 @@ const CashOrCreditDebitSchema = z.union([
   CreditDebitInvoiceSchema,
 ]);
 
+/**
+ * Zod schema for the top-level {@link ZATCAInvoiceProps}.
+ *
+ * Validates the full invoice props object, including the `invoiceCode` discriminator
+ * that determines whether this is a simplified or standard invoice.
+ *
+ * Used internally by `buildInvoice()` before constructing the XML.
+ */
 export const ZATCAInvoicePropsSchema = z.union([
   CashOrCreditDebitSchema.and(
     z.object({
@@ -145,6 +212,13 @@ export const ZATCAInvoicePropsSchema = z.union([
   ),
 ]);
 
+/**
+ * Zod schema for {@link SigningInput}.
+ *
+ * Validates the data passed to a {@link Signer} implementation.
+ * `invoiceXml` must be non-empty; `invoiceHash` and `privateKeyReference` may be
+ * empty strings at the preparation stage and are filled in by the signer.
+ */
 export const SigningInputSchema = z.object({
   invoiceHash: z.string(),
   invoiceXml: z.string().min(1),

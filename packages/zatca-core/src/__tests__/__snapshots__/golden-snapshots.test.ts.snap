@@ -1,0 +1,763 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`golden XML snapshots for invoice variants simplified tax invoice (388/0200000) 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2">
+    <ext:UBLExtensions>SET_UBL_EXTENSIONS_STRING</ext:UBLExtensions>
+    <cbc:ProfileID>reporting:1.0</cbc:ProfileID>
+    <cbc:ID>EGS1-GOLDEN-SNAPSHOT-001</cbc:ID>
+    <cbc:UUID>6f4d20e0-6bfe-4a80-9389-7dabe6620f14</cbc:UUID>
+    <cbc:IssueDate>2024-01-15</cbc:IssueDate>
+    <cbc:IssueTime>10:00:00</cbc:IssueTime>
+    <cbc:InvoiceTypeCode name="0200000">388</cbc:InvoiceTypeCode>
+    <cbc:DocumentCurrencyCode>SAR</cbc:DocumentCurrencyCode>
+    <cbc:TaxCurrencyCode>SAR</cbc:TaxCurrencyCode>
+    <cac:AdditionalDocumentReference>
+        <cbc:ID>ICV</cbc:ID>
+        <cbc:UUID>1</cbc:UUID>
+    </cac:AdditionalDocumentReference>
+    <cac:AdditionalDocumentReference>
+        <cbc:ID>PIH</cbc:ID>
+        <cac:Attachment>
+            <cbc:EmbeddedDocumentBinaryObject mimeCode="text/plain">NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==</cbc:EmbeddedDocumentBinaryObject>
+        </cac:Attachment>
+    </cac:AdditionalDocumentReference>
+    <cac:AdditionalDocumentReference>
+        <cbc:ID>QR</cbc:ID>
+        <cac:Attachment>
+            <cbc:EmbeddedDocumentBinaryObject mimeCode="text/plain">SET_QR_CODE_DATA</cbc:EmbeddedDocumentBinaryObject>
+        </cac:Attachment>
+    </cac:AdditionalDocumentReference>
+    <cac:Signature>
+        <cbc:ID>urn:oasis:names:specification:ubl:signature:Invoice</cbc:ID>
+        <cbc:SignatureMethod>urn:oasis:names:specification:ubl:dsig:enveloped:xades</cbc:SignatureMethod>
+    </cac:Signature>
+    <cac:AccountingSupplierParty>
+        <cac:Party>
+            <cac:PartyIdentification>
+                <cbc:ID schemeID="CRN">7032256278</cbc:ID>
+            </cac:PartyIdentification>
+            <cac:PostalAddress>
+                <cbc:StreetName>King Fahd st</cbc:StreetName>
+                <cbc:BuildingNumber>0000</cbc:BuildingNumber>
+                <cbc:PlotIdentification>0000</cbc:PlotIdentification>
+                <cbc:CitySubdivisionName>West</cbc:CitySubdivisionName>
+                <cbc:CityName>Khobar</cbc:CityName>
+                <cbc:PostalZone>31952</cbc:PostalZone>
+                <cac:Country>
+                    <cbc:IdentificationCode>SA</cbc:IdentificationCode>
+                </cac:Country>
+            </cac:PostalAddress>
+            <cac:PartyTaxScheme>
+                <cbc:CompanyID>311497191800003</cbc:CompanyID>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+            </cac:PartyTaxScheme>
+            <cac:PartyLegalEntity>
+                <cbc:RegistrationName>Jaicome Information Technology</cbc:RegistrationName>
+            </cac:PartyLegalEntity>
+        </cac:Party>
+    </cac:AccountingSupplierParty>
+    <cac:AccountingCustomerParty></cac:AccountingCustomerParty>
+    <cac:PaymentMeans>
+        <cbc:PaymentMeansCode>10</cbc:PaymentMeansCode>
+    </cac:PaymentMeans>
+    <cac:TaxTotal>
+        <cac:TaxSubtotal>
+            <cac:TaxCategory>
+                <cac:TaxScheme>
+                    <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5153">VAT</cbc:ID>
+                </cac:TaxScheme>
+                <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5305">S</cbc:ID>
+                <cbc:Percent>15</cbc:Percent>
+            </cac:TaxCategory>
+            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
+            <cbc:TaxableAmount currencyID="SAR">100.00</cbc:TaxableAmount>
+        </cac:TaxSubtotal>
+        <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
+    </cac:TaxTotal>
+    <cac:TaxTotal>
+        <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
+    </cac:TaxTotal>
+    <cac:LegalMonetaryTotal>
+        <cbc:LineExtensionAmount currencyID="SAR">100.00</cbc:LineExtensionAmount>
+        <cbc:PayableAmount currencyID="SAR">115.00</cbc:PayableAmount>
+        <cbc:PrepaidAmount currencyID="SAR">0</cbc:PrepaidAmount>
+        <cbc:TaxExclusiveAmount currencyID="SAR">100.00</cbc:TaxExclusiveAmount>
+        <cbc:TaxInclusiveAmount currencyID="SAR">115.00</cbc:TaxInclusiveAmount>
+    </cac:LegalMonetaryTotal>
+    <cac:InvoiceLine>
+        <cac:Item>
+            <cac:ClassifiedTaxCategory>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+                <cbc:ID>S</cbc:ID>
+                <cbc:Percent>15</cbc:Percent>
+            </cac:ClassifiedTaxCategory>
+            <cbc:Name>Standard Product</cbc:Name>
+        </cac:Item>
+        <cac:Price>
+            <cbc:PriceAmount currencyID="SAR">100.00000000000000</cbc:PriceAmount>
+        </cac:Price>
+        <cac:TaxTotal>
+            <cbc:RoundingAmount currencyID="SAR">115.00</cbc:RoundingAmount>
+            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
+        </cac:TaxTotal>
+        <cbc:ID>1</cbc:ID>
+        <cbc:InvoicedQuantity unitCode="PCE">1</cbc:InvoicedQuantity>
+        <cbc:LineExtensionAmount currencyID="SAR">100.00</cbc:LineExtensionAmount>
+    </cac:InvoiceLine>
+</Invoice>
+"
+`;
+
+exports[`golden XML snapshots for invoice variants credit note (381/0200000) 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2">
+    <ext:UBLExtensions>SET_UBL_EXTENSIONS_STRING</ext:UBLExtensions>
+    <cbc:ProfileID>reporting:1.0</cbc:ProfileID>
+    <cbc:ID>EGS1-GOLDEN-SNAPSHOT-002</cbc:ID>
+    <cbc:UUID>6f4d20e0-6bfe-4a80-9389-7dabe6620f14</cbc:UUID>
+    <cbc:IssueDate>2024-01-15</cbc:IssueDate>
+    <cbc:IssueTime>10:00:00</cbc:IssueTime>
+    <cbc:InvoiceTypeCode name="0200000">381</cbc:InvoiceTypeCode>
+    <cbc:DocumentCurrencyCode>SAR</cbc:DocumentCurrencyCode>
+    <cbc:TaxCurrencyCode>SAR</cbc:TaxCurrencyCode>
+    <cac:BillingReference>
+        <cac:InvoiceDocumentReference>
+            <cbc:ID>EGS1-GOLDEN-SNAPSHOT-000</cbc:ID>
+        </cac:InvoiceDocumentReference>
+    </cac:BillingReference>
+    <cac:AdditionalDocumentReference>
+        <cbc:ID>ICV</cbc:ID>
+        <cbc:UUID>1</cbc:UUID>
+    </cac:AdditionalDocumentReference>
+    <cac:AdditionalDocumentReference>
+        <cbc:ID>PIH</cbc:ID>
+        <cac:Attachment>
+            <cbc:EmbeddedDocumentBinaryObject mimeCode="text/plain">NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==</cbc:EmbeddedDocumentBinaryObject>
+        </cac:Attachment>
+    </cac:AdditionalDocumentReference>
+    <cac:AdditionalDocumentReference>
+        <cbc:ID>QR</cbc:ID>
+        <cac:Attachment>
+            <cbc:EmbeddedDocumentBinaryObject mimeCode="text/plain">SET_QR_CODE_DATA</cbc:EmbeddedDocumentBinaryObject>
+        </cac:Attachment>
+    </cac:AdditionalDocumentReference>
+    <cac:Signature>
+        <cbc:ID>urn:oasis:names:specification:ubl:signature:Invoice</cbc:ID>
+        <cbc:SignatureMethod>urn:oasis:names:specification:ubl:dsig:enveloped:xades</cbc:SignatureMethod>
+    </cac:Signature>
+    <cac:AccountingSupplierParty>
+        <cac:Party>
+            <cac:PartyIdentification>
+                <cbc:ID schemeID="CRN">7032256278</cbc:ID>
+            </cac:PartyIdentification>
+            <cac:PostalAddress>
+                <cbc:StreetName>King Fahd st</cbc:StreetName>
+                <cbc:BuildingNumber>0000</cbc:BuildingNumber>
+                <cbc:PlotIdentification>0000</cbc:PlotIdentification>
+                <cbc:CitySubdivisionName>West</cbc:CitySubdivisionName>
+                <cbc:CityName>Khobar</cbc:CityName>
+                <cbc:PostalZone>31952</cbc:PostalZone>
+                <cac:Country>
+                    <cbc:IdentificationCode>SA</cbc:IdentificationCode>
+                </cac:Country>
+            </cac:PostalAddress>
+            <cac:PartyTaxScheme>
+                <cbc:CompanyID>311497191800003</cbc:CompanyID>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+            </cac:PartyTaxScheme>
+            <cac:PartyLegalEntity>
+                <cbc:RegistrationName>Jaicome Information Technology</cbc:RegistrationName>
+            </cac:PartyLegalEntity>
+        </cac:Party>
+    </cac:AccountingSupplierParty>
+    <cac:AccountingCustomerParty></cac:AccountingCustomerParty>
+    <cac:PaymentMeans>
+        <cbc:InstructionNote>Credit correction</cbc:InstructionNote>
+        <cbc:PaymentMeansCode>10</cbc:PaymentMeansCode>
+    </cac:PaymentMeans>
+    <cac:TaxTotal>
+        <cac:TaxSubtotal>
+            <cac:TaxCategory>
+                <cac:TaxScheme>
+                    <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5153">VAT</cbc:ID>
+                </cac:TaxScheme>
+                <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5305">S</cbc:ID>
+                <cbc:Percent>15</cbc:Percent>
+            </cac:TaxCategory>
+            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
+            <cbc:TaxableAmount currencyID="SAR">100.00</cbc:TaxableAmount>
+        </cac:TaxSubtotal>
+        <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
+    </cac:TaxTotal>
+    <cac:TaxTotal>
+        <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
+    </cac:TaxTotal>
+    <cac:LegalMonetaryTotal>
+        <cbc:LineExtensionAmount currencyID="SAR">100.00</cbc:LineExtensionAmount>
+        <cbc:PayableAmount currencyID="SAR">115.00</cbc:PayableAmount>
+        <cbc:PrepaidAmount currencyID="SAR">0</cbc:PrepaidAmount>
+        <cbc:TaxExclusiveAmount currencyID="SAR">100.00</cbc:TaxExclusiveAmount>
+        <cbc:TaxInclusiveAmount currencyID="SAR">115.00</cbc:TaxInclusiveAmount>
+    </cac:LegalMonetaryTotal>
+    <cac:InvoiceLine>
+        <cac:Item>
+            <cac:ClassifiedTaxCategory>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+                <cbc:ID>S</cbc:ID>
+                <cbc:Percent>15</cbc:Percent>
+            </cac:ClassifiedTaxCategory>
+            <cbc:Name>Standard Product</cbc:Name>
+        </cac:Item>
+        <cac:Price>
+            <cbc:PriceAmount currencyID="SAR">100.00000000000000</cbc:PriceAmount>
+        </cac:Price>
+        <cac:TaxTotal>
+            <cbc:RoundingAmount currencyID="SAR">115.00</cbc:RoundingAmount>
+            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
+        </cac:TaxTotal>
+        <cbc:ID>1</cbc:ID>
+        <cbc:InvoicedQuantity unitCode="PCE">1</cbc:InvoicedQuantity>
+        <cbc:LineExtensionAmount currencyID="SAR">100.00</cbc:LineExtensionAmount>
+    </cac:InvoiceLine>
+</Invoice>
+"
+`;
+
+exports[`golden XML snapshots for invoice variants debit note (383/0200000) 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2">
+    <ext:UBLExtensions>SET_UBL_EXTENSIONS_STRING</ext:UBLExtensions>
+    <cbc:ProfileID>reporting:1.0</cbc:ProfileID>
+    <cbc:ID>EGS1-GOLDEN-SNAPSHOT-003</cbc:ID>
+    <cbc:UUID>6f4d20e0-6bfe-4a80-9389-7dabe6620f14</cbc:UUID>
+    <cbc:IssueDate>2024-01-15</cbc:IssueDate>
+    <cbc:IssueTime>10:00:00</cbc:IssueTime>
+    <cbc:InvoiceTypeCode name="0200000">383</cbc:InvoiceTypeCode>
+    <cbc:DocumentCurrencyCode>SAR</cbc:DocumentCurrencyCode>
+    <cbc:TaxCurrencyCode>SAR</cbc:TaxCurrencyCode>
+    <cac:BillingReference>
+        <cac:InvoiceDocumentReference>
+            <cbc:ID>EGS1-GOLDEN-SNAPSHOT-001</cbc:ID>
+        </cac:InvoiceDocumentReference>
+    </cac:BillingReference>
+    <cac:AdditionalDocumentReference>
+        <cbc:ID>ICV</cbc:ID>
+        <cbc:UUID>1</cbc:UUID>
+    </cac:AdditionalDocumentReference>
+    <cac:AdditionalDocumentReference>
+        <cbc:ID>PIH</cbc:ID>
+        <cac:Attachment>
+            <cbc:EmbeddedDocumentBinaryObject mimeCode="text/plain">NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==</cbc:EmbeddedDocumentBinaryObject>
+        </cac:Attachment>
+    </cac:AdditionalDocumentReference>
+    <cac:AdditionalDocumentReference>
+        <cbc:ID>QR</cbc:ID>
+        <cac:Attachment>
+            <cbc:EmbeddedDocumentBinaryObject mimeCode="text/plain">SET_QR_CODE_DATA</cbc:EmbeddedDocumentBinaryObject>
+        </cac:Attachment>
+    </cac:AdditionalDocumentReference>
+    <cac:Signature>
+        <cbc:ID>urn:oasis:names:specification:ubl:signature:Invoice</cbc:ID>
+        <cbc:SignatureMethod>urn:oasis:names:specification:ubl:dsig:enveloped:xades</cbc:SignatureMethod>
+    </cac:Signature>
+    <cac:AccountingSupplierParty>
+        <cac:Party>
+            <cac:PartyIdentification>
+                <cbc:ID schemeID="CRN">7032256278</cbc:ID>
+            </cac:PartyIdentification>
+            <cac:PostalAddress>
+                <cbc:StreetName>King Fahd st</cbc:StreetName>
+                <cbc:BuildingNumber>0000</cbc:BuildingNumber>
+                <cbc:PlotIdentification>0000</cbc:PlotIdentification>
+                <cbc:CitySubdivisionName>West</cbc:CitySubdivisionName>
+                <cbc:CityName>Khobar</cbc:CityName>
+                <cbc:PostalZone>31952</cbc:PostalZone>
+                <cac:Country>
+                    <cbc:IdentificationCode>SA</cbc:IdentificationCode>
+                </cac:Country>
+            </cac:PostalAddress>
+            <cac:PartyTaxScheme>
+                <cbc:CompanyID>311497191800003</cbc:CompanyID>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+            </cac:PartyTaxScheme>
+            <cac:PartyLegalEntity>
+                <cbc:RegistrationName>Jaicome Information Technology</cbc:RegistrationName>
+            </cac:PartyLegalEntity>
+        </cac:Party>
+    </cac:AccountingSupplierParty>
+    <cac:AccountingCustomerParty></cac:AccountingCustomerParty>
+    <cac:PaymentMeans>
+        <cbc:InstructionNote>Debit correction</cbc:InstructionNote>
+        <cbc:PaymentMeansCode>30</cbc:PaymentMeansCode>
+    </cac:PaymentMeans>
+    <cac:TaxTotal>
+        <cac:TaxSubtotal>
+            <cac:TaxCategory>
+                <cac:TaxScheme>
+                    <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5153">VAT</cbc:ID>
+                </cac:TaxScheme>
+                <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5305">S</cbc:ID>
+                <cbc:Percent>15</cbc:Percent>
+            </cac:TaxCategory>
+            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
+            <cbc:TaxableAmount currencyID="SAR">100.00</cbc:TaxableAmount>
+        </cac:TaxSubtotal>
+        <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
+    </cac:TaxTotal>
+    <cac:TaxTotal>
+        <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
+    </cac:TaxTotal>
+    <cac:LegalMonetaryTotal>
+        <cbc:LineExtensionAmount currencyID="SAR">100.00</cbc:LineExtensionAmount>
+        <cbc:PayableAmount currencyID="SAR">115.00</cbc:PayableAmount>
+        <cbc:PrepaidAmount currencyID="SAR">0</cbc:PrepaidAmount>
+        <cbc:TaxExclusiveAmount currencyID="SAR">100.00</cbc:TaxExclusiveAmount>
+        <cbc:TaxInclusiveAmount currencyID="SAR">115.00</cbc:TaxInclusiveAmount>
+    </cac:LegalMonetaryTotal>
+    <cac:InvoiceLine>
+        <cac:Item>
+            <cac:ClassifiedTaxCategory>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+                <cbc:ID>S</cbc:ID>
+                <cbc:Percent>15</cbc:Percent>
+            </cac:ClassifiedTaxCategory>
+            <cbc:Name>Standard Product</cbc:Name>
+        </cac:Item>
+        <cac:Price>
+            <cbc:PriceAmount currencyID="SAR">100.00000000000000</cbc:PriceAmount>
+        </cac:Price>
+        <cac:TaxTotal>
+            <cbc:RoundingAmount currencyID="SAR">115.00</cbc:RoundingAmount>
+            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
+        </cac:TaxTotal>
+        <cbc:ID>1</cbc:ID>
+        <cbc:InvoicedQuantity unitCode="PCE">1</cbc:InvoicedQuantity>
+        <cbc:LineExtensionAmount currencyID="SAR">100.00</cbc:LineExtensionAmount>
+    </cac:InvoiceLine>
+</Invoice>
+"
+`;
+
+exports[`golden XML snapshots for invoice variants zero-rated invoice 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2">
+    <ext:UBLExtensions>SET_UBL_EXTENSIONS_STRING</ext:UBLExtensions>
+    <cbc:ProfileID>reporting:1.0</cbc:ProfileID>
+    <cbc:ID>EGS1-GOLDEN-SNAPSHOT-004</cbc:ID>
+    <cbc:UUID>6f4d20e0-6bfe-4a80-9389-7dabe6620f14</cbc:UUID>
+    <cbc:IssueDate>2024-01-15</cbc:IssueDate>
+    <cbc:IssueTime>10:00:00</cbc:IssueTime>
+    <cbc:InvoiceTypeCode name="0200000">388</cbc:InvoiceTypeCode>
+    <cbc:DocumentCurrencyCode>SAR</cbc:DocumentCurrencyCode>
+    <cbc:TaxCurrencyCode>SAR</cbc:TaxCurrencyCode>
+    <cac:AdditionalDocumentReference>
+        <cbc:ID>ICV</cbc:ID>
+        <cbc:UUID>1</cbc:UUID>
+    </cac:AdditionalDocumentReference>
+    <cac:AdditionalDocumentReference>
+        <cbc:ID>PIH</cbc:ID>
+        <cac:Attachment>
+            <cbc:EmbeddedDocumentBinaryObject mimeCode="text/plain">NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==</cbc:EmbeddedDocumentBinaryObject>
+        </cac:Attachment>
+    </cac:AdditionalDocumentReference>
+    <cac:AdditionalDocumentReference>
+        <cbc:ID>QR</cbc:ID>
+        <cac:Attachment>
+            <cbc:EmbeddedDocumentBinaryObject mimeCode="text/plain">SET_QR_CODE_DATA</cbc:EmbeddedDocumentBinaryObject>
+        </cac:Attachment>
+    </cac:AdditionalDocumentReference>
+    <cac:Signature>
+        <cbc:ID>urn:oasis:names:specification:ubl:signature:Invoice</cbc:ID>
+        <cbc:SignatureMethod>urn:oasis:names:specification:ubl:dsig:enveloped:xades</cbc:SignatureMethod>
+    </cac:Signature>
+    <cac:AccountingSupplierParty>
+        <cac:Party>
+            <cac:PartyIdentification>
+                <cbc:ID schemeID="CRN">7032256278</cbc:ID>
+            </cac:PartyIdentification>
+            <cac:PostalAddress>
+                <cbc:StreetName>King Fahd st</cbc:StreetName>
+                <cbc:BuildingNumber>0000</cbc:BuildingNumber>
+                <cbc:PlotIdentification>0000</cbc:PlotIdentification>
+                <cbc:CitySubdivisionName>West</cbc:CitySubdivisionName>
+                <cbc:CityName>Khobar</cbc:CityName>
+                <cbc:PostalZone>31952</cbc:PostalZone>
+                <cac:Country>
+                    <cbc:IdentificationCode>SA</cbc:IdentificationCode>
+                </cac:Country>
+            </cac:PostalAddress>
+            <cac:PartyTaxScheme>
+                <cbc:CompanyID>311497191800003</cbc:CompanyID>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+            </cac:PartyTaxScheme>
+            <cac:PartyLegalEntity>
+                <cbc:RegistrationName>Jaicome Information Technology</cbc:RegistrationName>
+            </cac:PartyLegalEntity>
+        </cac:Party>
+    </cac:AccountingSupplierParty>
+    <cac:AccountingCustomerParty></cac:AccountingCustomerParty>
+    <cac:PaymentMeans>
+        <cbc:PaymentMeansCode>10</cbc:PaymentMeansCode>
+    </cac:PaymentMeans>
+    <cac:TaxTotal>
+        <cac:TaxSubtotal>
+            <cac:TaxCategory>
+                <cac:TaxScheme>
+                    <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5153">VAT</cbc:ID>
+                </cac:TaxScheme>
+                <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5305">Z</cbc:ID>
+                <cbc:Percent>0</cbc:Percent>
+                <cbc:TaxExemptionReason>Zero-rated supply</cbc:TaxExemptionReason>
+                <cbc:TaxExemptionReasonCode>VATEX-SA-32</cbc:TaxExemptionReasonCode>
+            </cac:TaxCategory>
+            <cbc:TaxAmount currencyID="SAR">0</cbc:TaxAmount>
+            <cbc:TaxableAmount currencyID="SAR">125.00</cbc:TaxableAmount>
+        </cac:TaxSubtotal>
+        <cbc:TaxAmount currencyID="SAR">0.00</cbc:TaxAmount>
+    </cac:TaxTotal>
+    <cac:TaxTotal>
+        <cbc:TaxAmount currencyID="SAR">0.00</cbc:TaxAmount>
+    </cac:TaxTotal>
+    <cac:LegalMonetaryTotal>
+        <cbc:LineExtensionAmount currencyID="SAR">125.00</cbc:LineExtensionAmount>
+        <cbc:PayableAmount currencyID="SAR">125.00</cbc:PayableAmount>
+        <cbc:PrepaidAmount currencyID="SAR">0</cbc:PrepaidAmount>
+        <cbc:TaxExclusiveAmount currencyID="SAR">125.00</cbc:TaxExclusiveAmount>
+        <cbc:TaxInclusiveAmount currencyID="SAR">125.00</cbc:TaxInclusiveAmount>
+    </cac:LegalMonetaryTotal>
+    <cac:InvoiceLine>
+        <cac:Item>
+            <cac:ClassifiedTaxCategory>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+                <cbc:ID>Z</cbc:ID>
+                <cbc:Percent>0</cbc:Percent>
+            </cac:ClassifiedTaxCategory>
+            <cbc:Name>Zero-Rated Product</cbc:Name>
+        </cac:Item>
+        <cac:Price>
+            <cbc:PriceAmount currencyID="SAR">125.00000000000000</cbc:PriceAmount>
+        </cac:Price>
+        <cac:TaxTotal>
+            <cbc:RoundingAmount currencyID="SAR">125.00</cbc:RoundingAmount>
+            <cbc:TaxAmount currencyID="SAR">0.00</cbc:TaxAmount>
+        </cac:TaxTotal>
+        <cbc:ID>1</cbc:ID>
+        <cbc:InvoicedQuantity unitCode="PCE">1</cbc:InvoicedQuantity>
+        <cbc:LineExtensionAmount currencyID="SAR">125.00</cbc:LineExtensionAmount>
+    </cac:InvoiceLine>
+</Invoice>
+"
+`;
+
+exports[`golden XML snapshots for invoice variants exempt invoice 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2">
+    <ext:UBLExtensions>SET_UBL_EXTENSIONS_STRING</ext:UBLExtensions>
+    <cbc:ProfileID>reporting:1.0</cbc:ProfileID>
+    <cbc:ID>EGS1-GOLDEN-SNAPSHOT-005</cbc:ID>
+    <cbc:UUID>6f4d20e0-6bfe-4a80-9389-7dabe6620f14</cbc:UUID>
+    <cbc:IssueDate>2024-01-15</cbc:IssueDate>
+    <cbc:IssueTime>10:00:00</cbc:IssueTime>
+    <cbc:InvoiceTypeCode name="0200000">388</cbc:InvoiceTypeCode>
+    <cbc:DocumentCurrencyCode>SAR</cbc:DocumentCurrencyCode>
+    <cbc:TaxCurrencyCode>SAR</cbc:TaxCurrencyCode>
+    <cac:AdditionalDocumentReference>
+        <cbc:ID>ICV</cbc:ID>
+        <cbc:UUID>1</cbc:UUID>
+    </cac:AdditionalDocumentReference>
+    <cac:AdditionalDocumentReference>
+        <cbc:ID>PIH</cbc:ID>
+        <cac:Attachment>
+            <cbc:EmbeddedDocumentBinaryObject mimeCode="text/plain">NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==</cbc:EmbeddedDocumentBinaryObject>
+        </cac:Attachment>
+    </cac:AdditionalDocumentReference>
+    <cac:AdditionalDocumentReference>
+        <cbc:ID>QR</cbc:ID>
+        <cac:Attachment>
+            <cbc:EmbeddedDocumentBinaryObject mimeCode="text/plain">SET_QR_CODE_DATA</cbc:EmbeddedDocumentBinaryObject>
+        </cac:Attachment>
+    </cac:AdditionalDocumentReference>
+    <cac:Signature>
+        <cbc:ID>urn:oasis:names:specification:ubl:signature:Invoice</cbc:ID>
+        <cbc:SignatureMethod>urn:oasis:names:specification:ubl:dsig:enveloped:xades</cbc:SignatureMethod>
+    </cac:Signature>
+    <cac:AccountingSupplierParty>
+        <cac:Party>
+            <cac:PartyIdentification>
+                <cbc:ID schemeID="CRN">7032256278</cbc:ID>
+            </cac:PartyIdentification>
+            <cac:PostalAddress>
+                <cbc:StreetName>King Fahd st</cbc:StreetName>
+                <cbc:BuildingNumber>0000</cbc:BuildingNumber>
+                <cbc:PlotIdentification>0000</cbc:PlotIdentification>
+                <cbc:CitySubdivisionName>West</cbc:CitySubdivisionName>
+                <cbc:CityName>Khobar</cbc:CityName>
+                <cbc:PostalZone>31952</cbc:PostalZone>
+                <cac:Country>
+                    <cbc:IdentificationCode>SA</cbc:IdentificationCode>
+                </cac:Country>
+            </cac:PostalAddress>
+            <cac:PartyTaxScheme>
+                <cbc:CompanyID>311497191800003</cbc:CompanyID>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+            </cac:PartyTaxScheme>
+            <cac:PartyLegalEntity>
+                <cbc:RegistrationName>Jaicome Information Technology</cbc:RegistrationName>
+            </cac:PartyLegalEntity>
+        </cac:Party>
+    </cac:AccountingSupplierParty>
+    <cac:AccountingCustomerParty></cac:AccountingCustomerParty>
+    <cac:PaymentMeans>
+        <cbc:PaymentMeansCode>10</cbc:PaymentMeansCode>
+    </cac:PaymentMeans>
+    <cac:TaxTotal>
+        <cac:TaxSubtotal>
+            <cac:TaxCategory>
+                <cac:TaxScheme>
+                    <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5153">VAT</cbc:ID>
+                </cac:TaxScheme>
+                <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5305">E</cbc:ID>
+                <cbc:Percent>0</cbc:Percent>
+                <cbc:TaxExemptionReason>Exempt supply</cbc:TaxExemptionReason>
+                <cbc:TaxExemptionReasonCode>VATEX-SA-29</cbc:TaxExemptionReasonCode>
+            </cac:TaxCategory>
+            <cbc:TaxAmount currencyID="SAR">0</cbc:TaxAmount>
+            <cbc:TaxableAmount currencyID="SAR">80.00</cbc:TaxableAmount>
+        </cac:TaxSubtotal>
+        <cbc:TaxAmount currencyID="SAR">0.00</cbc:TaxAmount>
+    </cac:TaxTotal>
+    <cac:TaxTotal>
+        <cbc:TaxAmount currencyID="SAR">0.00</cbc:TaxAmount>
+    </cac:TaxTotal>
+    <cac:LegalMonetaryTotal>
+        <cbc:LineExtensionAmount currencyID="SAR">80.00</cbc:LineExtensionAmount>
+        <cbc:PayableAmount currencyID="SAR">80.00</cbc:PayableAmount>
+        <cbc:PrepaidAmount currencyID="SAR">0</cbc:PrepaidAmount>
+        <cbc:TaxExclusiveAmount currencyID="SAR">80.00</cbc:TaxExclusiveAmount>
+        <cbc:TaxInclusiveAmount currencyID="SAR">80.00</cbc:TaxInclusiveAmount>
+    </cac:LegalMonetaryTotal>
+    <cac:InvoiceLine>
+        <cac:Item>
+            <cac:ClassifiedTaxCategory>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+                <cbc:ID>E</cbc:ID>
+                <cbc:Percent>0</cbc:Percent>
+            </cac:ClassifiedTaxCategory>
+            <cbc:Name>Exempt Product</cbc:Name>
+        </cac:Item>
+        <cac:Price>
+            <cbc:PriceAmount currencyID="SAR">80.00000000000000</cbc:PriceAmount>
+        </cac:Price>
+        <cac:TaxTotal>
+            <cbc:RoundingAmount currencyID="SAR">80.00</cbc:RoundingAmount>
+            <cbc:TaxAmount currencyID="SAR">0.00</cbc:TaxAmount>
+        </cac:TaxTotal>
+        <cbc:ID>1</cbc:ID>
+        <cbc:InvoicedQuantity unitCode="PCE">1</cbc:InvoicedQuantity>
+        <cbc:LineExtensionAmount currencyID="SAR">80.00</cbc:LineExtensionAmount>
+    </cac:InvoiceLine>
+</Invoice>
+"
+`;
+
+exports[`golden XML snapshots for invoice variants multi-line-item invoice 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2">
+    <ext:UBLExtensions>SET_UBL_EXTENSIONS_STRING</ext:UBLExtensions>
+    <cbc:ProfileID>reporting:1.0</cbc:ProfileID>
+    <cbc:ID>EGS1-GOLDEN-SNAPSHOT-006</cbc:ID>
+    <cbc:UUID>6f4d20e0-6bfe-4a80-9389-7dabe6620f14</cbc:UUID>
+    <cbc:IssueDate>2024-01-15</cbc:IssueDate>
+    <cbc:IssueTime>10:00:00</cbc:IssueTime>
+    <cbc:InvoiceTypeCode name="0200000">388</cbc:InvoiceTypeCode>
+    <cbc:DocumentCurrencyCode>SAR</cbc:DocumentCurrencyCode>
+    <cbc:TaxCurrencyCode>SAR</cbc:TaxCurrencyCode>
+    <cac:AdditionalDocumentReference>
+        <cbc:ID>ICV</cbc:ID>
+        <cbc:UUID>1</cbc:UUID>
+    </cac:AdditionalDocumentReference>
+    <cac:AdditionalDocumentReference>
+        <cbc:ID>PIH</cbc:ID>
+        <cac:Attachment>
+            <cbc:EmbeddedDocumentBinaryObject mimeCode="text/plain">NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==</cbc:EmbeddedDocumentBinaryObject>
+        </cac:Attachment>
+    </cac:AdditionalDocumentReference>
+    <cac:AdditionalDocumentReference>
+        <cbc:ID>QR</cbc:ID>
+        <cac:Attachment>
+            <cbc:EmbeddedDocumentBinaryObject mimeCode="text/plain">SET_QR_CODE_DATA</cbc:EmbeddedDocumentBinaryObject>
+        </cac:Attachment>
+    </cac:AdditionalDocumentReference>
+    <cac:Signature>
+        <cbc:ID>urn:oasis:names:specification:ubl:signature:Invoice</cbc:ID>
+        <cbc:SignatureMethod>urn:oasis:names:specification:ubl:dsig:enveloped:xades</cbc:SignatureMethod>
+    </cac:Signature>
+    <cac:AccountingSupplierParty>
+        <cac:Party>
+            <cac:PartyIdentification>
+                <cbc:ID schemeID="CRN">7032256278</cbc:ID>
+            </cac:PartyIdentification>
+            <cac:PostalAddress>
+                <cbc:StreetName>King Fahd st</cbc:StreetName>
+                <cbc:BuildingNumber>0000</cbc:BuildingNumber>
+                <cbc:PlotIdentification>0000</cbc:PlotIdentification>
+                <cbc:CitySubdivisionName>West</cbc:CitySubdivisionName>
+                <cbc:CityName>Khobar</cbc:CityName>
+                <cbc:PostalZone>31952</cbc:PostalZone>
+                <cac:Country>
+                    <cbc:IdentificationCode>SA</cbc:IdentificationCode>
+                </cac:Country>
+            </cac:PostalAddress>
+            <cac:PartyTaxScheme>
+                <cbc:CompanyID>311497191800003</cbc:CompanyID>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+            </cac:PartyTaxScheme>
+            <cac:PartyLegalEntity>
+                <cbc:RegistrationName>Jaicome Information Technology</cbc:RegistrationName>
+            </cac:PartyLegalEntity>
+        </cac:Party>
+    </cac:AccountingSupplierParty>
+    <cac:AccountingCustomerParty></cac:AccountingCustomerParty>
+    <cac:PaymentMeans>
+        <cbc:PaymentMeansCode>10</cbc:PaymentMeansCode>
+    </cac:PaymentMeans>
+    <cac:TaxTotal>
+        <cac:TaxSubtotal>
+            <cac:TaxCategory>
+                <cac:TaxScheme>
+                    <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5153">VAT</cbc:ID>
+                </cac:TaxScheme>
+                <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5305">S</cbc:ID>
+                <cbc:Percent>15</cbc:Percent>
+            </cac:TaxCategory>
+            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
+            <cbc:TaxableAmount currencyID="SAR">100.00</cbc:TaxableAmount>
+        </cac:TaxSubtotal>
+        <cac:TaxSubtotal>
+            <cac:TaxCategory>
+                <cac:TaxScheme>
+                    <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5153">VAT</cbc:ID>
+                </cac:TaxScheme>
+                <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5305">S</cbc:ID>
+                <cbc:Percent>5</cbc:Percent>
+            </cac:TaxCategory>
+            <cbc:TaxAmount currencyID="SAR">6.00</cbc:TaxAmount>
+            <cbc:TaxableAmount currencyID="SAR">120.00</cbc:TaxableAmount>
+        </cac:TaxSubtotal>
+        <cac:TaxSubtotal>
+            <cac:TaxCategory>
+                <cac:TaxScheme>
+                    <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5153">VAT</cbc:ID>
+                </cac:TaxScheme>
+                <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5305">O</cbc:ID>
+                <cbc:Percent>0</cbc:Percent>
+                <cbc:TaxExemptionReason>Out of scope</cbc:TaxExemptionReason>
+                <cbc:TaxExemptionReasonCode>VATEX-SA-OOS</cbc:TaxExemptionReasonCode>
+            </cac:TaxCategory>
+            <cbc:TaxAmount currencyID="SAR">0</cbc:TaxAmount>
+            <cbc:TaxableAmount currencyID="SAR">25.00</cbc:TaxableAmount>
+        </cac:TaxSubtotal>
+        <cbc:TaxAmount currencyID="SAR">21.00</cbc:TaxAmount>
+    </cac:TaxTotal>
+    <cac:TaxTotal>
+        <cbc:TaxAmount currencyID="SAR">21.00</cbc:TaxAmount>
+    </cac:TaxTotal>
+    <cac:LegalMonetaryTotal>
+        <cbc:LineExtensionAmount currencyID="SAR">245.00</cbc:LineExtensionAmount>
+        <cbc:PayableAmount currencyID="SAR">266.00</cbc:PayableAmount>
+        <cbc:PrepaidAmount currencyID="SAR">0</cbc:PrepaidAmount>
+        <cbc:TaxExclusiveAmount currencyID="SAR">245.00</cbc:TaxExclusiveAmount>
+        <cbc:TaxInclusiveAmount currencyID="SAR">266.00</cbc:TaxInclusiveAmount>
+    </cac:LegalMonetaryTotal>
+    <cac:InvoiceLine>
+        <cac:Item>
+            <cac:ClassifiedTaxCategory>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+                <cbc:ID>S</cbc:ID>
+                <cbc:Percent>15</cbc:Percent>
+            </cac:ClassifiedTaxCategory>
+            <cbc:Name>Standard 15%</cbc:Name>
+        </cac:Item>
+        <cac:Price>
+            <cbc:PriceAmount currencyID="SAR">100.00000000000000</cbc:PriceAmount>
+        </cac:Price>
+        <cac:TaxTotal>
+            <cbc:RoundingAmount currencyID="SAR">115.00</cbc:RoundingAmount>
+            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
+        </cac:TaxTotal>
+        <cbc:ID>1</cbc:ID>
+        <cbc:InvoicedQuantity unitCode="PCE">1</cbc:InvoicedQuantity>
+        <cbc:LineExtensionAmount currencyID="SAR">100.00</cbc:LineExtensionAmount>
+    </cac:InvoiceLine>
+    <cac:InvoiceLine>
+        <cac:Item>
+            <cac:ClassifiedTaxCategory>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+                <cbc:ID>S</cbc:ID>
+                <cbc:Percent>5</cbc:Percent>
+            </cac:ClassifiedTaxCategory>
+            <cbc:Name>Reduced 5%</cbc:Name>
+        </cac:Item>
+        <cac:Price>
+            <cbc:PriceAmount currencyID="SAR">60.00000000000000</cbc:PriceAmount>
+        </cac:Price>
+        <cac:TaxTotal>
+            <cbc:RoundingAmount currencyID="SAR">126.00</cbc:RoundingAmount>
+            <cbc:TaxAmount currencyID="SAR">6.00</cbc:TaxAmount>
+        </cac:TaxTotal>
+        <cbc:ID>2</cbc:ID>
+        <cbc:InvoicedQuantity unitCode="PCE">2</cbc:InvoicedQuantity>
+        <cbc:LineExtensionAmount currencyID="SAR">120.00</cbc:LineExtensionAmount>
+    </cac:InvoiceLine>
+    <cac:InvoiceLine>
+        <cac:Item>
+            <cac:ClassifiedTaxCategory>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+                <cbc:ID>O</cbc:ID>
+                <cbc:Percent>0</cbc:Percent>
+            </cac:ClassifiedTaxCategory>
+            <cbc:Name>Out of Scope</cbc:Name>
+        </cac:Item>
+        <cac:Price>
+            <cbc:PriceAmount currencyID="SAR">25.00000000000000</cbc:PriceAmount>
+        </cac:Price>
+        <cac:TaxTotal>
+            <cbc:RoundingAmount currencyID="SAR">25.00</cbc:RoundingAmount>
+            <cbc:TaxAmount currencyID="SAR">0.00</cbc:TaxAmount>
+        </cac:TaxTotal>
+        <cbc:ID>3</cbc:ID>
+        <cbc:InvoicedQuantity unitCode="PCE">1</cbc:InvoicedQuantity>
+        <cbc:LineExtensionAmount currencyID="SAR">25.00</cbc:LineExtensionAmount>
+    </cac:InvoiceLine>
+</Invoice>
+"
+`;

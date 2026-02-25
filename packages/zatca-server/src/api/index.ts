@@ -18,6 +18,10 @@ const settings = {
   SIMULATION_BASEURL: "https://gw-fatoora.zatca.gov.sa/e-invoicing/simulation",
 };
 
+/**
+ * Methods available on the ZATCA compliance API endpoint.
+ * Used during EGS onboarding to obtain a compliance CSID and validate invoice samples.
+ */
 interface ComplianceAPIInterface {
   issueCertificate: (
     csr: string,
@@ -30,6 +34,10 @@ interface ComplianceAPIInterface {
   ) => Promise<Result<InvoiceResponse, ZatcaApiError>>;
 }
 
+/**
+ * Methods available on the ZATCA production API endpoint.
+ * Used after onboarding to report or clear invoices in production.
+ */
 interface ProductionAPIInterface {
   issueCertificate: (
     complianceRequestId: string
@@ -46,6 +54,20 @@ interface ProductionAPIInterface {
   ) => Promise<Result<InvoiceResponse, ZatcaApiError>>;
 }
 
+/**
+ * Low-level HTTP client for the ZATCA Fatoora API.
+ * Wraps both the compliance and production endpoints and handles authentication,
+ * base URL selection, and error mapping.
+ *
+ * Prefer using {@link EGS} for the full onboarding and invoice lifecycle.
+ * Use this class directly only when you need fine-grained control over API calls.
+ *
+ * @example
+ * ```typescript
+ * const api = new API('simulation');
+ * const result = await api.compliance().issueCertificate(csrPem, '123456');
+ * ```
+ */
 class API {
   private env: string;
 
@@ -145,6 +167,14 @@ class API {
     }
   }
 
+  /**
+   * Returns a {@link ComplianceAPIInterface} scoped to the compliance endpoint.
+   * If `certificate` and `secret` are provided, requests are authenticated
+   * (required for {@link ComplianceAPIInterface.checkInvoiceCompliance}).
+   *
+   * @param certificate - PEM-encoded compliance CSID. Required for invoice compliance checks.
+   * @param secret - API secret paired with the compliance certificate.
+   */
   compliance(certificate?: string, secret?: string): ComplianceAPIInterface {
     const authHeaders = this.getAuthHeaders(certificate, secret);
     const baseUrl =
@@ -215,6 +245,13 @@ class API {
     return { checkInvoiceCompliance, issueCertificate };
   }
 
+  /**
+   * Returns a {@link ProductionAPIInterface} scoped to the production endpoint.
+   * Requires a valid production CSID and its paired API secret for all operations.
+   *
+   * @param certificate - PEM-encoded production CSID.
+   * @param secret - API secret paired with the production certificate.
+   */
   production(certificate?: string, secret?: string): ProductionAPIInterface {
     const authHeaders = this.getAuthHeaders(certificate, secret);
     const baseUrl =
