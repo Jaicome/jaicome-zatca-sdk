@@ -2,6 +2,7 @@ import Mustache from "mustache";
 import { z } from "zod";
 
 import type { EGSInfo, CustomerInfo } from "../schemas/index.js";
+import { formatDate, formatTime } from "../utils/date.js";
 
 // XML template for simplified tax invoice
 const template = `
@@ -393,21 +394,13 @@ export interface ZatcaInvoiceBase {
    */
   invoiceSerialNumber: string;
   /**
-   * Issue date of the invoice (BT-2).
+   * Issue timestamp of the invoice in UTC.
    *
-   * Must be today or in the past. Format: `YYYY-MM-DD` (no timezone component).
+   * Date and time XML fields are derived from this value.
    *
-   * @example '2024-01-15'
+   * @example new Date('2024-01-15T14:30:00Z')
    */
-  issueDate: string;
-  /**
-   * Issue time of the invoice (KSA-25).
-   *
-   * Format: `HH:mm:ssZ` (UTC, with trailing `Z`). Must match the `issueDate`.
-   *
-   * @example '14:30:00Z'
-   */
-  issueTime: string;
+  issueDate: Date;
   /**
    * Previous Invoice Hash (PIH, KSA-13).
    *
@@ -445,19 +438,19 @@ export type CashInvoice = ZatcaInvoiceBase & {
   /**
    * Actual delivery date of the goods or services (BT-72).
    *
-   * Format: `YYYY-MM-DD`. Optional.
+   * Date value. Optional.
    *
-   * @example '2024-01-20'
+   * @example new Date('2024-01-20T00:00:00Z')
    */
-  actualDeliveryDate?: string;
+  actualDeliveryDate?: Date;
   /**
    * Latest promised delivery date (BT-73).
    *
-   * Format: `YYYY-MM-DD`. Optional. Only relevant when `actualDeliveryDate` is set.
+   * Date value. Optional. Only relevant when `actualDeliveryDate` is set.
    *
-   * @example '2024-01-25'
+   * @example new Date('2024-01-25T00:00:00Z')
    */
-  latestDeliveryDate?: string;
+  latestDeliveryDate?: Date;
   /** Payment method for this invoice. Accepts string keys or legacy numeric codes. Optional. */
   paymentMethod?: ZATCAPaymentMethod | "10" | "30" | "42" | "48";
 };
@@ -472,7 +465,7 @@ export type CashInvoice = ZatcaInvoiceBase & {
  */
 export type TaxInvoice = (CashInvoice | CreditDebitInvoice) & {
   invoiceCode: "STANDARD" | "0100000";
-  actualDeliveryDate?: string;
+  actualDeliveryDate?: Date;
 };
 
 /**
@@ -503,8 +496,7 @@ export type SimplifiedInvoice = (CashInvoice | CreditDebitInvoice) & {
  *   crnNumber: '1234567890',
  *   invoiceCounterNumber: 1,
  *   invoiceSerialNumber: 'INV-2024-00001',
- *   issueDate: '2024-01-15',
- *   issueTime: '14:30:00Z',
+ *   issueDate: new Date('2024-01-15T14:30:00Z'),
  *   previousInvoiceHash: GENESIS_PREVIOUS_INVOICE_HASH,
  *   lineItems: [{ id: '1', name: 'Item', quantity: 1, taxExclusivePrice: 100, vatPercent: 0.15 }],
  * };
@@ -521,8 +513,27 @@ const rendering = (props: ZATCAInvoiceProps): string => {
     (INVOICE_CODE_VALUES as Record<string, string>)[props.invoiceCode] ??
     props.invoiceCode;
 
+  const issueDateStr = formatDate(props.issueDate);
+  const issueTimeStr = formatTime(props.issueDate);
+  const actualDeliveryDateStr =
+    "actualDeliveryDate" in props && props.actualDeliveryDate
+      ? formatDate(props.actualDeliveryDate)
+      : undefined;
+  const latestDeliveryDateStr =
+    "latestDeliveryDate" in props && props.latestDeliveryDate
+      ? formatDate(props.latestDeliveryDate)
+      : undefined;
+
   const mappedProps = {
     ...props,
+    issueDate: issueDateStr,
+    issueTime: issueTimeStr,
+    ...("actualDeliveryDate" in props && props.actualDeliveryDate
+      ? { actualDeliveryDate: actualDeliveryDateStr }
+      : {}),
+    ...("latestDeliveryDate" in props && props.latestDeliveryDate
+      ? { latestDeliveryDate: latestDeliveryDateStr }
+      : {}),
     invoiceCode: invoiceCodeValue,
     invoiceType: invoiceTypeCode,
     ...("paymentMethod" in props && props.paymentMethod

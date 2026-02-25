@@ -253,7 +253,6 @@ export const onboardEGS = async (otp: string): Promise<OnboardResult> => {
     });
 
     const result = await invoice.sign(
-      egs.getComplianceCertificate()!,
       egs.getPrivateKey()!
     );
     const signedInvoiceString = result.signedXml;
@@ -321,7 +320,6 @@ export const signAndReportInvoice = async (
   });
 
   const signResult = await invoice.sign(
-    egs.getComplianceCertificate()!,
     egs.getPrivateKey()!
   );
   const { signedXml } = signResult;
@@ -395,7 +393,6 @@ export const signAndReportBatch = async (
       });
 
       const signResult = await invoice.sign(
-        egs.getComplianceCertificate()!,
         egs.getPrivateKey()!
       );
       const { signedXml } = signResult;

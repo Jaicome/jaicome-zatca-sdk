@@ -372,4 +372,27 @@ describe("signing adversarial coverage", () => {
       ).toThrow();
     });
   });
+  describe("sign_timestamp UTC format", () => {
+    it("sign_timestamp in signed XML matches ZATCA UTC format without milliseconds", () => {
+      const { privateKey } = generateKeyPairSync("ec", {
+        namedCurve: "prime256v1",
+        privateKeyEncoding: { format: "pem", type: "sec1" },
+        publicKeyEncoding: { format: "pem", type: "spki" },
+      });
+
+      const invoiceXml = new XMLDocument(buildTestInvoiceXml());
+      const result = generateSignedXMLString({
+        certificate_string: SAMPLE_CERT_PEM,
+        invoice_xml: invoiceXml,
+        private_key_string: privateKey,
+      });
+
+      const match = result.signed_invoice_string.match(
+        /<xades:SigningTime>([^<]+)<\/xades:SigningTime>/
+      );
+      expect(match).not.toBeNull();
+      // Must be YYYY-MM-DDTHH:mm:ssZ — no milliseconds, Z suffix mandatory (UTC)
+      expect(match![1]).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/);
+    });
+  });
 });

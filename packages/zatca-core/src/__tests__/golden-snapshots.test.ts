@@ -28,8 +28,7 @@ const makeBaseProps = (): ZATCAInvoiceProps => ({
   invoiceCounterNumber: 1,
   invoiceSerialNumber: "EGS1-GOLDEN-SNAPSHOT-001",
   invoiceType: "INVOICE",
-  issueDate: "2024-01-15",
-  issueTime: "10:00:00",
+  issueDate: new Date("2024-01-15T10:00:00Z"),
   lineItems: [
     {
       id: "1",

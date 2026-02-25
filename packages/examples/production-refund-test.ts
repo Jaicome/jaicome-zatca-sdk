@@ -185,7 +185,6 @@ const main = async () => {
       });
 
       const result = await invoice.sign(
-        egs.getComplianceCertificate()!,
         egs.getPrivateKey()!
       );
       const signedInvoiceString = result.signedXml;
@@ -267,7 +266,6 @@ const main = async () => {
     });
 
     const firstInvoiceResult = await firstInvoice.sign(
-      egs.getComplianceCertificate()!,
       egs.getPrivateKey()!
     );
 
@@ -350,7 +348,6 @@ const main = async () => {
     });
 
     const refundInvoiceResult = await refundInvoice.sign(
-      egs.getComplianceCertificate()!,
       egs.getPrivateKey()!
     );
 

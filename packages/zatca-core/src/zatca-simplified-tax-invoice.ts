@@ -43,7 +43,7 @@ export {
  * @example
  * // Build a new invoice from props
  * const invoice = new ZATCAInvoice({ props, signer });
- * const { signedXml, invoiceHash } = await invoice.sign(cert, privateKey);
+ * const { signedXml, invoiceHash } = await invoice.sign(privateKey);
  *
  * @example
  * // Parse an existing XML string
@@ -121,21 +121,17 @@ export class ZATCAInvoice {
   }
 
   /**
-   * Signs the invoice using the provided X.509 certificate and private key.
+   * Signs the invoice using the provided private key.
    *
    * Delegates to the `Signer` implementation passed in the constructor.
    * The signer computes the invoice hash, embeds the digital signature in the XML,
    * and returns the signed artifacts.
    *
-   * @param certificate_string - PEM-encoded X.509 signing certificate issued by ZATCA.
    * @param private_key_string - PEM-encoded ECDSA private key matching the certificate.
    * @returns A promise resolving to {@link SignatureResult} with `signedXml` and `invoiceHash`.
    * @throws {Error} If no `signer` was provided to the constructor.
    */
-  sign(
-    certificate_string: string,
-    private_key_string: string
-  ): Promise<SignatureResult> {
+  sign(private_key_string: string): Promise<SignatureResult> {
     if (!this.signer) {
       throw new Error(
         "Signing requires a server-side Signer implementation. " +
@@ -144,6 +140,7 @@ export class ZATCAInvoice {
     }
     const invoice_xml_str = this.invoice_xml.toString({});
     return this.signer.sign({
+      // invoiceHash is required by the interface; NodeSigner computes it internally
       invoiceHash: "",
       invoiceXml: invoice_xml_str,
       privateKeyReference: private_key_string,

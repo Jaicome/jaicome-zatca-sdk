@@ -216,7 +216,6 @@ const main = async () => {
       });
 
       const result = await invoice.sign(
-        egs.getComplianceCertificate()!,
         egs.getPrivateKey()!
       );
       const signedInvoiceString = result.signedXml;
@@ -276,7 +275,6 @@ const main = async () => {
       signer,
     });
     const reportResult = await reportInvoice.sign(
-      egs.getComplianceCertificate()!,
       egs.getPrivateKey()!
     );
     const signedInvoiceString = reportResult.signedXml;

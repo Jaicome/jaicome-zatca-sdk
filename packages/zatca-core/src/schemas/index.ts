@@ -152,8 +152,9 @@ const ZatcaInvoiceBaseSchema = z.object({
   egsInfo: EGSInfoSchema,
   invoiceCounterNumber: z.number().int().positive(),
   invoiceSerialNumber: z.string().min(1),
-  issueDate: z.string().min(1),
-  issueTime: z.string().min(1),
+  issueDate: z.date().refine((d) => d <= new Date(), {
+    message: "Issue date cannot be in the future",
+  }),
   lineItems: z.array(ZATCAInvoiceLineItemSchema).min(1),
   previousInvoiceHash: z.string().min(1),
 });
@@ -168,9 +169,9 @@ const CancelationSchema = z.object({
 });
 
 const CashInvoiceSchema = ZatcaInvoiceBaseSchema.extend({
-  actualDeliveryDate: z.string().optional(),
+  actualDeliveryDate: z.date().optional(),
   invoiceType: z.union([z.literal("INVOICE"), z.literal("388")]),
-  latestDeliveryDate: z.string().optional(),
+  latestDeliveryDate: z.date().optional(),
   paymentMethod: z
     .union([ZATCAPaymentMethodSchema, z.enum(["10", "30", "42", "48"])])
     .optional(),

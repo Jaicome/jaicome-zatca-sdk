@@ -12,8 +12,8 @@ import {
   defaultUBLExtensions,
   defaultUBLExtensionsSignedProperties,
   defaultUBLExtensionsSignedPropertiesForSigning,
+  formatQRTimestamp,
 } from "@jaicome/zatca-core";
-import moment from "moment";
 
 import { generateQR } from "../qr/index.js";
 import { getPureInvoiceString, getInvoiceHash } from "../utils/invoice-hash.js";
@@ -180,7 +180,7 @@ export const generateSignedXMLString = ({
     certificate_hash: cert_info.hash,
     certificate_issuer: cert_info.issuer,
     certificate_serial_number: cert_info.serial_number,
-    sign_timestamp: `${moment(new Date()).format("YYYY-MM-DDTHH:mm:ss")}Z`,
+    sign_timestamp: formatQRTimestamp(new Date()),
   };
   const ubl_signature_signed_properties_xml_string_for_signing =
     defaultUBLExtensionsSignedPropertiesForSigning(signed_properties_props);
@@ -268,7 +268,7 @@ const signedPropertiesIndentationFix = (
  * ```typescript
  * const signer = new NodeSigner(certificatePemString);
  * const invoice = new ZATCAInvoice({ props, signer, acceptWarning: true });
- * const result = await invoice.sign(certificatePemString, privateKeyPemString);
+ * const result = await invoice.sign(privateKeyPemString);
  * // result.signedXml, result.invoiceHash, result.signingCertificate
  * ```
  */
