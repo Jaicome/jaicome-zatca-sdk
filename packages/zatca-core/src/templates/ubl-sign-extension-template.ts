@@ -94,6 +94,8 @@ const populate = (
   return populated_template;
 };
 
+/** @internal */
+
 export const defaultUBLExtensions = (
   invoice_hash: string,
   signed_properties_hash: string,

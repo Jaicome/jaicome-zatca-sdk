@@ -129,6 +129,7 @@ const BaseLineItemSchema = z.object({
   discounts: z.array(LineItemDiscountSchema).optional(),
   id: z.string().min(1),
   name: z.string().min(1),
+  /** Additional taxes beyond VAT (e.g. excise tax). Applied per-line-item. Value in SAR. */
   otherTaxes: z.array(LineItemTaxSchema).optional(),
   quantity: z.number(),
   taxExclusivePrice: z.number(),
@@ -256,7 +257,7 @@ const CashOrCreditDebitSchema = z.union([
  *
  * Used internally by `buildInvoice()` before constructing the XML.
  */
-export const ZATCAInvoicePropsSchema = z.union([
+const ZATCAInvoicePropsUnionSchema = z.union([
   CashOrCreditDebitSchema.and(
     z.object({
       invoiceCode: z.union([z.literal("STANDARD"), z.literal("0100000")], {
@@ -276,6 +277,20 @@ export const ZATCAInvoicePropsSchema = z.union([
     })
   ),
 ]);
+
+export const ZATCAInvoicePropsSchema = ZATCAInvoicePropsUnionSchema.superRefine(
+  (data, ctx) => {
+    const isStandardInvoice =
+      data.invoiceCode === "STANDARD" || data.invoiceCode === "0100000";
+    if (isStandardInvoice && !data.customerInfo) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Customer info (BG-7) is required for standard/tax invoices",
+        path: ["customerInfo"],
+      });
+    }
+  }
+);
 
 /**
  * Zod schema for {@link SigningInput}.

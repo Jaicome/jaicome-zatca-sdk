@@ -2,10 +2,14 @@
 
 let LOGGING = false;
 
+/** @internal */
+// Enable or disable SDK debug logging.
 export const setLogging = (enabled: boolean) => {
   LOGGING = enabled;
 };
 
+/** @internal */
+// Emit a debug log message if logging is enabled.
 export const log = (type: string, source: string, message: string) => {
   if (!LOGGING) {
     return;

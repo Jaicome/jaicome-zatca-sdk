@@ -82,6 +82,13 @@ export class ZATCAInvoice {
   }: {
     invoice_xml_str?: string;
     props?: ZATCAInvoiceProps;
+    /**
+     * Controls rounding tolerance in tax calculations.
+     *
+     * When `true`, allows minor rounding differences (< 0.01 SAR) that ZATCA's
+     * validator may flag as warnings. Recommended: `true` for production use.
+     * Defaults to `false`.
+     */
     acceptWarning?: boolean;
     signer?: Signer;
   }) {

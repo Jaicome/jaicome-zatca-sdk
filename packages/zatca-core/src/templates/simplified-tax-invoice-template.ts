@@ -281,8 +281,14 @@ export interface InvoiceLineItem {
   quantity: number;
   /** Unit price in SAR, excluding VAT. */
   taxExclusivePrice: number;
-  /** Additional taxes beyond the standard VAT (e.g. excise tax). Optional. */
+  /**
+   * Additional taxes beyond VAT (e.g. excise tax). Applied per-line-item. Value in SAR.
+   *
+   * Use this for special levies or excise taxes that stack on top of the main VAT.
+   * Each entry specifies a `percentAmount` (e.g. `5` for 5%).
+   */
   otherTaxes?: ZATCAInvoiceLineItemTax[];
+
   /** Discounts applied to this line item. Optional. */
   discounts?: ZATCAInvoiceLineItemDiscount[];
 }
@@ -347,9 +353,6 @@ export interface ZATCAInvoiceCancellation {
   /** Human-readable reason for the cancellation or adjustment. */
   reason: string;
 }
-
-/** @deprecated Use ZATCAInvoiceCancellation instead */
-export type ZATCAInvoicCancelation = ZATCAInvoiceCancellation;
 
 /**
  * Core fields shared by all ZATCA invoice variants.
@@ -464,6 +467,14 @@ export type CashInvoice = ZatcaInvoiceBase & {
  * `invoiceCode` must be `'STANDARD'` (or legacy `'0100000'`).
  */
 export type TaxInvoice = (CashInvoice | CreditDebitInvoice) & {
+  /**
+   * Invoice transaction type code (KSA-2).
+   *
+   * Use `'STANDARD'` (preferred) or the legacy numeric code `'0100000'`.
+   * Standard invoices are for B2B or B2G transactions and require ZATCA clearance.
+   *
+   * @see TransactionTypeCode for the canonical constant values.
+   */
   invoiceCode: "STANDARD" | "0100000";
   actualDeliveryDate?: Date;
 };
@@ -477,6 +488,14 @@ export type TaxInvoice = (CashInvoice | CreditDebitInvoice) & {
  * `invoiceCode` must be `'SIMPLIFIED'` (or legacy `'0200000'`).
  */
 export type SimplifiedInvoice = (CashInvoice | CreditDebitInvoice) & {
+  /**
+   * Invoice transaction type code (KSA-2).
+   *
+   * Use `'SIMPLIFIED'` (preferred) or the legacy numeric code `'0200000'`.
+   * Simplified invoices are for B2C transactions and are reported to ZATCA within 24 hours.
+   *
+   * @see TransactionTypeCode for the canonical constant values.
+   */
   invoiceCode: "SIMPLIFIED" | "0200000";
 };
 

@@ -98,4 +98,5 @@ const populate = (props: CSRConfigProps): string => {
   return applyReplacements(template, replacements);
 };
 
+/** @internal */
 export default populate;

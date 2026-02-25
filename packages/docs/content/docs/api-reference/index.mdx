@@ -21,7 +21,7 @@ This reference documents the public APIs of `@jaicome/zatca-core` and
 
 - `class ZATCAInvoice`
   - `getXML(): XMLDocument`
-  - `sign(certificate_string: string, private_key_string: string): Promise<SignatureResult>`
+  - `sign(privateKeyString: string): Promise<SignatureResult>`
 - `class XMLDocument`
   - `get(path_query?: string, condition?: any): XMLQueryResult`
   - `delete(path_query?: string, condition?: any): boolean`
@@ -63,7 +63,7 @@ This reference documents the public APIs of `@jaicome/zatca-core` and
   - `runComplianceChecksForProduction(checks, required_steps?): Promise<Record<ZATCAComplianceStep, any>>`
   - `reportInvoice(signed_invoice_string: string, invoice_hash: string): Promise<any>`
   - `clearanceInvoice(signed_invoice_string: string, invoice_hash: string): Promise<any>`
-  - `signInvoice(invoice: ZATCAInvoice, production?: boolean): { signed_invoice_string, invoice_hash, qr }`
+  - `signInvoice(invoice: ZATCAInvoice, production?: boolean): { signedInvoiceString: string, invoiceHash: string, qr: string }`
 
 ### Signing utilities
 

@@ -1,8 +1,17 @@
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 
-import type { ZATCAInvoice, EGSInfo } from "@jaicome/zatca-core";
-import { EGSInfoSchema, ZodValidationError } from "@jaicome/zatca-core";
+import type {
+  EGSInfo,
+  ZATCAInvoiceLineItem,
+  ZATCAInvoiceProps,
+} from "@jaicome/zatca-core";
+import {
+  EGSInfoSchema,
+  GENESIS_PREVIOUS_INVOICE_HASH,
+  ZATCAInvoice,
+  ZodValidationError,
+} from "@jaicome/zatca-core";
 import { Result } from "better-result";
 import { v4 as uuidv4 } from "uuid";
 
@@ -145,6 +154,160 @@ export const REQUIRED_COMPLIANCE_STEPS: readonly ZATCAComplianceStep[] = [
   "simplified-credit-note-compliant",
   "simplified-debit-note-compliant",
 ];
+
+const COMPLIANCE_ONBOARDING_STEP_ORDER: readonly ZATCAComplianceStep[] = [
+  "standard-debit-note-compliant",
+  "standard-compliant",
+  "standard-credit-note-compliant",
+  "simplified-debit-note-compliant",
+  "simplified-compliant",
+  "simplified-credit-note-compliant",
+];
+
+const COMPLIANCE_ONBOARDING_LINE_ITEMS: ZATCAInvoiceLineItem[] = [
+  {
+    discounts: [{ amount: 1, reason: "discount" }],
+    id: "1",
+    name: "TEST NAME",
+    quantity: 44,
+    taxExclusivePrice: 22,
+    vatPercent: 0.15,
+  },
+  {
+    discounts: [{ amount: 2, reason: "discount" }],
+    id: "2",
+    name: "TEST NAME 1",
+    quantity: 10,
+    taxExclusivePrice: 5,
+    vatPercent: 0.05,
+  },
+  {
+    id: "3",
+    name: "TEST NAME 2",
+    quantity: 10,
+    taxExclusivePrice: 5,
+    vatCategory: {
+      code: "Z",
+      reason: "Supply of a qualifying means of transport",
+      reasonCode: "VATEX-SA-34-4",
+    },
+    vatPercent: 0,
+  },
+];
+
+const buildComplianceInvoicePropsForStep = (
+  info: EGSInfo,
+  step: ZATCAComplianceStep,
+  invoiceCounterNumber: number,
+  previousInvoiceHash: string,
+  canceledSerialInvoiceNumber: string,
+  issueDate: Date
+): ZATCAInvoiceProps => {
+  const issueTime = `${issueDate.toISOString().split("T")[1].slice(0, 8)}Z`;
+  const invoiceSerialNumber = `EGS1-886431145-${100 + invoiceCounterNumber}`;
+
+  const shared = {
+    crnNumber: "7032256278",
+    customerInfo: {
+      building: "00",
+      buyerName: "S7S",
+      city: "jeddah",
+      citySubdivision: "ssss",
+      customerCrnNumber: "7052156278",
+      postalZone: "00000",
+      street: "__",
+      vatNumber: "311498192800003",
+    },
+    egsInfo: info,
+    invoiceCounterNumber,
+    invoiceSerialNumber,
+    issueDate,
+    issueTime,
+    lineItems: COMPLIANCE_ONBOARDING_LINE_ITEMS,
+    previousInvoiceHash,
+  };
+
+  if (step === "standard-compliant") {
+    return {
+      ...shared,
+      actualDeliveryDate: issueDate,
+      invoiceCode: "STANDARD",
+      invoiceType: "INVOICE",
+    } as unknown as ZATCAInvoiceProps;
+  }
+
+  if (step === "simplified-compliant") {
+    return {
+      ...shared,
+      actualDeliveryDate: issueDate,
+      invoiceCode: "SIMPLIFIED",
+      invoiceType: "INVOICE",
+    } as unknown as ZATCAInvoiceProps;
+  }
+
+  if (step === "standard-credit-note-compliant") {
+    return {
+      ...shared,
+      cancelation: {
+        canceledSerialInvoiceNumber,
+        paymentMethod: "CASH",
+        reason: "Compliance onboarding reference",
+      },
+      invoiceCode: "STANDARD",
+      invoiceType: "CREDIT_NOTE",
+    } as unknown as ZATCAInvoiceProps;
+  }
+
+  if (step === "standard-debit-note-compliant") {
+    return {
+      ...shared,
+      cancelation: {
+        canceledSerialInvoiceNumber,
+        paymentMethod: "CASH",
+        reason: "Compliance onboarding reference",
+      },
+      invoiceCode: "STANDARD",
+      invoiceType: "DEBIT_NOTE",
+    } as unknown as ZATCAInvoiceProps;
+  }
+
+  if (step === "simplified-credit-note-compliant") {
+    return {
+      ...shared,
+      cancelation: {
+        canceledSerialInvoiceNumber,
+        paymentMethod: "CASH",
+        reason: "Compliance onboarding reference",
+      },
+      invoiceCode: "SIMPLIFIED",
+      invoiceType: "CREDIT_NOTE",
+    } as unknown as ZATCAInvoiceProps;
+  }
+
+  return {
+    ...shared,
+    cancelation: {
+      canceledSerialInvoiceNumber,
+      paymentMethod: "CASH",
+      reason: "Compliance onboarding reference",
+    },
+    invoiceCode: "SIMPLIFIED",
+    invoiceType: "DEBIT_NOTE",
+  } as unknown as ZATCAInvoiceProps;
+};
+
+export interface OnboardOptions {
+  solutionName: string;
+  otp: string;
+}
+
+export interface OnboardResult {
+  productionCertificate: string;
+  productionApiSecret: string;
+  privateKey: string;
+  lastInvoiceHash: string;
+  nextInvoiceCounter: number;
+}
 
 const OpenSSL = (cmd: string[]): Promise<string> =>
   new Promise<string>((resolve, reject) => {
@@ -497,6 +660,82 @@ export class EGS {
     this.productionApiSecret = issued_data.value.api_secret;
 
     return Result.ok(issued_data.value.request_id);
+  }
+
+  async onboard(options: OnboardOptions): Promise<OnboardResult> {
+    await this.generateNewKeysAndCSR(options.solutionName);
+
+    const complianceCertificateResult = await this.issueComplianceCertificate(
+      options.otp
+    );
+    if (complianceCertificateResult.isErr()) {
+      throw new Error(
+        `Failed to issue compliance certificate: ${String(complianceCertificateResult.error)}`
+      );
+    }
+
+    const complianceChecks: Partial<
+      Record<ZATCAComplianceStep, ComplianceCheckPayload>
+    > = {};
+
+    let previousHash = GENESIS_PREVIOUS_INVOICE_HASH;
+    let previousSerial = "EGS1-886431145-100";
+    for (const [index, step] of COMPLIANCE_ONBOARDING_STEP_ORDER.entries()) {
+      const issueDate = new Date();
+      const invoiceCounterNumber = index + 1;
+      const invoice = new ZATCAInvoice({
+        acceptWarning: true,
+        props: buildComplianceInvoicePropsForStep(
+          this.info,
+          step,
+          invoiceCounterNumber,
+          previousHash,
+          previousSerial,
+          issueDate
+        ),
+      });
+      const signResult = this.signInvoice(invoice);
+      complianceChecks[step] = {
+        invoiceHash: signResult.invoiceHash,
+        signedInvoiceString: signResult.signedInvoiceString,
+      };
+
+      previousHash = signResult.invoiceHash;
+      previousSerial = `EGS1-886431145-${100 + invoiceCounterNumber}`;
+    }
+
+    const complianceChecksResult =
+      await this.runComplianceChecksForProduction(complianceChecks);
+    if (complianceChecksResult.isErr()) {
+      throw new Error(
+        `Failed to run compliance checks for production: ${String(complianceChecksResult.error)}`
+      );
+    }
+
+    const productionCertificateResult = await this.issueProductionCertificate(
+      complianceCertificateResult.value
+    );
+    if (productionCertificateResult.isErr()) {
+      throw new Error(
+        `Failed to issue production certificate: ${String(productionCertificateResult.error)}`
+      );
+    }
+
+    if (
+      !this.productionCertificate ||
+      !this.productionApiSecret ||
+      !this.privateKey
+    ) {
+      throw new Error("EGS onboarding completed with missing credentials.");
+    }
+
+    return {
+      lastInvoiceHash: previousHash,
+      nextInvoiceCounter: COMPLIANCE_ONBOARDING_STEP_ORDER.length + 1,
+      privateKey: this.privateKey,
+      productionApiSecret: this.productionApiSecret,
+      productionCertificate: this.productionCertificate,
+    };
   }
 
   /**

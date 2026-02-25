@@ -21,9 +21,12 @@ import { getPureInvoiceString, getInvoiceHash } from "../utils/invoice-hash.js";
 export { getPureInvoiceString, getInvoiceHash };
 
 /**
- * Hashes Certificate according to ZATCA.
- * @param certificate_string String base64 encoded certificate body.
- * @returns String certificate hash encoded in base64.
+ * Computes the SHA-256 hash of a certificate string and returns it base64-encoded.
+ *
+ * Used to embed the certificate digest in the XAdES signed properties.
+ *
+ * @param certificate_string - Base64-encoded certificate body (without PEM headers).
+ * @returns Base64-encoded SHA-256 hash of the certificate.
  */
 export const getCertificateHash = (certificate_string: string): string => {
   const certificate_hash = Buffer.from(
@@ -33,10 +36,14 @@ export const getCertificateHash = (certificate_string: string): string => {
 };
 
 /**
- * Creates invoice digital signature according to ZATCA.
- * @param invoice_hash String base64 encoded invoice hash.
- * @param private_key_string String base64 encoded EC prime256v1 private key body.
- * @returns String base64 encoded digital signature.
+ * Creates an ECDSA digital signature over the invoice hash.
+ *
+ * Signs the raw bytes of the base64-decoded invoice hash using SHA-256 with the provided
+ * EC prime256v1 private key. The result is base64-encoded.
+ *
+ * @param invoice_hash - Base64-encoded SHA-256 invoice hash.
+ * @param private_key_string - PEM-encoded EC prime256v1 private key.
+ * @returns Base64-encoded ECDSA digital signature.
  */
 export const createInvoiceDigitalSignature = (
   invoice_hash: string,
@@ -52,9 +59,14 @@ export const createInvoiceDigitalSignature = (
 };
 
 /**
- * Gets certificate hash, x509IssuerName, and X509SerialNumber and formats them according to ZATCA.
- * @param certificate_string String base64 encoded certificate body.
- * @returns {hash: string, issuer: string, serial_number: string, public_key: Buffer, signature: Buffer}.
+ * Extracts certificate metadata required for ZATCA signing.
+ *
+ * Returns the certificate hash, X.509 issuer name (reversed DN order per ZATCA spec),
+ * serial number as a decimal string, raw public key bytes, and signature bytes.
+ *
+ * @param certificate_string - PEM-encoded or base64-encoded certificate.
+ * @returns An object with `hash`, `issuer`, `serial_number`, `public_key`, and `signature`.
+ * @throws {Error} If the certificate cannot be parsed.
  */
 export const getCertificateInfo = (
   certificate_string: string
@@ -84,9 +96,12 @@ export const getCertificateInfo = (
 };
 
 /**
- * Removes header and footer from certificate string.
- * @param certificate_string.
- * @returns String base64 encoded certificate body.
+ * Strips the PEM header and footer from a certificate string.
+ *
+ * Returns the raw base64-encoded certificate body, suitable for embedding in XML.
+ *
+ * @param certificate_string - PEM-encoded certificate (with or without headers).
+ * @returns Base64-encoded certificate body without PEM headers.
  */
 export const cleanUpCertificateString = (certificate_string: string): string =>
   certificate_string
@@ -95,9 +110,12 @@ export const cleanUpCertificateString = (certificate_string: string): string =>
     .trim();
 
 /**
- * Removes header and footer from private key string.
- * @param private_key_string EC prime256v1 private key string.
- * @returns String base64 encoded private key body.
+ * Strips the PEM header and footer from an EC private key string.
+ *
+ * Returns the raw base64-encoded key body.
+ *
+ * @param private_key_string - PEM-encoded EC prime256v1 private key.
+ * @returns Base64-encoded private key body without PEM headers.
  */
 export const cleanUpPrivateKeyString = (private_key_string: string): string =>
   private_key_string
@@ -114,8 +132,16 @@ export const cleanUpPrivateKeyString = (private_key_string: string): string =>
  *   Despite the name `privateKeyReference`, this is the actual PEM key content, not a path or reference.
  */
 export interface GenerateSignedXMLStringParams {
+  /** Parsed UBL XML document of the invoice to sign. */
   invoice_xml: XMLDocument;
+  /** PEM-encoded CSID (compliance or production certificate) issued by ZATCA. */
   certificate_string: string;
+  /**
+   * PEM-encoded EC prime256v1 private key string content.
+   *
+   * Despite the name `privateKeyReference` used in the `SigningInput` contract,
+   * this is the actual PEM key content, not a file path or key ID.
+   */
   private_key_string: string;
 }
 
@@ -136,11 +162,29 @@ export interface SignedXMLResult {
 }
 
 /**
- * Main signing function.
- * @param invoice_xml XMLDocument of invoice to be signed.
- * @param certificate_string String signed EC certificate.
- * @param private_key_string String EC prime256v1 private key.
- * @returns signed_invoice_string: string, invoice_hash: string, qr: string
+ * Signs a ZATCA invoice XML and returns the signed artifacts.
+ *
+ * Performs the full ZATCA signing flow:
+ * 1. Computes the invoice hash (SHA-256, base64-encoded).
+ * 2. Extracts certificate info (hash, issuer, serial number).
+ * 3. Creates the ECDSA digital signature over the invoice hash.
+ * 4. Generates the TLV QR code.
+ * 5. Builds the XAdES signed properties and UBL extensions.
+ * 6. Embeds the signature and QR code into the invoice XML.
+ *
+ * @param params - See {@link GenerateSignedXMLStringParams}.
+ * @returns A {@link SignedXMLResult} with the signed XML, invoice hash, signature, and QR code.
+ * @throws {Error} If the certificate or private key is invalid.
+ *
+ * @example
+ * ```typescript
+ * const result = generateSignedXMLString({
+ *   invoice_xml: parsedXml,
+ *   certificate_string: complianceCertPem,
+ *   private_key_string: privateKeyPem,
+ * });
+ * // result.signed_invoice_string, result.invoice_hash, result.qr
+ * ```
  */
 export const generateSignedXMLString = ({
   invoice_xml,

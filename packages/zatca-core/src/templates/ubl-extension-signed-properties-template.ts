@@ -23,6 +23,8 @@ interface SignedPropertiesProps {
   certificate_issuer: string;
   certificate_serial_number: string;
 }
+/** @internal */
+
 export const defaultUBLExtensionsSignedPropertiesForSigning = ({
   sign_timestamp,
   certificate_hash,
@@ -93,6 +95,8 @@ const populate = ({
   );
   return populated_template;
 };
+
+/** @internal */
 
 export const defaultUBLExtensionsSignedProperties = ({
   sign_timestamp,

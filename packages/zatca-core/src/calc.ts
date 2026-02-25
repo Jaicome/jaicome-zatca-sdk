@@ -445,6 +445,12 @@ const constructLegalMonetaryTotal = (
   };
 };
 
+/**
+ * @internal
+ */
+// Populates the invoice XML with line item totals, tax subtotals, and legal monetary totals.
+// Called internally by ZATCAInvoice during construction.
+
 export const Calc = (
   lineItems: ZATCAInvoiceLineItem[],
   props: ZATCAInvoiceProps,
@@ -494,8 +500,9 @@ export const Calc = (
     props.cancelation
   ) {
     const paymentMethodCode =
-      (PAYMENT_METHOD_CODES as any)[props.cancelation.paymentMethod] ??
-      props.cancelation.paymentMethod;
+      (PAYMENT_METHOD_CODES as Record<string, string>)[
+        props.cancelation.paymentMethod
+      ] ?? props.cancelation.paymentMethod;
     invoiceXml.set("Invoice/cac:PaymentMeans", false, {
       "cbc:InstructionNote": props.cancelation.reason ?? "No note Specified",
       "cbc:PaymentMeansCode": paymentMethodCode,

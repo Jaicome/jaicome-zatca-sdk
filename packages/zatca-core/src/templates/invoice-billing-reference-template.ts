@@ -15,4 +15,5 @@ const populate = (invoice_number: number): string => {
   return populated_template;
 };
 
+/** @internal */
 export default populate;

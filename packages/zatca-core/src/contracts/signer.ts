@@ -16,10 +16,11 @@ export interface SigningInput {
    */
   invoiceHash: string;
   /**
-   * Reference to the private key used for signing.
+   * The PEM-encoded private key string content used for signing.
    *
-   * For `NodeSigner` from `@jaicome/zatca-server`, this is a PEM-encoded ECDSA private key string.
-   * The exact format depends on the `Signer` implementation.
+   * Despite the name, this is the actual key content (not a file path or key ID).
+   * For `NodeSigner` from `@jaicome/zatca-server`, pass the full PEM string including
+   * the `-----BEGIN EC PRIVATE KEY-----` header and footer.
    */
   privateKeyReference: string;
 }

@@ -21,7 +21,6 @@ import {
   type ZATCAInvoiceProps,
 } from "@jaicome/zatca-core";
 
-const now = new Date();
 const props: ZATCAInvoiceProps = {
   egsInfo: {
     id: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
@@ -33,24 +32,23 @@ const props: ZATCAInvoiceProps = {
     branchName: "Main",
     branchIndustry: "Software",
   },
-  invoice_counter_number: 1,
-  invoice_serial_number: "EGS1-886431145-101",
-  issue_date: now.toISOString().split("T")[0],
-  issue_time: now.toISOString().split("T")[1].slice(0, 8),
-  previous_invoice_hash:
+  invoiceCounterNumber: 1,
+  invoiceSerialNumber: "EGS1-886431145-101",
+  issueDate: new Date(),
+  previousInvoiceHash:
     "NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==",
-  line_items: [
+  lineItems: [
     {
       id: "1",
       name: "Sample Product",
       quantity: 2,
-      tax_exclusive_price: 100,
-      VAT_percent: 0.15,
+      taxExclusivePrice: 100,
+      vatPercent: 0.15,
     },
   ],
-  invoice_type: "INVOICE",
-  invoice_code: "0200000",
-  payment_method: "CASH",
+  invoiceType: "INVOICE",
+  invoiceCode: "SIMPLIFIED",
+  paymentMethod: "CASH",
 };
 
 const invoice = buildInvoice(props);
@@ -106,28 +104,28 @@ import {
 
 const checks: Partial<Record<ZATCAComplianceStep, ComplianceCheckPayload>> = {
   "standard-compliant": {
-    signed_invoice_string: signedXmlA,
-    invoice_hash: hashA,
+    signedInvoiceString: signedXmlA,
+    invoiceHash: hashA,
   },
   "standard-credit-note-compliant": {
-    signed_invoice_string: signedXmlB,
-    invoice_hash: hashB,
+    signedInvoiceString: signedXmlB,
+    invoiceHash: hashB,
   },
   "standard-debit-note-compliant": {
-    signed_invoice_string: signedXmlC,
-    invoice_hash: hashC,
+    signedInvoiceString: signedXmlC,
+    invoiceHash: hashC,
   },
   "simplified-compliant": {
-    signed_invoice_string: signedXmlD,
-    invoice_hash: hashD,
+    signedInvoiceString: signedXmlD,
+    invoiceHash: hashD,
   },
   "simplified-credit-note-compliant": {
-    signed_invoice_string: signedXmlE,
-    invoice_hash: hashE,
+    signedInvoiceString: signedXmlE,
+    invoiceHash: hashE,
   },
   "simplified-debit-note-compliant": {
-    signed_invoice_string: signedXmlF,
-    invoice_hash: hashF,
+    signedInvoiceString: signedXmlF,
+    invoiceHash: hashF,
   },
 };
 
