@@ -2,6 +2,16 @@
 // https://oxc.rs/docs/guide/usage/formatter/config-file-reference.html
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "ignorePatterns": [
+    "test/**",
+    "__tests__/**",
+    "**/__tests__/**",
+    "*.test.ts",
+    "*.test.tsx",
+    ".agents/**",
+    "packages/examples/**",
+    "packages/docs/**",
+  ],
   "printWidth": 80,
   "tabWidth": 2,
   "useTabs": false,

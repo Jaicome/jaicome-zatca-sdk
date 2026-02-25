@@ -1,8 +1,8 @@
 import { Result } from "better-result";
 
 import { cleanUpCertificateString } from "../signing/index.js";
-import { ApiError, NetworkError, TimeoutError } from "./errors.js";
 import type { ZatcaApiError } from "./errors.js";
+import { ApiError, NetworkError, TimeoutError } from "./errors.js";
 import { logger } from "./logger.js";
 import type {
   CertificateResponse,
@@ -150,9 +150,9 @@ class API {
     const baseUrl =
       this.env === "production"
         ? settings.PRODUCTION_BASEURL
-        : (this.env === "simulation"
+        : this.env === "simulation"
           ? settings.SIMULATION_BASEURL
-          : settings.SANDBOX_BASEURL);
+          : settings.SANDBOX_BASEURL;
 
     const issueCertificate = async (
       csr: string,
@@ -220,9 +220,9 @@ class API {
     const baseUrl =
       this.env === "production"
         ? settings.PRODUCTION_BASEURL
-        : (this.env === "simulation"
+        : this.env === "simulation"
           ? settings.SIMULATION_BASEURL
-          : settings.SANDBOX_BASEURL);
+          : settings.SANDBOX_BASEURL;
 
     const issueCertificate = async (
       complianceRequestId: string
@@ -312,8 +312,8 @@ class API {
 
 export default API;
 export type { ComplianceAPIInterface, ProductionAPIInterface };
-export { ApiError, NetworkError, TimeoutError } from "./errors.js";
 export type { ZatcaApiError } from "./errors.js";
+export { ApiError, NetworkError, TimeoutError } from "./errors.js";
 export type {
   CertificateResponse,
   InvoiceResponse,

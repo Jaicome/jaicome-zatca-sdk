@@ -151,6 +151,7 @@ export class XMLDocument {
     const tag = path_tags.splice(-1, 1)[0];
     path_query = path_tags.join("/");
 
+    // eslint-disable-next-line prefer-const -- parent_xml_object and last_tag are reassigned
     let { xml_object, parent_xml_object, last_tag } = this.getElement(
       this.xml_object,
       path_query ?? ""

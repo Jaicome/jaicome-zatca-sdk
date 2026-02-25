@@ -163,7 +163,7 @@ export const generateSignedXMLString = ({
     certificate_hash: cert_info.hash,
     certificate_issuer: cert_info.issuer,
     certificate_serial_number: cert_info.serial_number,
-    sign_timestamp: moment(new Date()).format("YYYY-MM-DDTHH:mm:ss") + "Z",
+    sign_timestamp: `${moment(new Date()).format("YYYY-MM-DDTHH:mm:ss")}Z`,
   };
   const ubl_signature_signed_properties_xml_string_for_signing =
     defaultUBLExtensionsSignedPropertiesForSigning(signed_properties_props);
@@ -244,6 +244,7 @@ const signedPropertiesIndentationFix = (
 export class NodeSigner implements Signer {
   constructor(private certificate_string: string) {}
 
+  // eslint-disable-next-line require-await -- Interface contract requires Promise return type
   async sign(input: SigningInput): Promise<SignatureResult> {
     const invoice_xml = new XMLDocument(input.invoiceXml);
 

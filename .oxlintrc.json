@@ -40,7 +40,8 @@
     "eslint-plugin-unicorn/consistent-function-scoping": "off",
     "eslint-plugin-promise/avoid-new": "off",
     "eslint-plugin-import/no-named-as-default": "off",
-    "eslint/max-classes-per-file": "off"
+    "eslint/max-classes-per-file": "off",
+    "eslint-plugin-unicorn/no-nested-ternary": "off"
   },
   "extends": ["./node_modules/ultracite/config/oxlint/core/.oxlintrc.json"]
 }
