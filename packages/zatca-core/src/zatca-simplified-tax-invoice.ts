@@ -1,6 +1,6 @@
-import { XMLDocument } from "./parser/index.js";
 import { Calc } from "./calc.js";
-import { Signer, SignatureResult } from "./contracts/signer.js";
+import type { Signer, SignatureResult } from "./contracts/signer.js";
+import { XMLDocument } from "./parser/index.js";
 import defaultSimplifiedTaxInvoice, {
   ZATCAInvoiceTypeSchema,
   ZATCAPaymentMethodSchema,
@@ -8,14 +8,14 @@ import defaultSimplifiedTaxInvoice, {
   INVOICE_TYPE_CODES,
   PAYMENT_METHOD_CODES,
   INVOICE_CODE_VALUES,
-} from "./templates/simplified_tax_invoice_template.js";
+} from "./templates/simplified-tax-invoice-template.js";
 import type {
   ZATCAInvoiceLineItem,
   ZATCAInvoiceProps,
   ZATCAInvoiceType,
   ZATCAPaymentMethod,
   InvoiceCode,
-} from "./templates/simplified_tax_invoice_template.js";
+} from "./templates/simplified-tax-invoice-template.js";
 
 export type {
   ZATCAInvoiceLineItem,
@@ -52,10 +52,13 @@ export class ZATCAInvoice {
 
     if (invoice_xml_str) {
       this.invoice_xml = new XMLDocument(invoice_xml_str);
-      if (!this.invoice_xml)
+      if (!this.invoice_xml) {
         throw new Error("Error parsing invoice XML string.");
+      }
     } else {
-      if (!props) throw new Error("Unable to create new XML invoice.");
+      if (!props) {
+        throw new Error("Unable to create new XML invoice.");
+      }
       this.invoice_xml = new XMLDocument(defaultSimplifiedTaxInvoice(props));
       this.parseLineItems(props.lineItems ?? [], props, acceptWarning);
     }
@@ -64,7 +67,7 @@ export class ZATCAInvoice {
   private parseLineItems(
     lineItems: ZATCAInvoiceLineItem[],
     props: ZATCAInvoiceProps,
-    acceptWarning: boolean = false
+    acceptWarning = false
   ) {
     Calc(lineItems, props, this.invoice_xml, acceptWarning);
   }
@@ -85,8 +88,8 @@ export class ZATCAInvoice {
     }
     const invoice_xml_str = this.invoice_xml.toString({});
     return this.signer.sign({
-      invoiceXml: invoice_xml_str,
       invoiceHash: "",
+      invoiceXml: invoice_xml_str,
       privateKeyReference: private_key_string,
     });
   }

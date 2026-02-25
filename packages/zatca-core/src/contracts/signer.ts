@@ -11,7 +11,7 @@ export interface SignatureResult {
   invoiceHash: string;
 }
 
-export interface SignedInvoiceArtifacts extends SignatureResult {}
+export type SignedInvoiceArtifacts = SignatureResult;
 
 export interface Signer {
   sign(input: SigningInput): Promise<SignatureResult>;

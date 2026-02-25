@@ -1,32 +1,34 @@
-import { describe, expect, it } from "vitest";
 import { buildInvoice } from "../api.js";
 import { ZodValidationError } from "../schemas/index.js";
-import type { ZATCAInvoiceProps, ZATCAInvoiceType, ZATCAPaymentMethod } from "../ZATCASimplifiedTaxInvoice.js";
-import type { ZATCAInvoiceProps } from "../ZATCASimplifiedTaxInvoice.js";
+import type {
+  ZATCAInvoiceProps,
+  ZATCAInvoiceType,
+  ZATCAPaymentMethod,
+} from "../zatca-simplified-tax-invoice.js";
 
-type CancelationShape = {
+interface CancelationShape {
   canceledSerialInvoiceNumber: string;
   paymentMethod: ZATCAPaymentMethod;
   reason: string;
-};
+}
 
 const validBase: ZATCAInvoiceProps = {
+  crnNumber: "7032256278",
   egsInfo: {
+    branchIndustry: "Software",
+    branchName: "Main",
     id: "6f4d20e0-6bfe-4a80-9389-7dabe6620f14",
-    name: "EGS1",
     model: "IOS",
+    name: "EGS1",
     vatName: "Test Co",
     vatNumber: "311497191800003",
-    branchName: "Main",
-    branchIndustry: "Software",
   },
-  crnNumber: "7032256278",
+  invoiceCode: "SIMPLIFIED",
   invoiceCounterNumber: 1,
   invoiceSerialNumber: "TEST-001",
+  invoiceType: "INVOICE",
   issueDate: "2024-01-15",
   issueTime: "10:00:00",
-  previousInvoiceHash:
-    "NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==",
   lineItems: [
     {
       id: "1",
@@ -36,27 +38,27 @@ const validBase: ZATCAInvoiceProps = {
       vatPercent: 0.15,
     },
   ],
-  invoiceType: "INVOICE",
-  invoiceCode: "SIMPLIFIED",
+  previousInvoiceHash:
+    "NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==",
 };
 
 const creditBase = {
   ...validBase,
-  invoiceType: "CREDIT_NOTE",
   cancelation: {
     canceledSerialInvoiceNumber: "ORIG-001",
     paymentMethod: "CASH",
     reason: "Test reason",
   } as CancelationShape,
+  invoiceType: "CREDIT_NOTE",
 } as ZATCAInvoiceProps;
 
-describe("EGSInfo — required fields rejection", () => {
+describe("eGSInfo — required fields rejection", () => {
   it("rejects empty id", () => {
     expect(() =>
       buildInvoice({
         ...validBase,
         egsInfo: { ...validBase.egsInfo, id: "" },
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 
@@ -65,7 +67,7 @@ describe("EGSInfo — required fields rejection", () => {
       buildInvoice({
         ...validBase,
         egsInfo: { ...validBase.egsInfo, name: "" },
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 
@@ -74,7 +76,7 @@ describe("EGSInfo — required fields rejection", () => {
       buildInvoice({
         ...validBase,
         egsInfo: { ...validBase.egsInfo, model: "" },
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 
@@ -83,7 +85,7 @@ describe("EGSInfo — required fields rejection", () => {
       buildInvoice({
         ...validBase,
         crnNumber: "",
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 
@@ -92,7 +94,7 @@ describe("EGSInfo — required fields rejection", () => {
       buildInvoice({
         ...validBase,
         egsInfo: { ...validBase.egsInfo, vatName: "" },
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 
@@ -101,7 +103,7 @@ describe("EGSInfo — required fields rejection", () => {
       buildInvoice({
         ...validBase,
         egsInfo: { ...validBase.egsInfo, vatNumber: "" },
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 
@@ -110,7 +112,7 @@ describe("EGSInfo — required fields rejection", () => {
       buildInvoice({
         ...validBase,
         egsInfo: { ...validBase.egsInfo, branchName: "" },
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 
@@ -119,27 +121,27 @@ describe("EGSInfo — required fields rejection", () => {
       buildInvoice({
         ...validBase,
         egsInfo: { ...validBase.egsInfo, branchIndustry: "" },
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 
-  it("ZodValidationError path contains id when id is empty", () => {
+  it("zodValidationError path contains id when id is empty", () => {
     try {
       buildInvoice({
         ...validBase,
         egsInfo: { ...validBase.egsInfo, id: "" },
       } as ZATCAInvoiceProps);
       expect.fail("should have thrown");
-    } catch (err) {
-      expect(err).toBeInstanceOf(ZodValidationError);
-      const zodErr = err as ZodValidationError;
+    } catch (error) {
+      expect(error).toBeInstanceOf(ZodValidationError);
+      const zodErr = error as ZodValidationError;
       const paths = zodErr.issues.map((i) => i.path.join("."));
-      expect(paths.some((p) => p.includes("id"))).toBe(true);
+      expect(paths.some((p) => p.includes("id"))).toBeTruthy();
     }
   });
 });
 
-describe("ZATCAInvoiceLineItemSchema — adversarial", () => {
+describe("zATCAInvoiceLineItemSchema — adversarial", () => {
   it("rejects invalid vatPercent 0.10", () => {
     expect(() =>
       buildInvoice({
@@ -150,10 +152,10 @@ describe("ZATCAInvoiceLineItemSchema — adversarial", () => {
             name: "Item",
             quantity: 1,
             taxExclusivePrice: 100,
-            vatPercent: 0.10 as unknown as 0.15,
+            vatPercent: 0.1 as unknown as 0.15,
           },
         ],
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 
@@ -170,7 +172,7 @@ describe("ZATCAInvoiceLineItemSchema — adversarial", () => {
             vatPercent: "0.15" as unknown as 0.15,
           },
         ],
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 
@@ -187,7 +189,7 @@ describe("ZATCAInvoiceLineItemSchema — adversarial", () => {
             vatPercent: 0 as unknown as 0.15,
           },
         ],
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 
@@ -201,11 +203,11 @@ describe("ZATCAInvoiceLineItemSchema — adversarial", () => {
             name: "Item",
             quantity: 1,
             taxExclusivePrice: 100,
-            vatPercent: 0 as unknown as 0.15,
             vatCategory: { code: "X" as unknown as "O" },
+            vatPercent: 0 as unknown as 0.15,
           },
         ],
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 
@@ -219,11 +221,11 @@ describe("ZATCAInvoiceLineItemSchema — adversarial", () => {
             name: "Item",
             quantity: 1,
             taxExclusivePrice: 100,
-            vatPercent: 0 as const,
             vatCategory: { code: "O" as const },
+            vatPercent: 0 as const,
           },
         ],
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).not.toThrow();
   });
 
@@ -237,11 +239,11 @@ describe("ZATCAInvoiceLineItemSchema — adversarial", () => {
             name: "Item",
             quantity: 1,
             taxExclusivePrice: 100,
-            vatPercent: 0 as const,
             vatCategory: { code: "Z" as const },
+            vatPercent: 0 as const,
           },
         ],
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).not.toThrow();
   });
 
@@ -255,11 +257,11 @@ describe("ZATCAInvoiceLineItemSchema — adversarial", () => {
             name: "Item",
             quantity: 1,
             taxExclusivePrice: 100,
-            vatPercent: 0 as const,
             vatCategory: { code: "E" as const },
+            vatPercent: 0 as const,
           },
         ],
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).not.toThrow();
   });
 
@@ -276,7 +278,7 @@ describe("ZATCAInvoiceLineItemSchema — adversarial", () => {
             vatPercent: 0.15,
           },
         ],
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow("quantity must be non-negative, got -5");
   });
 
@@ -293,7 +295,7 @@ describe("ZATCAInvoiceLineItemSchema — adversarial", () => {
             vatPercent: 0.15,
           },
         ],
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow("taxExclusivePrice must be non-negative, got -100");
   });
 
@@ -303,20 +305,22 @@ describe("ZATCAInvoiceLineItemSchema — adversarial", () => {
         ...validBase,
         lineItems: [
           {
+            discounts: [
+              { amount: 10 } as unknown as { amount: number; reason: string },
+            ],
             id: "1",
             name: "Item",
             quantity: 1,
             taxExclusivePrice: 100,
             vatPercent: 0.15,
-            discounts: [{ amount: 10 } as unknown as { amount: number; reason: string }],
           },
         ],
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 });
 
-describe("ZATCAInvoicePropsSchema — invoice type discriminated union", () => {
+describe("zATCAInvoicePropsSchema — invoice type discriminated union", () => {
   it("accepts valid invoice type 388", () => {
     expect(() => buildInvoice(validBase)).not.toThrow();
   });
@@ -328,12 +332,12 @@ describe("ZATCAInvoicePropsSchema — invoice type discriminated union", () => {
   it("accepts valid debit note 383 WITH cancelation", () => {
     const debitBase = {
       ...validBase,
-      invoiceType: "DEBIT_NOTE",
       cancelation: {
         canceledSerialInvoiceNumber: "ORIG-001",
         paymentMethod: "CASH",
         reason: "Test reason",
       } as CancelationShape,
+      invoiceType: "DEBIT_NOTE",
     } as ZATCAInvoiceProps;
     expect(() => buildInvoice(debitBase)).not.toThrow();
   });
@@ -343,7 +347,9 @@ describe("ZATCAInvoicePropsSchema — invoice type discriminated union", () => {
       ...validBase,
       invoiceType: "CREDIT_NOTE",
     };
-    expect(() => buildInvoice(invalidCredit as ZATCAInvoiceProps)).toThrow(ZodValidationError);
+    expect(() => buildInvoice(invalidCredit as ZATCAInvoiceProps)).toThrow(
+      ZodValidationError
+    );
   });
 
   it("rejects debit note 383 WITHOUT cancelation", () => {
@@ -351,7 +357,9 @@ describe("ZATCAInvoicePropsSchema — invoice type discriminated union", () => {
       ...validBase,
       invoiceType: "DEBIT_NOTE",
     };
-    expect(() => buildInvoice(invalidDebit as ZATCAInvoiceProps)).toThrow(ZodValidationError);
+    expect(() => buildInvoice(invalidDebit as ZATCAInvoiceProps)).toThrow(
+      ZodValidationError
+    );
   });
 
   it("rejects invalid invoiceType '999'", () => {
@@ -359,7 +367,7 @@ describe("ZATCAInvoicePropsSchema — invoice type discriminated union", () => {
       buildInvoice({
         ...validBase,
         invoiceType: "999" as unknown as ZATCAInvoiceType,
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 
@@ -368,7 +376,7 @@ describe("ZATCAInvoicePropsSchema — invoice type discriminated union", () => {
       buildInvoice({
         ...validBase,
         invoiceCounterNumber: 0,
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 
@@ -377,7 +385,7 @@ describe("ZATCAInvoicePropsSchema — invoice type discriminated union", () => {
       buildInvoice({
         ...validBase,
         invoiceCounterNumber: -1,
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 
@@ -386,7 +394,7 @@ describe("ZATCAInvoicePropsSchema — invoice type discriminated union", () => {
       buildInvoice({
         ...validBase,
         invoiceCounterNumber: 1.5,
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 
@@ -395,7 +403,7 @@ describe("ZATCAInvoicePropsSchema — invoice type discriminated union", () => {
       buildInvoice({
         ...validBase,
         lineItems: [],
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 
@@ -404,7 +412,7 @@ describe("ZATCAInvoicePropsSchema — invoice type discriminated union", () => {
       buildInvoice({
         ...validBase,
         invoiceCode: "9999999" as unknown as "0200000",
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 
@@ -413,9 +421,9 @@ describe("ZATCAInvoicePropsSchema — invoice type discriminated union", () => {
       ...validBase,
       paymentMethod: "99" as unknown as "10",
     };
-    expect(() =>
-      buildInvoice(withInvalidPayment as ZATCAInvoiceProps),
-    ).toThrow(ZodValidationError);
+    expect(() => buildInvoice(withInvalidPayment as ZATCAInvoiceProps)).toThrow(
+      ZodValidationError
+    );
   });
 
   it("accepts paymentMethod '10' (CASH)", () => {
@@ -423,7 +431,7 @@ describe("ZATCAInvoicePropsSchema — invoice type discriminated union", () => {
       buildInvoice({
         ...validBase,
         paymentMethod: "10",
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).not.toThrow();
   });
 
@@ -432,7 +440,7 @@ describe("ZATCAInvoicePropsSchema — invoice type discriminated union", () => {
       buildInvoice({
         ...validBase,
         paymentMethod: "30",
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).not.toThrow();
   });
 
@@ -441,7 +449,7 @@ describe("ZATCAInvoicePropsSchema — invoice type discriminated union", () => {
       buildInvoice({
         ...validBase,
         paymentMethod: "42",
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).not.toThrow();
   });
 
@@ -450,12 +458,12 @@ describe("ZATCAInvoicePropsSchema — invoice type discriminated union", () => {
       buildInvoice({
         ...validBase,
         paymentMethod: "48",
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).not.toThrow();
   });
 });
 
-describe("CancelationSchema — adversarial", () => {
+describe("cancelationSchema — adversarial", () => {
   const baseCancelation: CancelationShape = {
     canceledSerialInvoiceNumber: "ORIG-001",
     paymentMethod: "CASH",
@@ -467,7 +475,7 @@ describe("CancelationSchema — adversarial", () => {
       buildInvoice({
         ...creditBase,
         cancelation: { ...baseCancelation, canceledSerialInvoiceNumber: "" },
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 
@@ -477,7 +485,7 @@ describe("CancelationSchema — adversarial", () => {
       buildInvoice({
         ...creditBase,
         cancelation: withoutPayment as unknown as CancelationShape,
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 
@@ -486,7 +494,7 @@ describe("CancelationSchema — adversarial", () => {
       buildInvoice({
         ...creditBase,
         cancelation: { ...baseCancelation, reason: "" },
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 
@@ -498,7 +506,7 @@ describe("CancelationSchema — adversarial", () => {
           ...baseCancelation,
           paymentMethod: "99" as unknown as ZATCAPaymentMethod,
         },
-      } as ZATCAInvoiceProps),
+      } as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 });
@@ -506,28 +514,28 @@ describe("CancelationSchema — adversarial", () => {
 describe("buildInvoice validation integration", () => {
   it("throws ZodValidationError when called with undefined", () => {
     expect(() =>
-      buildInvoice(undefined as unknown as ZATCAInvoiceProps),
+      buildInvoice(undefined as unknown as ZATCAInvoiceProps)
     ).toThrow(ZodValidationError);
   });
 
   it("returns object with getXML method for valid props", () => {
     const invoice = buildInvoice(validBase);
     expect(invoice).toBeDefined();
-    expect(typeof invoice.getXML).toBe("function");
+    expectTypeOf(invoice.getXML).toBeFunction();
   });
 
-  it("ZodValidationError has correct name property", () => {
+  it("zodValidationError has correct name property", () => {
     try {
       buildInvoice(undefined as unknown as ZATCAInvoiceProps);
       expect.fail("should have thrown");
-    } catch (err) {
-      expect(err).toBeInstanceOf(ZodValidationError);
-      const zodErr = err as ZodValidationError;
+    } catch (error) {
+      expect(error).toBeInstanceOf(ZodValidationError);
+      const zodErr = error as ZodValidationError;
       expect(zodErr.name).toBe("ZodValidationError");
     }
   });
 
-  it("ZodValidationError has issues array with field paths", () => {
+  it("zodValidationError has issues array with field paths", () => {
     const invalid = {
       ...validBase,
       egsInfo: { ...validBase.egsInfo, id: "", vatNumber: "" },
@@ -535,23 +543,25 @@ describe("buildInvoice validation integration", () => {
     try {
       buildInvoice(invalid as ZATCAInvoiceProps);
       expect.fail("should have thrown");
-    } catch (err) {
-      expect(err).toBeInstanceOf(ZodValidationError);
-      const zodErr = err as ZodValidationError;
-      expect(Array.isArray(zodErr.issues)).toBe(true);
+    } catch (error) {
+      expect(error).toBeInstanceOf(ZodValidationError);
+      const zodErr = error as ZodValidationError;
+      expect(Array.isArray(zodErr.issues)).toBeTruthy();
       expect(zodErr.issues.length).toBeGreaterThan(0);
       const paths = zodErr.issues.map((i) => i.path.join("."));
-      expect(paths.some((p) => p.includes("id") || p.includes("vatNumber"))).toBe(true);
+      expect(
+        paths.some((p) => p.includes("id") || p.includes("vatNumber"))
+      ).toBeTruthy();
     }
   });
 
-  it("ZodValidationError message contains 'Validation failed'", () => {
+  it("zodValidationError message contains 'Validation failed'", () => {
     const invalid = { ...validBase, invoiceSerialNumber: "" };
     try {
       buildInvoice(invalid as ZATCAInvoiceProps);
       expect.fail("should have thrown");
-    } catch (err) {
-      const zodErr = err as ZodValidationError;
+    } catch (error) {
+      const zodErr = error as ZodValidationError;
       expect(zodErr.message).toContain("Validation failed");
     }
   });
@@ -565,10 +575,13 @@ describe("buildInvoice validation integration", () => {
   });
 
   it("accepts all 4 valid payment methods on standard invoice", () => {
-    const methods: Array<"10" | "30" | "42" | "48"> = ["10", "30", "42", "48"];
+    const methods: ("10" | "30" | "42" | "48")[] = ["10", "30", "42", "48"];
     for (const method of methods) {
       expect(() =>
-        buildInvoice({ ...validBase, paymentMethod: method } as ZATCAInvoiceProps),
+        buildInvoice({
+          ...validBase,
+          paymentMethod: method,
+        } as ZATCAInvoiceProps)
       ).not.toThrow();
     }
   });

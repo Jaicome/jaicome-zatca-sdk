@@ -27,28 +27,29 @@
   </a>
 </div>
 
-
 # Jaicome ZATCA SDK
 
-
-
 # Dependencies
+
 If you plan on using the built in `EGS` module to generate keys, and CSR. The `EGS` module in the package is dependent on <a href="https://www.openssl.org">OpenSSL</a> being installed in the system it's running on. It's being used to generate an `ECDSA` key pair using the `secp256k1` curve. also to generate and sign a CSR.
 
 All other parts of the package will work fine without `OpenSSL`. (meaning it supports react-native and other frameworks)
 
 # Supports
+
 All tha main futures required to on-board a new EGS. Create, sign, and report a simplified tax invoice are currently supported.
+
 - EGS (E-Invoice Generation System).
-    - Creation/on-boarding (Compliance and Production x.509 CSIDs).
-    - Cryptographic stamps generation.
+  - Creation/on-boarding (Compliance and Production x.509 CSIDs).
+  - Cryptographic stamps generation.
 - Simplified Tax Invoice.
-    - Creation.
-    - Signing.
-    - Compliance checking.
-    - Reporting.
+  - Creation.
+  - Signing.
+  - Compliance checking.
+  - Reporting.
 
 # Installation
+
 > **Package-only policy**: The root `jaicome-zatca-sdk` package is not published. Use `@jaicome/zatca-core` and `@jaicome/zatca-server` for all new projects.
 
 ```bash
@@ -56,17 +57,20 @@ npm install @jaicome/zatca-core @jaicome/zatca-server
 ```
 
 # New SDK (Recommended)
+
 The package is now being evolved as a scoped monorepo for better portability and security. We recommend migrating to the new packages for all new projects.
 
-*   **[@jaicome/zatca-core](https://github.com/Repzo/zatca-xml-js/tree/main/packages/zatca-core)**: Universal logic for building and parsing invoices. Compatible with browsers, React Native, and Node.js.
-*   **[@jaicome/zatca-server](https://github.com/Repzo/zatca-xml-js/tree/main/packages/zatca-server)**: Node.js specific logic for signing, EGS on-boarding, and ZATCA HTTP API integration.
+- **[@jaicome/zatca-core](https://github.com/Repzo/zatca-xml-js/tree/main/packages/zatca-core)**: Universal logic for building and parsing invoices. Compatible with browsers, React Native, and Node.js.
+- **[@jaicome/zatca-server](https://github.com/Repzo/zatca-xml-js/tree/main/packages/zatca-server)**: Node.js specific logic for signing, EGS on-boarding, and ZATCA HTTP API integration.
 
 Check out the [Core + Server Guide](/docs/core-server-guide), [Core + Server Tutorials](/docs/core-server-tutorials), and [Runtime Support](/docs/runtime-support) documentation for more details.
 
 # Usage
+
 Start with the [Core + Server Guide](/docs/core-server-guide) for architecture and package boundaries, then follow the [Core + Server Tutorials](/docs/core-server-tutorials) for end-to-end flows.
 
 **Server-side (Node.js)**
+
 ```typescript
 import { NodeSigner } from "@jaicome/zatca-server";
 import { ZATCAInvoice } from "@jaicome/zatca-core";
@@ -78,6 +82,7 @@ const result = await invoice.sign(certificate_string, private_key_string);
 ```
 
 **EGS on-boarding (Node.js)**
+
 ```typescript
 import { EGS } from "@jaicome/zatca-server";
 const egs = new EGS(egsunit);
@@ -87,36 +92,40 @@ await egs.issueProductionCertificate(compliance_rid);
 ```
 
 # Implementation
+
 - General implementation (<a href="/docs/20220624_ZATCA_Electronic_Invoice_XML_Implementation_Standard_vF.pdf">More details</a>)
-    - KSA Rules & Business
-    - UBL 2.1 Spec
-    - ISO EN16931
-    - UN/CEFACT Code List 1001
-    - ISO 3166
-    - ISO 4217:2015
-    - UN/CEFACT Code List 5305, D.16B
+  - KSA Rules & Business
+  - UBL 2.1 Spec
+  - ISO EN16931
+  - UN/CEFACT Code List 1001
+  - ISO 3166
+  - ISO 4217:2015
+  - UN/CEFACT Code List 5305, D.16B
 - Security standards (<a href="/docs/20220624_ZATCA_Electronic_Invoice_Security_Features_Implementation_Standards.pdf">More details</a>)
-    - NCA National Cryptographic Standards (NCS - 1 : 2020)
-    - NCDC Digital Signing Policy (Version 1.1: 2020)
-    - ETSI EN 319 102-1
-    - ETSI EN 319 132-1
-    - ETSI EN 319 142-1
-    - W3C XML-Signature Syntax and Processing
-    - ETSI EN 319 122-1
-    - IETF RFC 5035 (2007)
-    - RFC 5280
-    - ISO 32000-1
-    - IETF RFC 5652 (2009)
-    - RFP6749
-    - NIST SP 56A
+  - NCA National Cryptographic Standards (NCS - 1 : 2020)
+  - NCDC Digital Signing Policy (Version 1.1: 2020)
+  - ETSI EN 319 102-1
+  - ETSI EN 319 132-1
+  - ETSI EN 319 142-1
+  - W3C XML-Signature Syntax and Processing
+  - ETSI EN 319 122-1
+  - IETF RFC 5035 (2007)
+  - RFC 5280
+  - ISO 32000-1
+  - IETF RFC 5652 (2009)
+  - RFP6749
+  - NIST SP 56A
 
 # Notice of Non-Affiliation and Disclaimer
+
 `jaicome-zatca-sdk` is not affiliated, associated, authorized, endorsed by, or in any way officially connected with ZATCA (Zakat, Tax and Customs Authority), or any of its subsidiaries or its affiliates. The official ZATCA website can be found at https://zatca.gov.sa.
 
 # Contribution
+
 All contributions are appreciated.
 
 ## Roadmap
+
 - CSIDs renewal, revoking.
 - Populating templates using a template engine instead of `replace`
 - Getting ZATCA to hopefully minify the XMLs before hashing ?

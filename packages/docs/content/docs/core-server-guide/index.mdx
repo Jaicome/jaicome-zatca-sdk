@@ -35,11 +35,11 @@ frontend runtimes.
 
 ## Runtime Matrix
 
-| Runtime | `@jaicome/zatca-core` | `@jaicome/zatca-server` |
-| --- | --- | --- |
-| Node.js | Supported | Supported |
-| Browser | Supported | Not supported |
-| React Native | Supported | Not supported |
+| Runtime      | `@jaicome/zatca-core` | `@jaicome/zatca-server` |
+| ------------ | --------------------- | ----------------------- |
+| Node.js      | Supported             | Supported               |
+| Browser      | Supported             | Not supported           |
+| React Native | Supported             | Not supported           |
 
 ## Installation
 
@@ -61,10 +61,7 @@ Typical deployment:
 ## How to Use `@jaicome/zatca-core`
 
 ```ts
-import {
-  buildInvoice,
-  type ZATCAInvoiceProps,
-} from "@jaicome/zatca-core";
+import { buildInvoice, type ZATCAInvoiceProps } from "@jaicome/zatca-core";
 
 const now = new Date();
 const props: ZATCAInvoiceProps = {

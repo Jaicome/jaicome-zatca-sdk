@@ -53,31 +53,49 @@ organizationName = SET_TAXPAYER_NAME
 countryName = SA
 `;
 
-
 interface CSRConfigProps {
-    privateKeyPass?: string,
-    production?: boolean,
-    egsModel: string,
-    egsSerialNumber: string,
-    solutionName: string,
-    vatNumber: string,
-    branchLocation: string,
-    branchIndustry: string,
-    branchName: string,
-    taxpayerName: string,
-    taxpayerProvidedId: string
+  privateKeyPass?: string;
+  production?: boolean;
+  egsModel: string;
+  egsSerialNumber: string;
+  solutionName: string;
+  vatNumber: string;
+  branchLocation: string;
+  branchIndustry: string;
+  branchName: string;
+  taxpayerName: string;
+  taxpayerProvidedId: string;
 }
-export default function populate(props: CSRConfigProps): string {
-    let populated_template = template;
-    populated_template = populated_template.replace("SET_PRIVATE_KEY_PASS", props.privateKeyPass ?? "SET_PRIVATE_KEY_PASS");
-    populated_template = populated_template.replace("SET_PRODUCTION_VALUE", props.production ? "ZATCA-Code-Signing" : "PREZATCA-Code-Signing");
-    populated_template = populated_template.replace("SET_EGS_SERIAL_NUMBER", `1-${props.solutionName}|2-${props.egsModel}|3-${props.egsSerialNumber}`);
-    populated_template = populated_template.replace("SET_VAT_REGISTRATION_NUMBER", props.vatNumber);
-    populated_template = populated_template.replace("SET_BRANCH_LOCATION", props.branchLocation);
-    populated_template = populated_template.replace("SET_BRANCH_INDUSTRY", props.branchIndustry);
-    populated_template = populated_template.replace("SET_COMMON_NAME", props.taxpayerProvidedId);
-    populated_template = populated_template.replace("SET_BRANCH_NAME", props.branchName);
-    populated_template = populated_template.replace("SET_TAXPAYER_NAME", props.taxpayerName);
-
-    return populated_template;
+const applyReplacements = (
+  templateString: string,
+  replacements: [string, string][]
+): string => {
+  let result = templateString;
+  for (const [placeholder, value] of replacements) {
+    result = result.replace(placeholder, value);
+  }
+  return result;
 };
+
+const populate = (props: CSRConfigProps): string => {
+  const replacements: [string, string][] = [
+    ["SET_PRIVATE_KEY_PASS", props.privateKeyPass ?? "SET_PRIVATE_KEY_PASS"],
+    [
+      "SET_PRODUCTION_VALUE",
+      props.production ? "ZATCA-Code-Signing" : "PREZATCA-Code-Signing",
+    ],
+    [
+      "SET_EGS_SERIAL_NUMBER",
+      `1-${props.solutionName}|2-${props.egsModel}|3-${props.egsSerialNumber}`,
+    ],
+    ["SET_VAT_REGISTRATION_NUMBER", props.vatNumber],
+    ["SET_BRANCH_LOCATION", props.branchLocation],
+    ["SET_BRANCH_INDUSTRY", props.branchIndustry],
+    ["SET_COMMON_NAME", props.taxpayerProvidedId],
+    ["SET_BRANCH_NAME", props.branchName],
+    ["SET_TAXPAYER_NAME", props.taxpayerName],
+  ];
+  return applyReplacements(template, replacements);
+};
+
+export default populate;

@@ -1,4 +1,5 @@
 import moment from "moment";
+
 import type { XMLDocument } from "./parser/index.js";
 import {
   concatUint8Arrays,
@@ -6,18 +7,21 @@ import {
   uint8ArrayToBase64,
 } from "./utils/bytes.js";
 
-function encodeTLVTag(tag: number, value: string): Uint8Array {
+const encodeTLVTag = (tag: number, value: string): Uint8Array => {
   const valueBytes = stringToUint8Array(value);
   if (valueBytes.length > 255) {
     throw new Error(`TLV value for tag ${tag} exceeds 255 bytes.`);
   }
-  return concatUint8Arrays(new Uint8Array([tag, valueBytes.length]), valueBytes);
-}
+  return concatUint8Arrays(
+    new Uint8Array([tag, valueBytes.length]),
+    valueBytes
+  );
+};
 
-function getInvoiceTagValue(invoiceXml: XMLDocument, path: string): string {
+const getInvoiceTagValue = (invoiceXml: XMLDocument, path: string): string => {
   const normalizeValue = (value: unknown): string => {
     const unwrappedValue = Array.isArray(value) ? value[0] : value;
-    if (unwrappedValue == null) {
+    if (unwrappedValue === null || unwrappedValue === undefined) {
       return "";
     }
     if (typeof unwrappedValue === "object" && "#text" in unwrappedValue) {
@@ -27,7 +31,7 @@ function getInvoiceTagValue(invoiceXml: XMLDocument, path: string): string {
   };
 
   const value = invoiceXml.get(path)?.[0];
-  if (value == null) {
+  if (value === null || value === undefined) {
     const segments = path.split("/");
     if (segments.length < 2) {
       return "";
@@ -38,7 +42,11 @@ function getInvoiceTagValue(invoiceXml: XMLDocument, path: string): string {
       if (Array.isArray(current)) {
         current = current[0];
       }
-      if (current == null || typeof current !== "object") {
+      if (
+        current === null ||
+        current === undefined ||
+        typeof current !== "object"
+      ) {
         return "";
       }
       current = (current as Record<string, unknown>)[segments[index]];
@@ -48,9 +56,9 @@ function getInvoiceTagValue(invoiceXml: XMLDocument, path: string): string {
   }
 
   return normalizeValue(value);
-}
+};
 
-export function generatePhaseOneQRFromXml(invoiceXml: XMLDocument): string {
+export const generatePhaseOneQRFromXml = (invoiceXml: XMLDocument): string => {
   const sellerName = getInvoiceTagValue(
     invoiceXml,
     "Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity/cbc:RegistrationName"
@@ -82,4 +90,4 @@ export function generatePhaseOneQRFromXml(invoiceXml: XMLDocument): string {
   );
 
   return uint8ArrayToBase64(tlv);
-}
+};

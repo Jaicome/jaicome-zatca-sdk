@@ -1,11 +1,16 @@
+/* eslint-disable eslint-plugin-jest/require-hook */
 
 let LOGGING = false;
 
 export const setLogging = (enabled: boolean) => {
-    LOGGING = enabled;
+  LOGGING = enabled;
 };
 
 export const log = (type: string, source: string, message: string) => {
-    if (!LOGGING) return;
-    console.log(`\x1b[33m${new Date().toLocaleString()}\x1b[0m: [\x1b[36m${source} ${type}\x1b[0m] ${message}`);
-}
+  if (!LOGGING) {
+    return;
+  }
+  console.log(
+    `\u001B[33m${new Date().toLocaleString()}\u001B[0m: [\u001B[36m${source} ${type}\u001B[0m] ${message}`
+  );
+};

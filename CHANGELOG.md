@@ -24,22 +24,22 @@ The root `package.json` no longer has `main`, `files`, or `typings` fields. The 
 
 Every symbol that was previously importable from `zatca-xml-js` has a direct replacement in the scoped packages.
 
-| Old Import (REMOVED) | New Import |
-|---|---|
-| `import { EGS } from "zatca-xml-js"` | `import { EGS } from "@jaicome/zatca-server"` |
-| `import { ZATCAInvoice } from "zatca-xml-js"` | `import { ZATCAInvoice } from "@jaicome/zatca-core"` |
-| `import { ZATCAInvoiceTypes } from "zatca-xml-js"` | `import { ZATCAInvoiceTypes } from "@jaicome/zatca-core"` |
-| `import { ZATCAPaymentMethods } from "zatca-xml-js"` | `import { ZATCAPaymentMethods } from "@jaicome/zatca-core"` |
-| `import { generatePhaseOneQR } from "zatca-xml-js"` | `import { generatePhaseOneQR } from "@jaicome/zatca-core"` |
-| `import { REQUIRED_COMPLIANCE_STEPS } from "zatca-xml-js"` | `import { REQUIRED_COMPLIANCE_STEPS } from "@jaicome/zatca-server"` |
-| `import { ZATCAComplianceStep } from "zatca-xml-js"` | `import { ZATCAComplianceStep } from "@jaicome/zatca-server"` |
-| `import { ComplianceCheckPayload } from "zatca-xml-js"` | `import { ComplianceCheckPayload } from "@jaicome/zatca-server"` |
-| `import { ZATCAInvoiceLineItem } from "zatca-xml-js"` | `import { ZATCAInvoiceLineItem } from "@jaicome/zatca-core"` |
-| `import { ZATCAInvoiceProps } from "zatca-xml-js"` | `import { ZATCAInvoiceProps } from "@jaicome/zatca-core"` |
-| `import { EGSUnitInfo } from "zatca-xml-js"` | `import { EGSUnitInfo } from "@jaicome/zatca-core"` or `"@jaicome/zatca-server"` |
-| `import { EGSUnitLocation } from "zatca-xml-js"` | `import { EGSUnitLocation } from "@jaicome/zatca-core"` or `"@jaicome/zatca-server"` |
-| `import { EGSUnitCustomerInfo } from "zatca-xml-js"` | `import { EGSUnitCustomerInfo } from "@jaicome/zatca-core"` or `"@jaicome/zatca-server"` |
-| `import { ... } from "zatca-xml-js/src/compat"` | Use `@jaicome/zatca-core` and `@jaicome/zatca-server` directly |
+| Old Import (REMOVED)                                       | New Import                                                                               |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `import { EGS } from "zatca-xml-js"`                       | `import { EGS } from "@jaicome/zatca-server"`                                            |
+| `import { ZATCAInvoice } from "zatca-xml-js"`              | `import { ZATCAInvoice } from "@jaicome/zatca-core"`                                     |
+| `import { ZATCAInvoiceTypes } from "zatca-xml-js"`         | `import { ZATCAInvoiceTypes } from "@jaicome/zatca-core"`                                |
+| `import { ZATCAPaymentMethods } from "zatca-xml-js"`       | `import { ZATCAPaymentMethods } from "@jaicome/zatca-core"`                              |
+| `import { generatePhaseOneQR } from "zatca-xml-js"`        | `import { generatePhaseOneQR } from "@jaicome/zatca-core"`                               |
+| `import { REQUIRED_COMPLIANCE_STEPS } from "zatca-xml-js"` | `import { REQUIRED_COMPLIANCE_STEPS } from "@jaicome/zatca-server"`                      |
+| `import { ZATCAComplianceStep } from "zatca-xml-js"`       | `import { ZATCAComplianceStep } from "@jaicome/zatca-server"`                            |
+| `import { ComplianceCheckPayload } from "zatca-xml-js"`    | `import { ComplianceCheckPayload } from "@jaicome/zatca-server"`                         |
+| `import { ZATCAInvoiceLineItem } from "zatca-xml-js"`      | `import { ZATCAInvoiceLineItem } from "@jaicome/zatca-core"`                             |
+| `import { ZATCAInvoiceProps } from "zatca-xml-js"`         | `import { ZATCAInvoiceProps } from "@jaicome/zatca-core"`                                |
+| `import { EGSUnitInfo } from "zatca-xml-js"`               | `import { EGSUnitInfo } from "@jaicome/zatca-core"` or `"@jaicome/zatca-server"`         |
+| `import { EGSUnitLocation } from "zatca-xml-js"`           | `import { EGSUnitLocation } from "@jaicome/zatca-core"` or `"@jaicome/zatca-server"`     |
+| `import { EGSUnitCustomerInfo } from "zatca-xml-js"`       | `import { EGSUnitCustomerInfo } from "@jaicome/zatca-core"` or `"@jaicome/zatca-server"` |
+| `import { ... } from "zatca-xml-js/src/compat"`            | Use `@jaicome/zatca-core` and `@jaicome/zatca-server` directly                           |
 
 #### What to install
 

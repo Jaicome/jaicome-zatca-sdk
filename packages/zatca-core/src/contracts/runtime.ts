@@ -4,6 +4,6 @@ export type RuntimeCapabilities = Readonly<{
 }>;
 
 export const DEFAULT_RUNTIME_CAPABILITIES: RuntimeCapabilities = {
-  signing: false,
   egsManagedCerts: false,
+  signing: false,
 };

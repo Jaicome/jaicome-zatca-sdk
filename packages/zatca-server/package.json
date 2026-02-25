@@ -2,23 +2,40 @@
   "name": "@jaicome/zatca-server",
   "version": "1.0.0-alpha.0",
   "description": "ZATCA server library - Node.js only (signing, EGS, API integration)",
-  "type": "module",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "keywords": [
+    "api",
+    "e-invoicing",
+    "egs",
+    "nodejs",
+    "saudi-arabia",
+    "signing",
+    "xml",
+    "zatca"
+  ],
+  "license": "MIT",
+  "author": "Ali Alshaikh, Jaicome company",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Jaicome/zatca-xml-js",
+    "directory": "packages/zatca-server"
+  },
   "files": [
     "lib",
     "README.md"
   ],
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js",
+      "default": "./lib/index.js"
+    }
+  },
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "test": "vitest run"
-  },
-  "devDependencies": {
-    "@types/node": "^22.19.11",
-    "@types/uuid": "^9.0.0",
-    "@types/xmldom": "^0.1.31",
-    "typescript": "^4.8.3",
-    "vitest": "^1.0.0"
   },
   "dependencies": {
     "@fidm/x509": "^1.2.1",
@@ -30,31 +47,14 @@
     "xmldsigjs": "^2.5.0",
     "zod": "^3.22.0"
   },
+  "devDependencies": {
+    "@types/node": "^22.19.11",
+    "@types/uuid": "^9.0.0",
+    "@types/xmldom": "^0.1.31",
+    "typescript": "^4.8.3",
+    "vitest": "^1.0.0"
+  },
   "peerDependencies": {
     "@jaicome/zatca-core": "^1.0.0-alpha.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Jaicome/zatca-xml-js",
-    "directory": "packages/zatca-server"
-  },
-  "author": "Ali Alshaikh, Jaicome company",
-  "license": "MIT",
-  "keywords": [
-    "zatca",
-    "e-invoicing",
-    "saudi-arabia",
-    "xml",
-    "signing",
-    "egs",
-    "api",
-    "nodejs"
-  ],
-  "exports": {
-    ".": {
-      "types": "./lib/index.d.ts",
-      "import": "./lib/index.js",
-      "default": "./lib/index.js"
-    }
   }
 }

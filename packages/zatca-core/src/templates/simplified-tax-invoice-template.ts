@@ -1,8 +1,10 @@
-import { z } from "zod";
 import Mustache from "mustache";
+import { z } from "zod";
+
 import type { EGSInfo, CustomerInfo } from "../schemas/index.js";
 
-const template = /* XML */ `
+// XML template for simplified tax invoice
+const template = `
 <?xml version="1.0" encoding="UTF-8"?>
 <Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2"><ext:UBLExtensions>SET_UBL_EXTENSIONS_STRING</ext:UBLExtensions>
     
@@ -145,26 +147,34 @@ const template = /* XML */ `
   {{/cancelation}}
 </Invoice>`;
 
-
 // --- Invoice Types ---
-export const ZATCAInvoiceTypeSchema = z.enum(["INVOICE", "DEBIT_NOTE", "CREDIT_NOTE"]);
+export const ZATCAInvoiceTypeSchema = z.enum([
+  "INVOICE",
+  "DEBIT_NOTE",
+  "CREDIT_NOTE",
+]);
 export type ZATCAInvoiceType = z.infer<typeof ZATCAInvoiceTypeSchema>;
 
 export const INVOICE_TYPE_CODES = {
-  INVOICE: "388",
-  DEBIT_NOTE: "383",
   CREDIT_NOTE: "381",
+  DEBIT_NOTE: "383",
+  INVOICE: "388",
 } as const satisfies Record<ZATCAInvoiceType, string>;
 
 // --- Payment Methods ---
-export const ZATCAPaymentMethodSchema = z.enum(["CASH", "CREDIT", "BANK_ACCOUNT", "BANK_CARD"]);
+export const ZATCAPaymentMethodSchema = z.enum([
+  "CASH",
+  "CREDIT",
+  "BANK_ACCOUNT",
+  "BANK_CARD",
+]);
 export type ZATCAPaymentMethod = z.infer<typeof ZATCAPaymentMethodSchema>;
 
 export const PAYMENT_METHOD_CODES = {
-  CASH: "10",
-  CREDIT: "30",
   BANK_ACCOUNT: "42",
   BANK_CARD: "48",
+  CASH: "10",
+  CREDIT: "30",
 } as const satisfies Record<ZATCAPaymentMethod, string>;
 
 // --- Invoice Codes ---
@@ -172,8 +182,8 @@ export const InvoiceCodeSchema = z.enum(["STANDARD", "SIMPLIFIED"]);
 export type InvoiceCode = z.infer<typeof InvoiceCodeSchema>;
 
 export const INVOICE_CODE_VALUES = {
-  STANDARD: "0100000",
   SIMPLIFIED: "0200000",
+  STANDARD: "0100000",
 } as const satisfies Record<InvoiceCode, string>;
 
 export interface ZATCAInvoiceLineItemDiscount {
@@ -218,8 +228,6 @@ export interface ZATCAInvoiceCancellation {
 /** @deprecated Use ZATCAInvoiceCancellation instead */
 export type ZATCAInvoicCancelation = ZATCAInvoiceCancellation;
 
-
-
 export interface ZatcaInvoiceBase {
   egsInfo: EGSInfo;
   crnNumber: string;
@@ -258,15 +266,24 @@ export type ZATCAInvoiceProps = SimplifiedInvoice | TaxInvoice;
 const rendering = (props: ZATCAInvoiceProps): string => {
   // Map string keys to numeric codes before passing to Mustache template
   // Handle both old format (numeric codes) and new format (string keys)
-  const invoiceTypeCode = (INVOICE_TYPE_CODES as any)[props.invoiceType] ?? props.invoiceType;
-  const invoiceCodeValue = (INVOICE_CODE_VALUES as any)[props.invoiceCode] ?? props.invoiceCode;
-  
+  const invoiceTypeCode =
+    (INVOICE_TYPE_CODES as Record<string, string>)[props.invoiceType] ??
+    props.invoiceType;
+  const invoiceCodeValue =
+    (INVOICE_CODE_VALUES as Record<string, string>)[props.invoiceCode] ??
+    props.invoiceCode;
+
   const mappedProps = {
     ...props,
-    invoiceType: invoiceTypeCode,
     invoiceCode: invoiceCodeValue,
-    ...((props as any).paymentMethod
-      ? { paymentMethod: (PAYMENT_METHOD_CODES as any)[(props as any).paymentMethod] ?? (props as any).paymentMethod }
+    invoiceType: invoiceTypeCode,
+    ...("paymentMethod" in props && props.paymentMethod
+      ? {
+          paymentMethod:
+            (PAYMENT_METHOD_CODES as Record<string, string>)[
+              props.paymentMethod
+            ] ?? props.paymentMethod,
+        }
       : {}),
   };
   const result = Mustache.render(template, mappedProps);
