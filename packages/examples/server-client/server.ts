@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-import { ZATCAInvoice } from "@jaicome/zatca-core";
+import { ZATCAInvoice, InvoiceType, PaymentMeans, GENESIS_PREVIOUS_INVOICE_HASH } from "@jaicome/zatca-core";
 import type {
   ZATCAInvoiceProps,
   ZATCAInvoiceLineItem,
@@ -43,8 +43,6 @@ export type BatchReportResult = SingleReportResult[];
 
 const SERVER_JSON_PATH = path.join(__dirname, "./tmp/server.json");
 
-const GENESIS_PREVIOUS_INVOICE_HASH =
-  "NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==";
 
 // Re-export for client usage
 export { GENESIS_PREVIOUS_INVOICE_HASH };
@@ -133,8 +131,7 @@ const buildInvoicePropsForComplianceStep = (
   canceledSerialInvoiceNumber: string
 ): ZATCAInvoiceProps => {
   const invoiceSerialNumber = `EGS1-886431145-${100 + invoiceCounterNumber}`;
-  const issueDate = "2024-02-29";
-  const issueTime = "15:30:00";
+  const issueDate = new Date("2024-02-29");
 
   const shared = {
     crnNumber: "7032256278",
@@ -152,7 +149,6 @@ const buildInvoicePropsForComplianceStep = (
     invoiceCounterNumber,
     invoiceSerialNumber,
     issueDate,
-    issueTime: `${issueTime}Z`,
     lineItems: [lineItem1, lineItem2, lineItem3],
     previousInvoiceHash,
   };
@@ -160,18 +156,18 @@ const buildInvoicePropsForComplianceStep = (
   if (step === "standard-compliant") {
     return {
       ...shared,
-      actualDeliveryDate: "2024-02-29",
+      actualDeliveryDate: new Date("2024-02-29"),
       invoiceCode: "STANDARD",
-      invoiceType: "INVOICE",
+      invoiceType: InvoiceType.INVOICE,
     };
   }
 
   if (step === "simplified-compliant") {
     return {
       ...shared,
-      actualDeliveryDate: "2024-02-29",
+      actualDeliveryDate: new Date("2024-02-29"),
       invoiceCode: "SIMPLIFIED",
-      invoiceType: "INVOICE",
+      invoiceType: InvoiceType.INVOICE,
     };
   }
 
@@ -186,11 +182,11 @@ const buildInvoicePropsForComplianceStep = (
     ...shared,
     cancelation: {
       canceledSerialInvoiceNumber,
-      paymentMethod: "CASH",
+      paymentMethod: PaymentMeans.CASH,
       reason: "Compliance onboarding reference",
     },
     invoiceCode: is_standard_note ? "STANDARD" : "SIMPLIFIED",
-    invoiceType: is_credit_note ? "CREDIT_NOTE" : "DEBIT_NOTE",
+    invoiceType: is_credit_note ? InvoiceType.CREDIT_NOTE : InvoiceType.DEBIT_NOTE,
   };
 };
 

@@ -40,7 +40,6 @@
   "dependencies": {
     "@fidm/x509": "^1.2.1",
     "better-result": "^2.7.0",
-    "moment": "^2.29.4",
     "pino": "^10.3.1",
     "uuid": "^9.0.0",
     "xmldom": "^0.6.0",

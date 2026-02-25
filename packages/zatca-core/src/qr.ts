@@ -1,5 +1,3 @@
-import moment from "moment";
-
 import type { XMLDocument } from "./parser/index.js";
 import {
   concatUint8Arrays,
@@ -124,8 +122,9 @@ export const generatePhaseOneQRFromXml = (invoiceXml: XMLDocument): string => {
     );
   }
 
-  const datetime = `${issueDate} ${issueTime}`;
-  const formattedDatetime = moment(datetime).format("YYYY-MM-DDTHH:mm:ss");
+  const formattedDatetime = new Date(`${issueDate}T${issueTime}`)
+    .toISOString()
+    .slice(0, 19);
 
   const tlv = concatUint8Arrays(
     encodeTLVTag(1, sellerName),

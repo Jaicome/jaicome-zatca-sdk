@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-import { ZATCAInvoice } from "@jaicome/zatca-core";
+import { ZATCAInvoice, InvoiceType } from "@jaicome/zatca-core";
 import type {
   ZATCAInvoiceLineItem,
   ZATCAInvoiceProps,
@@ -90,9 +90,7 @@ const saveClientState = (): void => {
 const buildInvoiceProps = (
   lineItems: ZATCAInvoiceLineItem[]
 ): ZATCAInvoiceProps => {
-  const now = new Date();
-  const issueDate = now.toISOString().split("T")[0];
-  const issueTime = now.toISOString().split("T")[1].slice(0, 8);
+  const issueDate = new Date();
 
   const invoiceSerialNumber = `INV-${currentCounter}`;
   const props: ZATCAInvoiceProps = {
@@ -102,9 +100,8 @@ const buildInvoiceProps = (
     invoiceCode: "SIMPLIFIED",
     invoiceCounterNumber: currentCounter,
     invoiceSerialNumber,
-    invoiceType: "INVOICE",
+    invoiceType: InvoiceType.INVOICE,
     issueDate,
-    issueTime: `${issueTime}Z`,
     lineItems,
     previousInvoiceHash: currentHash,
   };

@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-import { ZATCAInvoice } from "@jaicome/zatca-core";
+import { ZATCAInvoice, InvoiceType, PaymentMeans, GENESIS_PREVIOUS_INVOICE_HASH } from "@jaicome/zatca-core";
 import type {
   ZATCAInvoiceLineItem,
   ZATCAInvoiceProps,
@@ -17,15 +17,10 @@ import type {
   ZATCAComplianceStep,
 } from "@jaicome/zatca-server";
 
-const now = new Date();
-const issueDate = now.toISOString().split("T")[0];
-const issueTime = now.toISOString().split("T")[1].slice(0, 8);
+const issueDate = new Date();
 const outputDir = path.resolve(process.cwd(), "tmp");
 fs.mkdirSync(outputDir, { recursive: true });
 
-// Genesis hash for the first invoice in the chain
-const GENESIS_PREVIOUS_INVOICE_HASH =
-  "NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==";
 
 // Line item for 1 SAR invoice with 15% VAT (Total: 1.15 SAR)
 const lineItem1SAR: ZATCAInvoiceLineItem = {
@@ -77,7 +72,6 @@ const buildInvoicePropsForComplianceStep = (
     invoiceCounterNumber,
     invoiceSerialNumber,
     issueDate,
-    issueTime: `${issueTime}Z`,
     lineItems: [lineItem1SAR],
     previousInvoiceHash,
   };
@@ -87,7 +81,7 @@ const buildInvoicePropsForComplianceStep = (
       ...shared,
       actualDeliveryDate: issueDate,
       invoiceCode: "STANDARD",
-      invoiceType: "INVOICE",
+      invoiceType: InvoiceType.INVOICE,
     };
   }
 
@@ -96,7 +90,7 @@ const buildInvoicePropsForComplianceStep = (
       ...shared,
       actualDeliveryDate: issueDate,
       invoiceCode: "SIMPLIFIED",
-      invoiceType: "INVOICE",
+      invoiceType: InvoiceType.INVOICE,
     };
   }
 
@@ -111,11 +105,11 @@ const buildInvoicePropsForComplianceStep = (
     ...shared,
     cancelation: {
       canceledSerialInvoiceNumber,
-      paymentMethod: "CASH",
+      paymentMethod: PaymentMeans.CASH,
       reason: "Compliance check",
     },
     invoiceCode: is_standard_note ? "STANDARD" : "SIMPLIFIED",
-    invoiceType: is_credit_note ? "CREDIT_NOTE" : "DEBIT_NOTE",
+    invoiceType: is_credit_note ? InvoiceType.CREDIT_NOTE : InvoiceType.DEBIT_NOTE,
   };
 };
 
@@ -243,11 +237,10 @@ const main = async () => {
       invoiceCounterNumber: 7,
       invoiceSerialNumber: "PROD-TEST-001",
       issueDate,
-      issueTime: `${issueTime}Z`,
       previousInvoiceHash: previousHash, // Chain from last compliance check invoice
       lineItems: [lineItem1SAR],
       crnNumber: "1234567890",
-      invoiceType: "INVOICE",
+      invoiceType: InvoiceType.INVOICE,
       invoiceCode: "SIMPLIFIED",
       customerInfo: {
         building: "100",
@@ -320,11 +313,10 @@ const main = async () => {
       invoiceCounterNumber: 8,
       invoiceSerialNumber: "PROD-TEST-002",
       issueDate,
-      issueTime: `${issueTime}Z`,
       previousInvoiceHash: firstInvoiceHash, // Chain to first invoice
       lineItems: [lineItem1SAR], // Same line item but as refund
       crnNumber: "1234567890",
-      invoiceType: "CREDIT_NOTE",
+      invoiceType: InvoiceType.CREDIT_NOTE,
       invoiceCode: "SIMPLIFIED",
       customerInfo: {
         building: "100",
@@ -336,7 +328,7 @@ const main = async () => {
       },
       cancelation: {
         canceledSerialInvoiceNumber: firstInvoiceSerial, // Reference first invoice
-        paymentMethod: "CASH",
+      paymentMethod: PaymentMeans.CASH,
         reason: "Customer requested refund",
       },
     };

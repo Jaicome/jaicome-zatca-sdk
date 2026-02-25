@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-import { ZATCAInvoice } from "@jaicome/zatca-core";
+import { ZATCAInvoice, InvoiceType, PaymentMeans, GENESIS_PREVIOUS_INVOICE_HASH } from "@jaicome/zatca-core";
 import type {
   ZATCAInvoiceLineItem,
   ZATCAInvoiceProps,
@@ -17,13 +17,9 @@ import type {
   ZATCAComplianceStep,
 } from "@jaicome/zatca-server";
 
-const now = new Date();
-const issueDate = now.toISOString().split("T")[0];
-const issueTime = now.toISOString().split("T")[1].slice(0, 8);
+const issueDate = new Date();
 const outputDir = path.resolve(process.cwd(), "tmp");
 fs.mkdirSync(outputDir, { recursive: true });
-const GENESIS_PREVIOUS_INVOICE_HASH =
-  "NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==";
 
 // Sample line items
 const lineItem1: ZATCAInvoiceLineItem = {
@@ -99,7 +95,6 @@ const buildInvoicePropsForComplianceStep = (
     invoiceCounterNumber,
     invoiceSerialNumber,
     issueDate,
-    issueTime: `${issueTime}Z`,
     lineItems: [lineItem1, lineItem2, lineItem3],
     previousInvoiceHash,
   };
@@ -107,18 +102,18 @@ const buildInvoicePropsForComplianceStep = (
   if (step === "standard-compliant") {
     return {
       ...shared,
-      actualDeliveryDate: "2024-02-29",
+      actualDeliveryDate: new Date("2024-02-29"),
       invoiceCode: "STANDARD",
-      invoiceType: "INVOICE",
+      invoiceType: InvoiceType.INVOICE,
     };
   }
 
   if (step === "simplified-compliant") {
     return {
       ...shared,
-      actualDeliveryDate: "2024-02-29",
+      actualDeliveryDate: new Date("2024-02-29"),
       invoiceCode: "SIMPLIFIED",
-      invoiceType: "INVOICE",
+      invoiceType: InvoiceType.INVOICE,
     };
   }
 
@@ -133,11 +128,11 @@ const buildInvoicePropsForComplianceStep = (
     ...shared,
     cancelation: {
       canceledSerialInvoiceNumber,
-      paymentMethod: "CASH",
+      paymentMethod: PaymentMeans.CASH,
       reason: "Compliance onboarding reference",
     },
     invoiceCode: is_standard_note ? "STANDARD" : "SIMPLIFIED",
-    invoiceType: is_credit_note ? "CREDIT_NOTE" : "DEBIT_NOTE",
+    invoiceType: is_credit_note ? InvoiceType.CREDIT_NOTE : InvoiceType.DEBIT_NOTE,
   };
 };
 

@@ -1,6 +1,5 @@
 import { generatePhaseOneQRFromXml } from "@jaicome/zatca-core";
 import type { XMLDocument } from "@jaicome/zatca-core";
-import moment from "moment";
 
 import { getInvoiceHash } from "../utils/invoice-hash.js";
 
@@ -53,8 +52,9 @@ export const generateQR = ({
   const issue_date = invoice_xml.get("Invoice/cbc:IssueDate")?.[0];
   const issue_time = invoice_xml.get("Invoice/cbc:IssueTime")?.[0];
 
-  const datetime = `${issue_date} ${issue_time}`;
-  const formatted_datetime = moment(datetime).format("YYYY-MM-DDTHH:mm:ss");
+  const formatted_datetime = new Date(`${issue_date}T${issue_time}`)
+    .toISOString()
+    .slice(0, 19);
 
   const qr_tlv = TLV([
     seller_name,
