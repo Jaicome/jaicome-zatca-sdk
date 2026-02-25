@@ -141,9 +141,15 @@ export class XMLDocument {
   set(
     path_query: string,
     overwrite: boolean,
-    set_xml: XMLObject | string
+    set_xml: XMLObject | string,
+    options?: { strict?: boolean }
   ): boolean {
     if (!this.xml_object) {
+      if (options?.strict) {
+        throw new Error(
+          `XMLDocument.set: cannot set '${path_query}' — document is empty`
+        );
+      }
       return false;
     }
 
@@ -157,6 +163,11 @@ export class XMLDocument {
       path_query ?? ""
     );
     if (_.isEmpty(xml_object)) {
+      if (options?.strict) {
+        throw new Error(
+          `XMLDocument.set: path '${path_tags.join("/")}/${tag}' does not exist in the document`
+        );
+      }
       return false;
     }
 
@@ -182,6 +193,12 @@ export class XMLDocument {
 
       return true;
     } catch (error: any) {
+      if (options?.strict) {
+        throw new Error(
+          `XMLDocument.set: failed to set '${path_tags.join("/")}/${tag}' — ${error.message}`,
+          { cause: error }
+        );
+      }
       log("Info", "Parser", error.message);
     }
 

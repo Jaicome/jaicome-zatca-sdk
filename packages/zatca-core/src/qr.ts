@@ -63,20 +63,66 @@ export const generatePhaseOneQRFromXml = (invoiceXml: XMLDocument): string => {
     invoiceXml,
     "Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity/cbc:RegistrationName"
   );
+  if (!sellerName) {
+    throw new Error(
+      "QR generation failed: missing required field 'RegistrationName' in invoice XML"
+    );
+  }
+
   const vatNumber = getInvoiceTagValue(
     invoiceXml,
-    "Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyTaxScheme/cbc:CompanyID"
+    "Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyTaxScheme/cbc:CompanyID",
+    "CompanyID"
   );
+  if (!vatNumber) {
+    throw new Error(
+      "QR generation failed: missing required field 'CompanyID' in invoice XML"
+    );
+  }
+
   const invoiceTotal = getInvoiceTagValue(
     invoiceXml,
-    "Invoice/cac:LegalMonetaryTotal/cbc:TaxInclusiveAmount"
+    "Invoice/cac:LegalMonetaryTotal/cbc:TaxInclusiveAmount",
+    "TaxInclusiveAmount"
   );
+  if (!invoiceTotal) {
+    throw new Error(
+      "QR generation failed: missing required field 'TaxInclusiveAmount' in invoice XML"
+    );
+  }
+
   const vatTotal = getInvoiceTagValue(
     invoiceXml,
-    "Invoice/cac:TaxTotal/cbc:TaxAmount"
+    "Invoice/cac:TaxTotal/cbc:TaxAmount",
+    "TaxAmount"
   );
-  const issueDate = getInvoiceTagValue(invoiceXml, "Invoice/cbc:IssueDate");
-  const issueTime = getInvoiceTagValue(invoiceXml, "Invoice/cbc:IssueTime");
+  if (!vatTotal) {
+    throw new Error(
+      "QR generation failed: missing required field 'TaxAmount' in invoice XML"
+    );
+  }
+
+  const issueDate = getInvoiceTagValue(
+    invoiceXml,
+    "Invoice/cbc:IssueDate",
+    "IssueDate"
+  );
+  if (!issueDate) {
+    throw new Error(
+      "QR generation failed: missing required field 'IssueDate' in invoice XML"
+    );
+  }
+
+  const issueTime = getInvoiceTagValue(
+    invoiceXml,
+    "Invoice/cbc:IssueTime",
+    "IssueTime"
+  );
+  if (!issueTime) {
+    throw new Error(
+      "QR generation failed: missing required field 'IssueTime' in invoice XML"
+    );
+  }
 
   const datetime = `${issueDate} ${issueTime}`;
   const formattedDatetime = moment(datetime).format("YYYY-MM-DDTHH:mm:ss");

@@ -68,7 +68,13 @@ export const CustomerInfoSchema = z.object({
   plotIdentification: z.string().optional(),
   postalZone: z.string().optional(),
   street: z.string().optional(),
-  vatNumber: z.string().optional(),
+  vatNumber: z
+    .string()
+    .optional()
+    .refine((val) => !val || /^3\d{13}3$/.test(val), {
+      message:
+        "VAT number must be 15 digits, starting and ending with 3 (e.g., 300000000000003)",
+    }),
 });
 /**
  * Buyer (customer) information for the invoice.
@@ -92,7 +98,13 @@ export const EGSInfoSchema = z.object({
   model: z.string().min(1),
   name: z.string().min(1),
   vatName: z.string().min(1),
-  vatNumber: z.string().min(1),
+  vatNumber: z
+    .string()
+    .min(1)
+    .refine((val) => /^3\d{13}3$/.test(val), {
+      message:
+        "VAT number must be 15 digits, starting and ending with 3 (e.g., 300000000000003)",
+    }),
 });
 /**
  * E-Invoice Generation System (EGS) information.
@@ -123,7 +135,11 @@ const BaseLineItemSchema = z.object({
 });
 
 const StandardLineItemSchema = BaseLineItemSchema.extend({
-  vatPercent: z.union([z.literal(0.15), z.literal(0.05)]),
+  vatPercent: z.union([z.literal(0.15), z.literal(0.05)], {
+    errorMap: () => ({
+      message: "Saudi Arabia standard VAT rate is 15% (0.15)",
+    }),
+  }),
 });
 
 const ZeroTaxLineItemSchema = BaseLineItemSchema.extend({
@@ -155,36 +171,76 @@ const ZatcaInvoiceBaseSchema = z.object({
   issueDate: z.date().refine((d) => d <= new Date(), {
     message: "Issue date cannot be in the future",
   }),
-  lineItems: z.array(ZATCAInvoiceLineItemSchema).min(1),
+  lineItems: z
+    .array(z.unknown())
+    .min(1)
+    .superRefine((items, ctx) => {
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const result = ZATCAInvoiceLineItemSchema.safeParse(item);
+        if (!result.success) {
+          for (const issue of result.error.issues) {
+            ctx.addIssue({
+              code: issue.code,
+              message: `Line item [${i}]: ${issue.message}`,
+              path: [i, ...issue.path],
+            });
+          }
+        }
+      }
+    }),
   previousInvoiceHash: z.string().min(1),
 });
 
 const CancelationSchema = z.object({
   canceledSerialInvoiceNumber: z.string().min(1),
-  paymentMethod: z.union([
-    ZATCAPaymentMethodSchema,
-    z.enum(["10", "30", "42", "48"]),
-  ]),
+  paymentMethod: z.union(
+    [ZATCAPaymentMethodSchema, z.enum(["10", "30", "42", "48"])],
+    {
+      errorMap: () => ({
+        message:
+          "Must be 10 (cash), 30 (credit), 42 (bank transfer), 48 (card), or 1 (not defined)",
+      }),
+    }
+  ),
   reason: z.string().min(1),
 });
 
 const CashInvoiceSchema = ZatcaInvoiceBaseSchema.extend({
   actualDeliveryDate: z.date().optional(),
-  invoiceType: z.union([z.literal("INVOICE"), z.literal("388")]),
+  invoiceType: z.union([z.literal("INVOICE"), z.literal("388")], {
+    errorMap: () => ({
+      message:
+        "Must be 388 (invoice), 381 (credit note), 383 (debit note), or 386 (prepayment)",
+    }),
+  }),
   latestDeliveryDate: z.date().optional(),
   paymentMethod: z
-    .union([ZATCAPaymentMethodSchema, z.enum(["10", "30", "42", "48"])])
+    .union([ZATCAPaymentMethodSchema, z.enum(["10", "30", "42", "48"])], {
+      errorMap: () => ({
+        message:
+          "Must be 10 (cash), 30 (credit), 42 (bank transfer), 48 (card), or 1 (not defined)",
+      }),
+    })
     .optional(),
 });
 
 const CreditDebitInvoiceSchema = ZatcaInvoiceBaseSchema.extend({
   cancelation: CancelationSchema,
-  invoiceType: z.union([
-    z.literal("DEBIT_NOTE"),
-    z.literal("CREDIT_NOTE"),
-    z.literal("381"),
-    z.literal("383"),
-  ]),
+  invoiceType: z.union(
+    [
+      z.literal("DEBIT_NOTE"),
+      z.literal("CREDIT_NOTE"),
+      z.literal("381"),
+      z.literal("383"),
+    ],
+    {
+      errorMap: () => ({
+        message:
+          "Must be 388 (invoice), 381 (credit note), 383 (debit note), or 386 (prepayment)",
+      }),
+    }
+  ),
 });
 
 const CashOrCreditDebitSchema = z.union([
@@ -203,12 +259,20 @@ const CashOrCreditDebitSchema = z.union([
 export const ZATCAInvoicePropsSchema = z.union([
   CashOrCreditDebitSchema.and(
     z.object({
-      invoiceCode: z.union([z.literal("STANDARD"), z.literal("0100000")]),
+      invoiceCode: z.union([z.literal("STANDARD"), z.literal("0100000")], {
+        errorMap: () => ({
+          message: "Must be 0100000 (tax invoice) or 0200000 (simplified)",
+        }),
+      }),
     })
   ),
   CashOrCreditDebitSchema.and(
     z.object({
-      invoiceCode: z.union([z.literal("SIMPLIFIED"), z.literal("0200000")]),
+      invoiceCode: z.union([z.literal("SIMPLIFIED"), z.literal("0200000")], {
+        errorMap: () => ({
+          message: "Must be 0100000 (tax invoice) or 0200000 (simplified)",
+        }),
+      }),
     })
   ),
 ]);

@@ -191,6 +191,12 @@ const constructTaxTotal = (
       );
       const taxAmount = Number(new Decimal(item.vatPercent * taxableAmount));
 
+      if (!item.vatCategory) {
+        throw new Error(
+          "Zero-tax items must specify a VAT category code (Z, E, or O)"
+        );
+      }
+
       const { code } = item.vatCategory;
       if (code && zeroTaxObj.hasOwnProperty(code)) {
         zeroTaxObj[code].totalTaxAmount += taxAmount;
@@ -203,7 +209,9 @@ const constructTaxTotal = (
           totalTaxableAmount: taxableAmount,
         };
       } else {
-        throw new Error("Zero Tax percent must has vat category code");
+        throw new Error(
+          "Zero-tax items must specify a VAT category code (Z, E, or O)"
+        );
       }
     });
     return zeroTaxObj;
