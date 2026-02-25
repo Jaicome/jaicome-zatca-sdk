@@ -153,15 +153,24 @@ const LineItemTaxSchema = z.object({
 
 const BaseLineItemSchema = z.object({
   discounts: z.array(LineItemDiscountSchema).optional(),
+  /** Unique identifier for this line item within the invoice (e.g. `'1'`, `'2'`). */
   id: z.string().min(1),
+  /** Human-readable name or description of the product or service. */
   name: z.string().min(1),
   /** Additional taxes beyond VAT (e.g. excise tax). Applied per-line-item. Value in SAR. */
   otherTaxes: z.array(LineItemTaxSchema).optional(),
+  /** Quantity of units. Can be fractional (e.g. `1.5` for 1.5 kg). Must be positive. */
   quantity: z.number(),
+  /** Unit price in SAR, excluding VAT. */
   taxExclusivePrice: z.number(),
 });
 
 const StandardLineItemSchema = BaseLineItemSchema.extend({
+  /**
+   * VAT rate as a decimal fraction.
+   * - `0.15` — Standard rate (15%, applies to most goods and services)
+   * - `0.05` — Reduced rate (5%, applies to specific categories)
+   */
   vatPercent: z.union([z.literal(0.15), z.literal(0.05)], {
     errorMap: () => ({
       message: "Saudi Arabia standard VAT rate is 15% (0.15)",
@@ -170,11 +179,21 @@ const StandardLineItemSchema = BaseLineItemSchema.extend({
 });
 
 const ZeroTaxLineItemSchema = BaseLineItemSchema.extend({
+  /**
+   * VAT category for zero-rated, exempt, or out-of-scope items (BT-118).
+   * - `'O'` — Out of scope (not subject to VAT)
+   * - `'Z'` — Zero-rated (0% VAT, e.g. basic food items)
+   * - `'E'` — Exempt (VAT-exempt supply)
+   */
   vatCategory: z.object({
     code: z.enum(["O", "Z", "E"]),
     reason: z.string().optional(),
     reasonCode: z.string().optional(),
   }),
+  /**
+   * VAT rate as a decimal fraction.
+   * - `0` — Zero-rated, exempt, or out-of-scope (requires `vatCategory`)
+   */
   vatPercent: z.literal(0),
 });
 
@@ -230,6 +249,13 @@ const ZatcaInvoiceBaseSchema = z.object({
 
 const CancelationSchema = z.object({
   canceledSerialInvoiceNumber: z.string().min(1),
+  /**
+   * Payment means code (BT-81).
+   * - `'CASH'` or `'10'` — Cash payment
+   * - `'CREDIT'` or `'30'` — Credit / deferred payment
+   * - `'BANK_ACCOUNT'` or `'42'` — Bank transfer
+   * - `'BANK_CARD'` or `'48'` — Bank card / debit card
+   */
   paymentMethod: z.union(
     [ZATCAPaymentMethodSchema, z.enum(["10", "30", "42", "48"])],
     {
@@ -244,6 +270,10 @@ const CancelationSchema = z.object({
 
 const CashInvoiceSchema = ZatcaInvoiceBaseSchema.extend({
   actualDeliveryDate: z.date().optional(),
+  /**
+   * Invoice type code (BT-3).
+   * - `'INVOICE'` or `'388'` — Standard commercial invoice
+   */
   invoiceType: z.union([z.literal("INVOICE"), z.literal("388")], {
     errorMap: () => ({
       message:
@@ -251,6 +281,13 @@ const CashInvoiceSchema = ZatcaInvoiceBaseSchema.extend({
     }),
   }),
   latestDeliveryDate: z.date().optional(),
+  /**
+   * Payment means code (BT-81).
+   * - `'CASH'` or `'10'` — Cash payment
+   * - `'CREDIT'` or `'30'` — Credit / deferred payment
+   * - `'BANK_ACCOUNT'` or `'42'` — Bank transfer
+   * - `'BANK_CARD'` or `'48'` — Bank card / debit card
+   */
   paymentMethod: z
     .union([ZATCAPaymentMethodSchema, z.enum(["10", "30", "42", "48"])], {
       errorMap: () => ({
@@ -263,6 +300,11 @@ const CashInvoiceSchema = ZatcaInvoiceBaseSchema.extend({
 
 const CreditDebitInvoiceSchema = ZatcaInvoiceBaseSchema.extend({
   cancelation: CancelationSchema,
+  /**
+   * Invoice type code (BT-3).
+   * - `'CREDIT_NOTE'` or `'381'` — Credit note (reduces or cancels a prior invoice)
+   * - `'DEBIT_NOTE'` or `'383'` — Debit note (increases a prior invoice amount)
+   */
   invoiceType: z.union(
     [
       z.literal("DEBIT_NOTE"),
@@ -295,6 +337,10 @@ const CashOrCreditDebitSchema = z.union([
 const ZATCAInvoicePropsUnionSchema = z.union([
   CashOrCreditDebitSchema.and(
     z.object({
+      /**
+       * Transaction type code (KSA-2, 7-character string).
+       * - `'STANDARD'` or `'0100000'` — Standard tax invoice (B2B/B2G, requires ZATCA clearance)
+       */
       invoiceCode: z.union([z.literal("STANDARD"), z.literal("0100000")], {
         errorMap: () => ({
           message: "Must be 0100000 (tax invoice) or 0200000 (simplified)",
@@ -304,6 +350,10 @@ const ZATCAInvoicePropsUnionSchema = z.union([
   ),
   CashOrCreditDebitSchema.and(
     z.object({
+      /**
+       * Transaction type code (KSA-2, 7-character string).
+       * - `'SIMPLIFIED'` or `'0200000'` — Simplified tax invoice (B2C, reported within 24 hours)
+       */
       invoiceCode: z.union([z.literal("SIMPLIFIED"), z.literal("0200000")], {
         errorMap: () => ({
           message: "Must be 0100000 (tax invoice) or 0200000 (simplified)",

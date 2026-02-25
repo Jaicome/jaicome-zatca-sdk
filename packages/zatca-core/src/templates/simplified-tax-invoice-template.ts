@@ -305,7 +305,17 @@ export interface InvoiceLineItem {
  * - `E` — exempt (VAT-exempt supply)
  */
 export type ZeroTaxLineItem = InvoiceLineItem & {
+  /**
+   * VAT rate as a decimal fraction.
+   * - `0` — Zero-rated, exempt, or out-of-scope (requires `vatCategory`)
+   */
   vatPercent: 0;
+  /**
+   * VAT category for zero-rated, exempt, or out-of-scope items (BT-118).
+   * - `'O'` — Out of scope (not subject to VAT)
+   * - `'Z'` — Zero-rated (0% VAT, e.g. basic food items)
+   * - `'E'` — Exempt (VAT-exempt supply)
+   */
   vatCategory: {
     code: "O" | "Z" | "E";
     reasonCode?: string;
@@ -319,6 +329,11 @@ export type ZeroTaxLineItem = InvoiceLineItem & {
  * `vatPercent` must be either `0.15` (15% standard rate) or `0.05` (5% reduced rate).
  */
 export type LineItem = InvoiceLineItem & {
+  /**
+   * VAT rate as a decimal fraction.
+   * - `0.15` — Standard rate (15%, applies to most goods and services)
+   * - `0.05` — Reduced rate (5%, applies to specific categories)
+   */
   vatPercent: 0.15 | 0.05;
 };
 
@@ -348,7 +363,13 @@ export type ZATCAInvoiceLineItem = LineItem | ZeroTaxLineItem;
 export interface ZATCAInvoiceCancellation {
   /** Serial number of the original invoice being cancelled or adjusted. */
   canceledSerialInvoiceNumber: string;
-  /** Payment method used in the original invoice. Accepts string keys or legacy numeric codes. */
+  /**
+   * Payment means code (BT-81) used in the original invoice.
+   * - `'CASH'` or `'10'` — Cash payment
+   * - `'CREDIT'` or `'30'` — Credit / deferred payment
+   * - `'BANK_ACCOUNT'` or `'42'` — Bank transfer
+   * - `'BANK_CARD'` or `'48'` — Bank card / debit card
+   */
   paymentMethod: ZATCAPaymentMethod | "10" | "30" | "42" | "48";
   /** Human-readable reason for the cancellation or adjustment. */
   reason: string;
@@ -426,6 +447,11 @@ export interface ZatcaInvoiceBase {
  * Must include a {@link ZATCAInvoiceCancellation} block referencing the original invoice.
  */
 export type CreditDebitInvoice = ZatcaInvoiceBase & {
+  /**
+   * Invoice type code (BT-3).
+   * - `'CREDIT_NOTE'` or `'381'` — Credit note (reduces or cancels a prior invoice)
+   * - `'DEBIT_NOTE'` or `'383'` — Debit note (increases a prior invoice amount)
+   */
   invoiceType: "CREDIT_NOTE" | "DEBIT_NOTE" | "381" | "383";
   cancelation: ZATCAInvoiceCancellation;
 };
@@ -436,7 +462,10 @@ export type CreditDebitInvoice = ZatcaInvoiceBase & {
  * Optionally includes delivery dates and a payment method.
  */
 export type CashInvoice = ZatcaInvoiceBase & {
-  /** Invoice type. Use `'INVOICE'` (preferred) or the legacy code `'388'`. */
+  /**
+   * Invoice type code (BT-3).
+   * - `'INVOICE'` or `'388'` — Standard commercial invoice
+   */
   invoiceType: "INVOICE" | "388";
   /**
    * Actual delivery date of the goods or services (BT-72).
@@ -454,7 +483,13 @@ export type CashInvoice = ZatcaInvoiceBase & {
    * @example new Date('2024-01-25T00:00:00Z')
    */
   latestDeliveryDate?: Date;
-  /** Payment method for this invoice. Accepts string keys or legacy numeric codes. Optional. */
+  /**
+   * Payment means code (BT-81).
+   * - `'CASH'` or `'10'` — Cash payment
+   * - `'CREDIT'` or `'30'` — Credit / deferred payment
+   * - `'BANK_ACCOUNT'` or `'42'` — Bank transfer
+   * - `'BANK_CARD'` or `'48'` — Bank card / debit card
+   */
   paymentMethod?: ZATCAPaymentMethod | "10" | "30" | "42" | "48";
 };
 
