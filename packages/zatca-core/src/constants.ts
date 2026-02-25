@@ -155,3 +155,9 @@ export const BuyerIdScheme = {
   TIN: "TIN",
   _700: "700",
 } as const;
+
+/**
+ * Alias for {@link ExemptionReasonCode} — exported for plan compliance.
+ * Use `ExemptionReasonCode` in new code.
+ */
+export const ExemptionCodes = ExemptionReasonCode;
