@@ -47,6 +47,21 @@ jobs:
       - name: Run tests
         run: bun run --cwd packages/zatca-server test
 
+      - name: Enforce versioning policy (minor → major)
+        run: |
+          # Convert all 'minor' changesets to 'major'
+          # Policy: fixes are batched (patch), everything else is major
+          for file in .changeset/*.md; do
+            if [ "$file" = ".changeset/README.md" ]; then
+              continue
+            fi
+            if [ -f "$file" ] && grep -q '"minor"' "$file"; then
+              sed -i.bak 's/"minor"/"major"/g' "$file"
+              rm "${file}.bak"
+              echo "✓ Converted minor → major in $file"
+            fi
+          done
+
       - name: Create Release PR or detect merged Release PR
         uses: changesets/action@v1
         id: changesets
