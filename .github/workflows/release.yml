@@ -1,0 +1,74 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build packages
+        run: bun run --cwd packages/zatca-core build && bun run --cwd packages/zatca-server build
+
+      - name: Run tests
+        run: bun run --cwd packages/zatca-server test
+
+      - name: Create Release PR or detect merged Release PR
+        uses: changesets/action@v1
+        id: changesets
+        with:
+          version: pnpm changeset version
+          title: "release: version packages"
+          commit: "release: version packages"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pack @jaicome/zatca-core
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: pnpm --filter @jaicome/zatca-core pack --pack-destination /tmp/publish
+
+      - name: Pack @jaicome/zatca-server
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: pnpm --filter @jaicome/zatca-server pack --pack-destination /tmp/publish
+
+      - name: Publish @jaicome/zatca-core
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: npm publish /tmp/publish/jaicome-zatca-core-*.tgz --access public --provenance
+
+      - name: Publish @jaicome/zatca-server
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: npm publish /tmp/publish/jaicome-zatca-server-*.tgz --access public --provenance
