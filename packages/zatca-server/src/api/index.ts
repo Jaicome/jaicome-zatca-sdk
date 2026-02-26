@@ -1,26 +1,27 @@
 import { Result } from "better-result";
-import { cleanUpCertificateString } from "../signing/index.js";
-import {
-  ApiError,
-  NetworkError,
-  TimeoutError,
-  type ZatcaApiError,
-} from "./errors.js";
-import { logger } from "./logger.js";
+
+import { cleanUpCertificateString } from "../signing/index";
+import type { ZatcaApiError } from "./errors";
+import { ApiError, NetworkError, TimeoutError } from "./errors";
+import { logger } from "./logger";
 import type {
   CertificateResponse,
   InvoiceResponse,
   IssuedCertificate,
-} from "./types.js";
+} from "./types";
 
 const settings = {
   API_VERSION: "V2",
+  PRODUCTION_BASEURL: "https://gw-fatoora.zatca.gov.sa/e-invoicing/core",
   SANDBOX_BASEURL:
     "https://gw-fatoora.zatca.gov.sa/e-invoicing/developer-portal",
   SIMULATION_BASEURL: "https://gw-fatoora.zatca.gov.sa/e-invoicing/simulation",
-  PRODUCTION_BASEURL: "https://gw-fatoora.zatca.gov.sa/e-invoicing/core",
 };
 
+/**
+ * Methods available on the ZATCA compliance API endpoint.
+ * Used during EGS onboarding to obtain a compliance CSID and validate invoice samples.
+ */
 interface ComplianceAPIInterface {
   issueCertificate: (
     csr: string,
@@ -33,6 +34,10 @@ interface ComplianceAPIInterface {
   ) => Promise<Result<InvoiceResponse, ZatcaApiError>>;
 }
 
+/**
+ * Methods available on the ZATCA production API endpoint.
+ * Used after onboarding to report or clear invoices in production.
+ */
 interface ProductionAPIInterface {
   issueCertificate: (
     complianceRequestId: string
@@ -49,6 +54,20 @@ interface ProductionAPIInterface {
   ) => Promise<Result<InvoiceResponse, ZatcaApiError>>;
 }
 
+/**
+ * Low-level HTTP client for the ZATCA Fatoora API.
+ * Wraps both the compliance and production endpoints and handles authentication,
+ * base URL selection, and error mapping.
+ *
+ * Prefer using {@link EGS} for the full onboarding and invoice lifecycle.
+ * Use this class directly only when you need fine-grained control over API calls.
+ *
+ * @example
+ * ```typescript
+ * const api = new API('simulation');
+ * const result = await api.compliance().issueCertificate(csrPem, '123456');
+ * ```
+ */
 class API {
   private env: string;
 
@@ -75,41 +94,44 @@ class API {
     url: string,
     body: unknown,
     headers: Record<string, string>,
-    timeoutMs: number = 30000
+    timeoutMs: number = 30_000
   ): Promise<Result<T, ZatcaApiError>> {
     const controller = new AbortController();
     const tid = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
       const fetchResult = await Result.tryPromise({
-        try: () =>
-          fetch(url, {
-            method: "POST",
-            signal: controller.signal,
-            headers: {
-              "Content-Type": "application/json",
-              ...headers,
-            },
-            body: JSON.stringify(body),
-          }),
         catch: (cause) => {
           if (cause instanceof Error && cause.name === "AbortError") {
             return new TimeoutError({
-              url,
-              timeoutMs,
               message: `Request timed out after ${timeoutMs}ms`,
+              timeoutMs,
+              url,
             });
           }
 
           return new NetworkError({
-            url,
             message: cause instanceof Error ? cause.message : String(cause),
+            url,
           });
         },
+        try: () =>
+          fetch(url, {
+            body: JSON.stringify(body),
+            headers: {
+              "Content-Type": "application/json",
+              ...headers,
+            },
+            method: "POST",
+            signal: controller.signal,
+          }),
       });
 
       if (fetchResult.isErr()) {
-        logger.error({ err: fetchResult.error, url }, "ZATCA API request failed");
+        logger.error(
+          { err: fetchResult.error, url },
+          "ZATCA API request failed"
+        );
         return fetchResult;
       }
 
@@ -125,14 +147,14 @@ class API {
 
       if (!response.ok || ![200, 202].includes(response.status)) {
         const err = new ApiError({
-          url,
+          body: parsedBody,
           status: response.status,
           statusText: response.statusText,
-          body: parsedBody,
+          url,
         });
 
         logger.error(
-          { err, url, status: response.status },
+          { err, status: response.status, url },
           "ZATCA API error response"
         );
 
@@ -145,14 +167,22 @@ class API {
     }
   }
 
+  /**
+   * Returns a {@link ComplianceAPIInterface} scoped to the compliance endpoint.
+   * If `certificate` and `secret` are provided, requests are authenticated
+   * (required for {@link ComplianceAPIInterface.checkInvoiceCompliance}).
+   *
+   * @param certificate - PEM-encoded compliance CSID. Required for invoice compliance checks.
+   * @param secret - API secret paired with the compliance certificate.
+   */
   compliance(certificate?: string, secret?: string): ComplianceAPIInterface {
     const authHeaders = this.getAuthHeaders(certificate, secret);
     const baseUrl =
       this.env === "production"
         ? settings.PRODUCTION_BASEURL
         : this.env === "simulation"
-        ? settings.SIMULATION_BASEURL
-        : settings.SANDBOX_BASEURL;
+          ? settings.SIMULATION_BASEURL
+          : settings.SANDBOX_BASEURL;
 
     const issueCertificate = async (
       csr: string,
@@ -182,8 +212,8 @@ class API {
       issued_certificate = `-----BEGIN CERTIFICATE-----\n${issued_certificate}\n-----END CERTIFICATE-----`;
 
       return Result.ok({
-        issued_certificate,
         api_secret: data.secret,
+        issued_certificate,
         request_id: data.requestID,
       }) as Result<IssuedCertificate, ZatcaApiError>;
     };
@@ -194,17 +224,17 @@ class API {
       egsId: string
     ): Promise<Result<InvoiceResponse, ZatcaApiError>> => {
       const headers = {
-        "Accept-Version": settings.API_VERSION,
         "Accept-Language": "en",
+        "Accept-Version": settings.API_VERSION,
         ...authHeaders,
       };
 
       const result = await this.fetchJson<InvoiceResponse>(
         `${baseUrl}/compliance/invoices`,
         {
+          invoice: Buffer.from(signedXmlString).toString("base64"),
           invoiceHash: invoiceHash,
           uuid: egsId,
-          invoice: Buffer.from(signedXmlString).toString("base64"),
         },
         headers
       );
@@ -212,17 +242,24 @@ class API {
       return result as Result<InvoiceResponse, ZatcaApiError>;
     };
 
-    return { issueCertificate, checkInvoiceCompliance };
+    return { checkInvoiceCompliance, issueCertificate };
   }
 
+  /**
+   * Returns a {@link ProductionAPIInterface} scoped to the production endpoint.
+   * Requires a valid production CSID and its paired API secret for all operations.
+   *
+   * @param certificate - PEM-encoded production CSID.
+   * @param secret - API secret paired with the production certificate.
+   */
   production(certificate?: string, secret?: string): ProductionAPIInterface {
     const authHeaders = this.getAuthHeaders(certificate, secret);
     const baseUrl =
       this.env === "production"
         ? settings.PRODUCTION_BASEURL
         : this.env === "simulation"
-        ? settings.SIMULATION_BASEURL
-        : settings.SANDBOX_BASEURL;
+          ? settings.SIMULATION_BASEURL
+          : settings.SANDBOX_BASEURL;
 
     const issueCertificate = async (
       complianceRequestId: string
@@ -250,8 +287,8 @@ class API {
       issued_certificate = `-----BEGIN CERTIFICATE-----\n${issued_certificate}\n-----END CERTIFICATE-----`;
 
       return Result.ok({
-        issued_certificate,
         api_secret: data.secret,
+        issued_certificate,
         request_id: data.requestID,
       }) as Result<IssuedCertificate, ZatcaApiError>;
     };
@@ -262,8 +299,8 @@ class API {
       egsId: string
     ): Promise<Result<InvoiceResponse, ZatcaApiError>> => {
       const headers = {
-        "Accept-Version": settings.API_VERSION,
         "Accept-Language": "en",
+        "Accept-Version": settings.API_VERSION,
         "Clearance-Status": "0",
         ...authHeaders,
       };
@@ -271,9 +308,9 @@ class API {
       const result = await this.fetchJson<InvoiceResponse>(
         `${baseUrl}/invoices/reporting/single`,
         {
+          invoice: Buffer.from(signedXmlString).toString("base64"),
           invoiceHash: invoiceHash,
           uuid: egsId,
-          invoice: Buffer.from(signedXmlString).toString("base64"),
         },
         headers
       );
@@ -287,8 +324,8 @@ class API {
       egsId: string
     ): Promise<Result<InvoiceResponse, ZatcaApiError>> => {
       const headers = {
-        "Accept-Version": settings.API_VERSION,
         "Accept-Language": "en",
+        "Accept-Version": settings.API_VERSION,
         "Clearance-Status": "1",
         ...authHeaders,
       };
@@ -296,9 +333,9 @@ class API {
       const result = await this.fetchJson<InvoiceResponse>(
         `${baseUrl}/invoices/clearance/single`,
         {
+          invoice: Buffer.from(signedXmlString).toString("base64"),
           invoiceHash: invoiceHash,
           uuid: egsId,
-          invoice: Buffer.from(signedXmlString).toString("base64"),
         },
         headers
       );
@@ -306,17 +343,17 @@ class API {
       return result as Result<InvoiceResponse, ZatcaApiError>;
     };
 
-    return { issueCertificate, reportInvoice, clearanceInvoice };
+    return { clearanceInvoice, issueCertificate, reportInvoice };
   }
 }
 
 export default API;
 export type { ComplianceAPIInterface, ProductionAPIInterface };
-export { ApiError, NetworkError, TimeoutError } from "./errors.js";
-export type { ZatcaApiError } from "./errors.js";
+export type { ZatcaApiError } from "./errors";
+export { ApiError, NetworkError, TimeoutError } from "./errors";
 export type {
   CertificateResponse,
   InvoiceResponse,
   IssuedCertificate,
   ValidationMessage,
-} from "./types.js";
+} from "./types";

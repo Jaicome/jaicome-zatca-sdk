@@ -1,23 +1,25 @@
-import moment from "moment";
-import type { XMLDocument } from "./parser/index.js";
+import type { XMLDocument } from "./parser/index";
 import {
   concatUint8Arrays,
   stringToUint8Array,
   uint8ArrayToBase64,
-} from "./utils/bytes.js";
+} from "./utils/bytes";
 
-function encodeTLVTag(tag: number, value: string): Uint8Array {
+const encodeTLVTag = (tag: number, value: string): Uint8Array => {
   const valueBytes = stringToUint8Array(value);
   if (valueBytes.length > 255) {
     throw new Error(`TLV value for tag ${tag} exceeds 255 bytes.`);
   }
-  return concatUint8Arrays(new Uint8Array([tag, valueBytes.length]), valueBytes);
-}
+  return concatUint8Arrays(
+    new Uint8Array([tag, valueBytes.length]),
+    valueBytes
+  );
+};
 
-function getInvoiceTagValue(invoiceXml: XMLDocument, path: string): string {
+const getInvoiceTagValue = (invoiceXml: XMLDocument, path: string): string => {
   const normalizeValue = (value: unknown): string => {
     const unwrappedValue = Array.isArray(value) ? value[0] : value;
-    if (unwrappedValue == null) {
+    if (unwrappedValue === null || unwrappedValue === undefined) {
       return "";
     }
     if (typeof unwrappedValue === "object" && "#text" in unwrappedValue) {
@@ -27,7 +29,7 @@ function getInvoiceTagValue(invoiceXml: XMLDocument, path: string): string {
   };
 
   const value = invoiceXml.get(path)?.[0];
-  if (value == null) {
+  if (value === null || value === undefined) {
     const segments = path.split("/");
     if (segments.length < 2) {
       return "";
@@ -38,7 +40,11 @@ function getInvoiceTagValue(invoiceXml: XMLDocument, path: string): string {
       if (Array.isArray(current)) {
         current = current[0];
       }
-      if (current == null || typeof current !== "object") {
+      if (
+        current === null ||
+        current === undefined ||
+        typeof current !== "object"
+      ) {
         return "";
       }
       current = (current as Record<string, unknown>)[segments[index]];
@@ -48,30 +54,66 @@ function getInvoiceTagValue(invoiceXml: XMLDocument, path: string): string {
   }
 
   return normalizeValue(value);
-}
+};
 
-export function generatePhaseOneQRFromXml(invoiceXml: XMLDocument): string {
+export const generatePhaseOneQRFromXml = (invoiceXml: XMLDocument): string => {
   const sellerName = getInvoiceTagValue(
     invoiceXml,
     "Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity/cbc:RegistrationName"
   );
+  if (!sellerName) {
+    throw new Error(
+      "QR generation failed: missing required field 'RegistrationName' in invoice XML"
+    );
+  }
+
   const vatNumber = getInvoiceTagValue(
     invoiceXml,
     "Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyTaxScheme/cbc:CompanyID"
   );
+  if (!vatNumber) {
+    throw new Error(
+      "QR generation failed: missing required field 'CompanyID' in invoice XML"
+    );
+  }
+
   const invoiceTotal = getInvoiceTagValue(
     invoiceXml,
     "Invoice/cac:LegalMonetaryTotal/cbc:TaxInclusiveAmount"
   );
+  if (!invoiceTotal) {
+    throw new Error(
+      "QR generation failed: missing required field 'TaxInclusiveAmount' in invoice XML"
+    );
+  }
+
   const vatTotal = getInvoiceTagValue(
     invoiceXml,
     "Invoice/cac:TaxTotal/cbc:TaxAmount"
   );
-  const issueDate = getInvoiceTagValue(invoiceXml, "Invoice/cbc:IssueDate");
-  const issueTime = getInvoiceTagValue(invoiceXml, "Invoice/cbc:IssueTime");
+  if (!vatTotal) {
+    throw new Error(
+      "QR generation failed: missing required field 'TaxAmount' in invoice XML"
+    );
+  }
 
-  const datetime = `${issueDate} ${issueTime}`;
-  const formattedDatetime = moment(datetime).format("YYYY-MM-DDTHH:mm:ss");
+  const issueDate = getInvoiceTagValue(invoiceXml, "Invoice/cbc:IssueDate");
+  if (!issueDate) {
+    throw new Error(
+      "QR generation failed: missing required field 'IssueDate' in invoice XML"
+    );
+  }
+
+  const issueTime = getInvoiceTagValue(invoiceXml, "Invoice/cbc:IssueTime");
+  if (!issueTime) {
+    throw new Error(
+      "QR generation failed: missing required field 'IssueTime' in invoice XML"
+    );
+  }
+
+  const formattedDatetime = new Date(`${issueDate}T${issueTime}`)
+    .toISOString()
+    .slice(0, 19);
 
   const tlv = concatUint8Arrays(
     encodeTLVTag(1, sellerName),
@@ -82,4 +124,4 @@ export function generatePhaseOneQRFromXml(invoiceXml: XMLDocument): string {
   );
 
   return uint8ArrayToBase64(tlv);
-}
+};

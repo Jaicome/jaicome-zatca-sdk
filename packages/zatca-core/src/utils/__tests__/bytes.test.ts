@@ -1,4 +1,3 @@
-import { describe, it, expect } from "vitest";
 import {
   uint8ArrayToBase64,
   base64ToUint8Array,
@@ -7,9 +6,9 @@ import {
   uint8ArrayToHex,
   hexToUint8Array,
   concatUint8Arrays,
-} from "../bytes.js";
+} from "../bytes";
 
-describe("uint8ArrayToBase64", () => {
+describe(uint8ArrayToBase64, () => {
   it("encodes known vector: empty array", () => {
     expect(uint8ArrayToBase64(new Uint8Array([]))).toBe("");
   });
@@ -25,15 +24,15 @@ describe("uint8ArrayToBase64", () => {
   });
 });
 
-describe("base64ToUint8Array", () => {
+describe(base64ToUint8Array, () => {
   it("decodes known vector: 'SGVsbG8=' -> [72,101,108,108,111]", () => {
-    expect(base64ToUint8Array("SGVsbG8=")).toEqual(
+    expect(base64ToUint8Array("SGVsbG8=")).toStrictEqual(
       new Uint8Array([72, 101, 108, 108, 111])
     );
   });
 
   it("decodes known vector: '' -> empty", () => {
-    expect(base64ToUint8Array("")).toEqual(new Uint8Array([]));
+    expect(base64ToUint8Array("")).toStrictEqual(new Uint8Array([]));
   });
 
   it("throws on malformed base64 input", () => {
@@ -46,23 +45,25 @@ describe("base64ToUint8Array", () => {
 describe("base64 roundtrip", () => {
   it("encodes then decodes back to original bytes", () => {
     const original = new Uint8Array([0, 127, 128, 255, 42, 100]);
-    expect(base64ToUint8Array(uint8ArrayToBase64(original))).toEqual(original);
+    expect(base64ToUint8Array(uint8ArrayToBase64(original))).toStrictEqual(
+      original
+    );
   });
 });
 
-describe("utf8ToUint8Array", () => {
+describe(utf8ToUint8Array, () => {
   it("encodes ASCII string to bytes", () => {
-    expect(utf8ToUint8Array("Hello")).toEqual(
+    expect(utf8ToUint8Array("Hello")).toStrictEqual(
       new Uint8Array([72, 101, 108, 108, 111])
     );
   });
 
   it("encodes empty string to empty bytes", () => {
-    expect(utf8ToUint8Array("")).toEqual(new Uint8Array([]));
+    expect(utf8ToUint8Array("")).toStrictEqual(new Uint8Array([]));
   });
 });
 
-describe("uint8ArrayToUtf8", () => {
+describe(uint8ArrayToUtf8, () => {
   it("decodes bytes to ASCII string", () => {
     expect(uint8ArrayToUtf8(new Uint8Array([72, 101, 108, 108, 111]))).toBe(
       "Hello"
@@ -81,7 +82,7 @@ describe("utf8 roundtrip", () => {
   });
 });
 
-describe("uint8ArrayToHex", () => {
+describe(uint8ArrayToHex, () => {
   it("encodes known vector: [0,1,255] -> '0001ff'", () => {
     expect(uint8ArrayToHex(new Uint8Array([0, 1, 255]))).toBe("0001ff");
   });
@@ -95,17 +96,21 @@ describe("uint8ArrayToHex", () => {
   });
 });
 
-describe("hexToUint8Array", () => {
+describe(hexToUint8Array, () => {
   it("decodes known vector: '0001ff' -> [0,1,255]", () => {
-    expect(hexToUint8Array("0001ff")).toEqual(new Uint8Array([0, 1, 255]));
+    expect(hexToUint8Array("0001ff")).toStrictEqual(
+      new Uint8Array([0, 1, 255])
+    );
   });
 
   it("decodes uppercase hex", () => {
-    expect(hexToUint8Array("0001FF")).toEqual(new Uint8Array([0, 1, 255]));
+    expect(hexToUint8Array("0001FF")).toStrictEqual(
+      new Uint8Array([0, 1, 255])
+    );
   });
 
   it("decodes empty string to empty array", () => {
-    expect(hexToUint8Array("")).toEqual(new Uint8Array([]));
+    expect(hexToUint8Array("")).toStrictEqual(new Uint8Array([]));
   });
 
   it("throws on odd-length hex string", () => {
@@ -120,36 +125,38 @@ describe("hexToUint8Array", () => {
 describe("hex roundtrip", () => {
   it("encodes then decodes back to original bytes", () => {
     const original = new Uint8Array([0, 127, 128, 255]);
-    expect(hexToUint8Array(uint8ArrayToHex(original))).toEqual(original);
+    expect(hexToUint8Array(uint8ArrayToHex(original))).toStrictEqual(original);
   });
 });
 
-describe("concatUint8Arrays", () => {
+describe(concatUint8Arrays, () => {
   it("concatenates two arrays", () => {
     const a = new Uint8Array([1, 2]);
     const b = new Uint8Array([3, 4]);
-    expect(concatUint8Arrays(a, b)).toEqual(new Uint8Array([1, 2, 3, 4]));
+    expect(concatUint8Arrays(a, b)).toStrictEqual(new Uint8Array([1, 2, 3, 4]));
   });
 
   it("concatenates three arrays", () => {
     const a = new Uint8Array([1]);
     const b = new Uint8Array([2]);
     const c = new Uint8Array([3]);
-    expect(concatUint8Arrays(a, b, c)).toEqual(new Uint8Array([1, 2, 3]));
+    expect(concatUint8Arrays(a, b, c)).toStrictEqual(new Uint8Array([1, 2, 3]));
   });
 
   it("handles empty arrays", () => {
-    expect(concatUint8Arrays(new Uint8Array([]))).toEqual(new Uint8Array([]));
+    expect(concatUint8Arrays(new Uint8Array([]))).toStrictEqual(
+      new Uint8Array([])
+    );
   });
 
   it("handles mix of empty and non-empty arrays", () => {
     const a = new Uint8Array([]);
     const b = new Uint8Array([1, 2]);
     const c = new Uint8Array([]);
-    expect(concatUint8Arrays(a, b, c)).toEqual(new Uint8Array([1, 2]));
+    expect(concatUint8Arrays(a, b, c)).toStrictEqual(new Uint8Array([1, 2]));
   });
 
   it("returns empty array when called with no arguments", () => {
-    expect(concatUint8Arrays()).toEqual(new Uint8Array([]));
+    expect(concatUint8Arrays()).toStrictEqual(new Uint8Array([]));
   });
 });

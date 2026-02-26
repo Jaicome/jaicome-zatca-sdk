@@ -1,28 +1,26 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import {
-  ZATCAInvoice,
-  type ZATCAInvoiceLineItem,
-  type ZATCAInvoiceProps,
+
+import { ZATCAInvoice, InvoiceType, PaymentMeans, GENESIS_PREVIOUS_INVOICE_HASH } from "@jaicome/zatca-core";
+import type {
+  ZATCAInvoiceLineItem,
+  ZATCAInvoiceProps,
 } from "@jaicome/zatca-core";
 import {
-  type ComplianceCheckPayload,
   EGS,
-  type EGSInfo,
   NodeSigner,
   REQUIRED_COMPLIANCE_STEPS,
-  type ZATCAComplianceStep,
+} from "@jaicome/zatca-server";
+import type {
+  ComplianceCheckPayload,
+  EGSInfo,
+  ZATCAComplianceStep,
 } from "@jaicome/zatca-server";
 
-const now = new Date();
-const issueDate = now.toISOString().split("T")[0];
-const issueTime = now.toISOString().split("T")[1].slice(0, 8);
+const issueDate = new Date();
 const outputDir = path.resolve(process.cwd(), "tmp");
 fs.mkdirSync(outputDir, { recursive: true });
 
-// Genesis hash for the first invoice in the chain
-const GENESIS_PREVIOUS_INVOICE_HASH =
-  "NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==";
 
 // Line item for 1 SAR invoice with 15% VAT (Total: 1.15 SAR)
 const lineItem1SAR: ZATCAInvoiceLineItem = {
@@ -35,21 +33,21 @@ const lineItem1SAR: ZATCAInvoiceLineItem = {
 
 // EGS Unit configuration
 const egsunit: EGSInfo = {
+  branchIndustry: "Retail",
+  branchName: "Main Branch",
   id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-  name: "Production Refund Test EGS",
-  model: "TestDevice",
-  vatName: "Production Test Company",
-  vatNumber: "311497191800003",
   location: {
+    building: "5678",
     city: "Riyadh",
     citySubdivision: "Al Olaya",
-    street: "King Fahd Road",
     plotIdentification: "1234",
-    building: "5678",
     postalZone: "12345",
+    street: "King Fahd Road",
   },
-  branchName: "Main Branch",
-  branchIndustry: "Retail",
+  model: "TestDevice",
+  name: "Production Refund Test EGS",
+  vatName: "Production Test Company",
+  vatNumber: "311497191800003",
 };
 
 // Helper function to build invoice props for compliance checks
@@ -57,43 +55,42 @@ const buildInvoicePropsForComplianceStep = (
   step: ZATCAComplianceStep,
   invoiceCounterNumber: number,
   previousInvoiceHash: string,
-  canceledSerialInvoiceNumber: string,
+  canceledSerialInvoiceNumber: string
 ): ZATCAInvoiceProps => {
   const invoiceSerialNumber = `PROD-TEST-COMPLIANCE-${100 + invoiceCounterNumber}`;
   const shared = {
+    crnNumber: "1234567890",
+    customerInfo: {
+      building: "100",
+      buyerName: "Compliance Test Customer",
+      city: "Riyadh",
+      citySubdivision: "Al Malaz",
+      postalZone: "11564",
+      street: "Test Street",
+    },
     egsInfo: egsunit,
     invoiceCounterNumber,
     invoiceSerialNumber,
     issueDate,
-    issueTime: `${issueTime}Z`,
-    previousInvoiceHash,
     lineItems: [lineItem1SAR],
-    crnNumber: "1234567890",
-    customerInfo: {
-      buyerName: "Compliance Test Customer",
-      city: "Riyadh",
-      citySubdivision: "Al Malaz",
-      building: "100",
-      postalZone: "11564",
-      street: "Test Street",
-    },
+    previousInvoiceHash,
   };
 
   if (step === "standard-compliant") {
     return {
       ...shared,
-      invoiceType: "INVOICE",
-      invoiceCode: "STANDARD",
       actualDeliveryDate: issueDate,
+      invoiceCode: "STANDARD",
+      invoiceType: InvoiceType.INVOICE,
     };
   }
 
   if (step === "simplified-compliant") {
     return {
       ...shared,
-      invoiceType: "INVOICE",
-      invoiceCode: "SIMPLIFIED",
       actualDeliveryDate: issueDate,
+      invoiceCode: "SIMPLIFIED",
+      invoiceType: InvoiceType.INVOICE,
     };
   }
 
@@ -106,13 +103,13 @@ const buildInvoicePropsForComplianceStep = (
 
   return {
     ...shared,
-    invoiceType: is_credit_note ? "CREDIT_NOTE" : "DEBIT_NOTE",
-    invoiceCode: is_standard_note ? "STANDARD" : "SIMPLIFIED",
     cancelation: {
       canceledSerialInvoiceNumber,
-      paymentMethod: "CASH",
+      paymentMethod: PaymentMeans.CASH,
       reason: "Compliance check",
     },
+    invoiceCode: is_standard_note ? "STANDARD" : "SIMPLIFIED",
+    invoiceType: is_credit_note ? InvoiceType.CREDIT_NOTE : InvoiceType.DEBIT_NOTE,
   };
 };
 
@@ -125,134 +122,53 @@ const main = async () => {
     const egs = new EGS(egsunit, "simulation");
     console.log("✅ EGS initialized\n");
 
-    // 2. Generate Keys & CSR
-    console.log("🔑 Step 2: Generating keys and CSR...");
-    await egs.generateNewKeysAndCSR("Production Refund Test Solution");
-    console.log("✅ Keys and CSR generated\n");
-
-    // 3. Issue compliance certificate
-    console.log("📜 Step 3: Issuing compliance certificate...");
-    const otp = "112078"; // Replace with actual OTP from ZATCA portal
-    const complianceCertResult = await egs.issueComplianceCertificate(otp);
-
-    if (complianceCertResult.isErr()) {
-      console.error("❌ Failed to issue compliance certificate:", complianceCertResult.error);
-      return;
-    }
-
-    const compliance_request_id = complianceCertResult.value;
-    console.log("✅ Compliance certificate issued (Request ID:", compliance_request_id, ")\n");
-
-    // 4. Run compliance checks (required before production certificate)
-    console.log("🔍 Step 4: Running compliance checks...");
-    const signer = new NodeSigner(egs.getComplianceCertificate()!);
-
-    const complianceChecks: Partial<
-      Record<ZATCAComplianceStep, ComplianceCheckPayload>
-    > = {};
-    const complianceStepExecutionOrder: readonly ZATCAComplianceStep[] = [
-      "standard-debit-note-compliant",
-      "standard-compliant",
-      "standard-credit-note-compliant",
-      "simplified-debit-note-compliant",
-      "simplified-compliant",
-      "simplified-credit-note-compliant",
-    ];
-    const serialByStep = {} as Record<ZATCAComplianceStep, string>;
-    let previousHash = GENESIS_PREVIOUS_INVOICE_HASH;
-    let previousSerial = "PROD-TEST-COMPLIANCE-100";
-
-    for (const [index, step] of complianceStepExecutionOrder.entries()) {
-      const invoice = new ZATCAInvoice({
-        props: buildInvoicePropsForComplianceStep(
-          step,
-          index + 1,
-          previousHash,
-          previousSerial,
-        ),
-        signer,
-        acceptWarning: true,
-      });
-
-      const result = await invoice.sign(
-        egs.getComplianceCertificate()!,
-        egs.getPrivateKey()!,
-      );
-      const signedInvoiceString = result.signedXml;
-      const invoiceHash = result.invoiceHash;
-      complianceChecks[step] = { signedInvoiceString, invoiceHash };
-      serialByStep[step] = `PROD-TEST-COMPLIANCE-${101 + index}`;
-      previousHash = invoiceHash;
-      previousSerial = serialByStep[step];
-
-      console.log(`  ✅ Compliance check invoice for ${step} generated`);
-    }
-
-    const complianceResultsResult =
-      await egs.runComplianceChecksForProduction(complianceChecks);
-    if (complianceResultsResult.isErr()) {
-      console.error("❌ Compliance checks failed:", complianceResultsResult.error);
-      return;
-    }
-    const complianceResults = complianceResultsResult.value;
-    REQUIRED_COMPLIANCE_STEPS.forEach((step) => {
-      const stepResult = complianceResults[step];
-      console.log(
-        `  ✅ Compliance step ${step}:`,
-        stepResult?.validationResults?.status,
-      );
+    // 2-5. Onboard EGS (generates keys, issues certificates, runs compliance checks)
+    console.log("🔑 Step 2: Onboarding EGS...");
+    const otp = "247128"; // Replace with actual OTP from ZATCA portal
+    const onboardResult = await egs.onboard({
+      solutionName: "Production Refund Test Solution",
+      otp,
     });
+    console.log("✅ EGS onboarding completed");
+    console.log("   Last invoice hash:", onboardResult.lastInvoiceHash);
+    console.log("   Next invoice counter:", onboardResult.nextInvoiceCounter);
     console.log();
 
-    // 5. Issue production certificate
-    console.log("🏭 Step 5: Issuing production certificate...");
-    const productionResult = await egs.issueProductionCertificate(
-      compliance_request_id,
-    );
-    if (productionResult.isErr()) {
-      console.error("❌ Failed to issue production certificate:", productionResult.error);
-      return;
-    }
-    const production_request_id = productionResult.value;
-    console.log(
-      "✅ Production certificate issued (Request ID:",
-      production_request_id,
-      ")\n",
-    );
+    // Create NodeSigner using production certificate
+    const signer = new NodeSigner(egs.getProductionCertificate()!);
+
 
     // 6. Create and sign the first invoice (1 SAR + 15% VAT)
-    console.log("📄 Step 6: Creating first invoice (1 SAR + 15% VAT)...")
+    console.log("📄 Step 6: Creating first invoice (1 SAR + 15% VAT)...");
 
     const firstInvoiceProps: ZATCAInvoiceProps = {
       egsInfo: egsunit,
-      invoiceCounterNumber: 7,
+      invoiceCounterNumber: onboardResult.nextInvoiceCounter,
       invoiceSerialNumber: "PROD-TEST-001",
       issueDate,
-      issueTime: `${issueTime}Z`,
-      previousInvoiceHash: previousHash, // Chain from last compliance check invoice
+      previousInvoiceHash: onboardResult.lastInvoiceHash, // Chain from last compliance check invoice
       lineItems: [lineItem1SAR],
       crnNumber: "1234567890",
-      invoiceType: "INVOICE",
+      invoiceType: InvoiceType.INVOICE,
       invoiceCode: "SIMPLIFIED",
       customerInfo: {
+        building: "100",
         buyerName: "Test Customer",
         city: "Riyadh",
         citySubdivision: "Al Malaz",
-        building: "100",
         postalZone: "11564",
         street: "Test Street",
       },
     };
 
     const firstInvoice = new ZATCAInvoice({
+      acceptWarning: true,
       props: firstInvoiceProps,
       signer,
-      acceptWarning: true,
     });
 
     const firstInvoiceResult = await firstInvoice.sign(
-      egs.getComplianceCertificate()!,
-      egs.getPrivateKey()!,
+      egs.getPrivateKey()!
     );
 
     const firstInvoiceXML = firstInvoiceResult.signedXml;
@@ -263,9 +179,11 @@ const main = async () => {
     fs.writeFileSync(
       path.join(outputDir, "production_invoice_1_sar.xml"),
       firstInvoiceXML,
-      "utf8",
+      "utf8"
     );
-    console.log("✅ First invoice (1 SAR + 15% VAT = 1.15 SAR) created and signed");
+    console.log(
+      "✅ First invoice (1 SAR + 15% VAT = 1.15 SAR) created and signed"
+    );
     console.log("   Serial:", firstInvoiceSerial);
     console.log("   Hash:", firstInvoiceHash);
     console.log("   Saved to: tmp/production_invoice_1_sar.xml\n");
@@ -274,57 +192,64 @@ const main = async () => {
     console.log("📤 Reporting first invoice to ZATCA...");
     const firstInvoiceReportResult = await egs.reportInvoice(
       firstInvoiceXML,
-      firstInvoiceHash,
+      firstInvoiceHash
     );
 
     if (firstInvoiceReportResult.isErr()) {
-      console.error("❌ Failed to report first invoice:", firstInvoiceReportResult.error);
+      console.error(
+        "❌ Failed to report first invoice:",
+        firstInvoiceReportResult.error
+      );
       return;
     }
 
     console.log("✅ First invoice reported successfully");
-    console.log("   Reporting status:", firstInvoiceReportResult.value?.reportingStatus);
-    console.log("   Clearance status:", firstInvoiceReportResult.value?.clearanceStatus || "N/A");
+    console.log(
+      "   Reporting status:",
+      firstInvoiceReportResult.value?.reportingStatus
+    );
+    console.log(
+      "   Clearance status:",
+      firstInvoiceReportResult.value?.clearanceStatus || "N/A"
+    );
     console.log();
 
     // 7. Create and sign the refund invoice (Credit Note)
-    console.log("💰 Step 7: Creating refund invoice (Credit Note)...")
+    console.log("💰 Step 7: Creating refund invoice (Credit Note)...");
 
     const refundInvoiceProps: ZATCAInvoiceProps = {
       egsInfo: egsunit,
-      invoiceCounterNumber: 8,
+      invoiceCounterNumber: onboardResult.nextInvoiceCounter + 1,
       invoiceSerialNumber: "PROD-TEST-002",
       issueDate,
-      issueTime: `${issueTime}Z`,
       previousInvoiceHash: firstInvoiceHash, // Chain to first invoice
       lineItems: [lineItem1SAR], // Same line item but as refund
       crnNumber: "1234567890",
-      invoiceType: "CREDIT_NOTE",
+      invoiceType: InvoiceType.CREDIT_NOTE,
       invoiceCode: "SIMPLIFIED",
       customerInfo: {
+        building: "100",
         buyerName: "Test Customer",
         city: "Riyadh",
         citySubdivision: "Al Malaz",
-        building: "100",
         postalZone: "11564",
         street: "Test Street",
       },
       cancelation: {
         canceledSerialInvoiceNumber: firstInvoiceSerial, // Reference first invoice
-        paymentMethod: "CASH",
+      paymentMethod: PaymentMeans.CASH,
         reason: "Customer requested refund",
       },
     };
 
     const refundInvoice = new ZATCAInvoice({
+      acceptWarning: true,
       props: refundInvoiceProps,
       signer,
-      acceptWarning: true,
     });
 
     const refundInvoiceResult = await refundInvoice.sign(
-      egs.getComplianceCertificate()!,
-      egs.getPrivateKey()!,
+      egs.getPrivateKey()!
     );
 
     const refundInvoiceXML = refundInvoiceResult.signedXml;
@@ -335,7 +260,7 @@ const main = async () => {
     fs.writeFileSync(
       path.join(outputDir, "production_refund_invoice.xml"),
       refundInvoiceXML,
-      "utf8",
+      "utf8"
     );
     console.log("✅ Refund invoice (Credit Note) created and signed");
     console.log("   Serial:", refundInvoiceSerial);
@@ -346,25 +271,38 @@ const main = async () => {
     console.log("📤 Reporting refund invoice to ZATCA...");
     const refundInvoiceReportResult = await egs.reportInvoice(
       refundInvoiceXML,
-      refundInvoiceHash,
+      refundInvoiceHash
     );
 
     if (refundInvoiceReportResult.isErr()) {
-      console.error("❌ Failed to report refund invoice:", refundInvoiceReportResult.error);
+      console.error(
+        "❌ Failed to report refund invoice:",
+        refundInvoiceReportResult.error
+      );
       return;
     }
 
     console.log("✅ Refund invoice reported successfully");
-    console.log("   Reporting status:", refundInvoiceReportResult.value?.reportingStatus);
-    console.log("   Clearance status:", refundInvoiceReportResult.value?.clearanceStatus || "N/A");
+    console.log(
+      "   Reporting status:",
+      refundInvoiceReportResult.value?.reportingStatus
+    );
+    console.log(
+      "   Clearance status:",
+      refundInvoiceReportResult.value?.clearanceStatus || "N/A"
+    );
     console.log();
 
     // 8. Display chain information
     console.log("🔗 Invoice Chain:");
-    console.log("   Genesis → [6 Compliance Checks] → First Invoice → Refund Invoice");
-    console.log("   " + GENESIS_PREVIOUS_INVOICE_HASH.substring(0, 15) + "... → ... →");
-    console.log("   " + firstInvoiceHash.substring(0, 15) + "... →");
-    console.log("   " + refundInvoiceHash.substring(0, 15) + "...\n");
+    console.log(
+      "   Genesis → [6 Compliance Checks] → First Invoice → Refund Invoice"
+    );
+    console.log(
+      "   " + GENESIS_PREVIOUS_INVOICE_HASH.slice(0, 15) + "... → ... →"
+    );
+    console.log("   " + firstInvoiceHash.slice(0, 15) + "... →");
+    console.log("   " + refundInvoiceHash.slice(0, 15) + "...\n");
 
     console.log("✨ Production Refund Test completed successfully!");
     console.log("\nSummary:");
@@ -374,7 +312,6 @@ const main = async () => {
     console.log("- Refund Invoice: Credit Note for 1.15 SAR total");
     console.log("- All invoices properly chained");
     console.log("- Both test invoices reported to ZATCA successfully");
-
   } catch (error: any) {
     console.error("\n❌ Error occurred in the process:");
     console.error("Error message:", error.message);
@@ -385,9 +322,9 @@ const main = async () => {
     }
 
     const error_summary = {
-      name: error?.name,
-      message: error?.message,
       code: error?.code,
+      message: error?.message,
+      name: error?.name,
       stack: error?.stack,
     };
     console.error("Error summary:", JSON.stringify(error_summary, null, 2));

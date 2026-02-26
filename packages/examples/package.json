@@ -1,15 +1,15 @@
 {
   "name": "examples",
   "private": true,
-  "author": "Ali Alshaikh, Jaicome company",
   "license": "MIT",
+  "author": "Ali Alshaikh, Jaicome company",
   "scripts": {
     "build": "node -e \"process.exit(0)\"",
     "test": "node -e \"process.exit(0)\""
   },
   "dependencies": {
-    "@jaicome/zatca-core": "*",
-    "@jaicome/zatca-server": "*"
+    "@jaicome/zatca-core": "workspace:*",
+    "@jaicome/zatca-server": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "latest"

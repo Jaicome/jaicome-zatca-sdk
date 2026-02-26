@@ -1,28 +1,42 @@
 {
   "name": "jaicome-zatca-sdk",
   "version": "0.1.5",
-  "description": "An implementation of Saudi Arabia ZATCA's E-Invoicing requirements, processes, and standards.",
   "private": true,
-  "type": "module",
+  "description": "An implementation of Saudi Arabia ZATCA's E-Invoicing requirements, processes, and standards.",
+  "keywords": [
+    "EGS",
+    "api",
+    "invoice",
+    "on-boarding",
+    "phase 1",
+    "phase 2",
+    "saudi-arabia",
+    "signing",
+    "simplified",
+    "tax",
+    "xml",
+    "zatca"
+  ],
+  "license": "MIT",
+  "author": "Ali Alshaikh",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Jaicome/jaicome-zatca-sdk"
+  },
   "workspaces": [
     "packages/*"
   ],
+  "type": "module",
   "scripts": {
-    "build": "npm run build --workspaces",
+    "build": "bun run --cwd packages/zatca-core build && bun run --cwd packages/zatca-server build && bun run --cwd packages/docs build",
     "clean": "rm -rf lib packages/*/lib",
     "example": "tsc --project tsconfig.json && node lib/full.js",
-    "test": "npm run test --workspaces",
-    "lint": "npx prettier@2.8.8 --write .",
-    "check-boundaries": "bash scripts/check-boundaries.sh"
-  },
-  "devDependencies": {
-    "@types/lodash": "^4.14.184",
-    "@types/node": "^18.7.16",
-    "@types/uuid": "^8.3.4",
-    "@types/xmldom": "^0.1.31",
-    "nitro": "npm:nitro-nightly@3.0.1-20260128-211656-ae83c97e",
-    "typescript": "^4.8.3",
-    "vitest": "^1.0.0"
+    "test": "bun run --cwd packages/zatca-core test && bun run --cwd packages/zatca-server test",
+    "lint": "bun x prettier@2.8.8 --write .",
+    "check-boundaries": "bash scripts/check-boundaries.sh",
+    "check": "ultracite check",
+    "fix": "ultracite fix",
+    "prepare": "husky"
   },
   "dependencies": {
     "@fidm/x509": "^1.2.1",
@@ -31,30 +45,26 @@
     "decimal.js": "^10.4.3",
     "fast-xml-parser": "^4.0.9",
     "lodash": "^4.17.21",
-    "moment": "^2.29.4",
     "mustache": "^4.2.0",
     "uuid": "^9.0.0",
     "xmldom": "^0.6.0",
     "xmldsigjs": "^2.5.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Jaicome/jaicome-zatca-sdk"
+  "devDependencies": {
+    "@types/lodash": "^4.14.184",
+    "@types/node": "^18.7.16",
+    "@types/uuid": "^8.3.4",
+    "@types/xmldom": "^0.1.31",
+    "husky": "^9.1.7",
+    "nitro": "npm:nitro-nightly@3.0.1-20260128-211656-ae83c97e",
+    "oxfmt": "^0.35.0",
+    "oxlint": "^1.50.0",
+    "oxlint-tsgolint": "^0.15.0",
+    "typescript": "^5.3.3",
+    "ultracite": "7.2.3",
+    "vitest": "^1.0.0"
   },
-  "keywords": [
-    "zatca",
-    "xml",
-    "signing",
-    "on-boarding",
-    "EGS",
-    "invoice",
-    "tax",
-    "simplified",
-    "api",
-    "saudi-arabia",
-    "phase 1",
-    "phase 2"
-  ],
-  "author": "Ali Alshaikh",
-  "license": "MIT"
+  "engines": {
+    "bun": ">=1.0.0"
+  }
 }

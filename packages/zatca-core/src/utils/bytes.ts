@@ -1,3 +1,7 @@
+/* eslint-disable eslint/func-style */
+/* eslint-disable eslint/no-plusplus */
+/* eslint-disable @typescript-eslint/prefer-for-of */
+
 // NO Buffer: this module is runtime-agnostic (web/RN/Node)
 
 /**
@@ -6,7 +10,7 @@
 export function uint8ArrayToBase64(bytes: Uint8Array): string {
   let binary = "";
   for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i]);
+    binary += String.fromCodePoint(bytes[i]);
   }
   return btoa(binary);
 }
@@ -23,7 +27,7 @@ export function base64ToUint8Array(base64: string): Uint8Array {
   }
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
+    bytes[i] = binary.codePointAt(i) ?? 0;
   }
   return bytes;
 }
@@ -45,9 +49,7 @@ export function uint8ArrayToString(bytes: Uint8Array): string {
 }
 
 export function uint8ArrayToHex(bytes: Uint8Array): string {
-  return Array.from(bytes)
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+  return [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 /**
@@ -63,7 +65,7 @@ export function hexToUint8Array(hex: string): Uint8Array {
   }
   const bytes = new Uint8Array(hex.length / 2);
   for (let i = 0; i < hex.length; i += 2) {
-    bytes[i / 2] = parseInt(hex.slice(i, i + 2), 16);
+    bytes[i / 2] = Number.parseInt(hex.slice(i, i + 2), 16);
   }
   return bytes;
 }

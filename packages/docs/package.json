@@ -1,14 +1,17 @@
 {
   "name": "docs",
   "private": true,
-  "author": "Ali Alshaikh, Jaicome company",
   "license": "MIT",
+  "author": "Ali Alshaikh, Jaicome company",
   "type": "module",
   "sideEffects": false,
+  "engines": {
+    "bun": ">=1.0.0"
+  },
   "scripts": {
     "dev": "vite dev",
     "build": "vite build && mv .output/dist/client/ .output/public/",
-    "test": "node -e \"process.exit(0)\"",
+    "test": "bun run --bun node -e \"process.exit(0)\"",
     "start": "serve .output/public --config ../../serve.json",
     "preview": "vite preview",
     "types:check": "fumadocs-mdx && tsc --noEmit",
