@@ -1,14 +1,14 @@
 /* eslint-disable eslint/func-style */
 
-import type { Signer, SigningInput } from "./contracts/signer.js";
-import { generatePhaseOneQRFromXml } from "./qr.js";
+import type { Signer, SigningInput } from "./contracts/signer";
+import { generatePhaseOneQRFromXml } from "./qr";
 import {
   ZATCAInvoicePropsSchema,
   SigningInputSchema,
   ZodValidationError,
-} from "./schemas/index.js";
-import type { ZATCAInvoiceProps } from "./zatca-simplified-tax-invoice.js";
-import { ZATCAInvoice } from "./zatca-simplified-tax-invoice.js";
+} from "./schemas/index";
+import type { ZATCAInvoiceProps } from "./zatca-simplified-tax-invoice";
+import { ZATCAInvoice } from "./zatca-simplified-tax-invoice";
 
 /**
  * Validates and builds a {@link ZATCAInvoice} from structured props.

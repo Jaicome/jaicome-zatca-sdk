@@ -1,4 +1,4 @@
-import API, { ApiError, NetworkError, TimeoutError } from "../api/index.js";
+import API, { ApiError, NetworkError, TimeoutError } from "../api/index";
 
 const fakeCsr =
   "-----BEGIN CERTIFICATE REQUEST-----\nFAKE_CSR_CONTENT\n-----END CERTIFICATE REQUEST-----";

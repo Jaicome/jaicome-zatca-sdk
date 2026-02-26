@@ -1,7 +1,7 @@
 import { generatePhaseOneQRFromXml } from "@jaicome/zatca-core";
 import type { XMLDocument } from "@jaicome/zatca-core";
 
-import { getInvoiceHash } from "../utils/invoice-hash.js";
+import { getInvoiceHash } from "../utils/invoice-hash";
 
 /**
  * Input parameters for {@link generateQR}.

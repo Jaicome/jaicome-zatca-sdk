@@ -3,10 +3,10 @@ import {
   parseInvoice,
   prepareSigningInput,
   generatePhaseOneQR,
-} from "../api.js";
-import { valid_simplified_invoice_xml_sample } from "../samples/index.js";
-import { ZodValidationError } from "../schemas/index.js";
-import type { ZATCAInvoiceProps } from "../zatca-simplified-tax-invoice.js";
+} from "../api";
+import { valid_simplified_invoice_xml_sample } from "../samples/index";
+import { ZodValidationError } from "../schemas/index";
+import type { ZATCAInvoiceProps } from "../zatca-simplified-tax-invoice";
 
 const now = new Date();
 const issueDate = now;

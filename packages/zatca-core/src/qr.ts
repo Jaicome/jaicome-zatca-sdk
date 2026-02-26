@@ -1,9 +1,9 @@
-import type { XMLDocument } from "./parser/index.js";
+import type { XMLDocument } from "./parser/index";
 import {
   concatUint8Arrays,
   stringToUint8Array,
   uint8ArrayToBase64,
-} from "./utils/bytes.js";
+} from "./utils/bytes";
 
 const encodeTLVTag = (tag: number, value: string): Uint8Array => {
   const valueBytes = stringToUint8Array(value);
@@ -69,8 +69,7 @@ export const generatePhaseOneQRFromXml = (invoiceXml: XMLDocument): string => {
 
   const vatNumber = getInvoiceTagValue(
     invoiceXml,
-    "Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyTaxScheme/cbc:CompanyID",
-    "CompanyID"
+    "Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyTaxScheme/cbc:CompanyID"
   );
   if (!vatNumber) {
     throw new Error(
@@ -80,8 +79,7 @@ export const generatePhaseOneQRFromXml = (invoiceXml: XMLDocument): string => {
 
   const invoiceTotal = getInvoiceTagValue(
     invoiceXml,
-    "Invoice/cac:LegalMonetaryTotal/cbc:TaxInclusiveAmount",
-    "TaxInclusiveAmount"
+    "Invoice/cac:LegalMonetaryTotal/cbc:TaxInclusiveAmount"
   );
   if (!invoiceTotal) {
     throw new Error(
@@ -91,8 +89,7 @@ export const generatePhaseOneQRFromXml = (invoiceXml: XMLDocument): string => {
 
   const vatTotal = getInvoiceTagValue(
     invoiceXml,
-    "Invoice/cac:TaxTotal/cbc:TaxAmount",
-    "TaxAmount"
+    "Invoice/cac:TaxTotal/cbc:TaxAmount"
   );
   if (!vatTotal) {
     throw new Error(
@@ -100,22 +97,14 @@ export const generatePhaseOneQRFromXml = (invoiceXml: XMLDocument): string => {
     );
   }
 
-  const issueDate = getInvoiceTagValue(
-    invoiceXml,
-    "Invoice/cbc:IssueDate",
-    "IssueDate"
-  );
+  const issueDate = getInvoiceTagValue(invoiceXml, "Invoice/cbc:IssueDate");
   if (!issueDate) {
     throw new Error(
       "QR generation failed: missing required field 'IssueDate' in invoice XML"
     );
   }
 
-  const issueTime = getInvoiceTagValue(
-    invoiceXml,
-    "Invoice/cbc:IssueTime",
-    "IssueTime"
-  );
+  const issueTime = getInvoiceTagValue(invoiceXml, "Invoice/cbc:IssueTime");
   if (!issueTime) {
     throw new Error(
       "QR generation failed: missing required field 'IssueTime' in invoice XML"

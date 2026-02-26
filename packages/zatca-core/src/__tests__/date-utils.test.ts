@@ -1,5 +1,5 @@
 import { describe, it, expect } from "bun:test";
-import { formatDate, formatTime, formatQRTimestamp } from "../utils/date.js";
+import { formatDate, formatTime, formatQRTimestamp } from "../utils/date";
 
 describe("Date Formatting Utilities", () => {
   describe("formatDate", () => {

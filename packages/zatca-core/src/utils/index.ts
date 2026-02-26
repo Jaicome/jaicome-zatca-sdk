@@ -1,2 +1,2 @@
-export * from "./bytes.js";
-export * from "./date.js";
+export * from "./bytes";
+export * from "./date";

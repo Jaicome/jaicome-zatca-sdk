@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { ZodError } from "zod";
 
-import { ZATCAInvoicePropsSchema } from "../schemas/index.js";
+import { ZATCAInvoicePropsSchema } from "../schemas/index";
 
 const validBaseProps = {
   crnNumber: "7032256278",

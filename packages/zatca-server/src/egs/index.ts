@@ -15,9 +15,9 @@ import {
 import { Result } from "better-result";
 import { v4 as uuidv4 } from "uuid";
 
-import API from "../api/index.js";
-import type { ZatcaApiError, InvoiceResponse } from "../api/index.js";
-import { generateSignedXMLString } from "../signing/index.js";
+import API from "../api/index";
+import type { ZatcaApiError, InvoiceResponse } from "../api/index";
+import { generateSignedXMLString } from "../signing/index";
 
 const CSR_TEMPLATE = `
 # ------------------------------------------------------------------

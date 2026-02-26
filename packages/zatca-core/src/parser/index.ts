@@ -5,7 +5,7 @@ import type { XmlBuilderOptions } from "fast-xml-parser";
 import { XMLBuilder, XMLParser } from "fast-xml-parser";
 import _ from "lodash";
 
-import { log } from "../logger/index.js";
+import { log } from "../logger/index";
 
 export type XMLObject = Record<string, any>;
 export type XMLQueryResult = XMLObject[] | undefined;

@@ -15,8 +15,8 @@ import {
   formatQRTimestamp,
 } from "@jaicome/zatca-core";
 
-import { generateQR } from "../qr/index.js";
-import { getPureInvoiceString, getInvoiceHash } from "../utils/invoice-hash.js";
+import { generateQR } from "../qr/index";
+import { getPureInvoiceString, getInvoiceHash } from "../utils/invoice-hash";
 
 export { getPureInvoiceString, getInvoiceHash };
 

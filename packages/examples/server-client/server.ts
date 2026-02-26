@@ -268,7 +268,7 @@ export const signAndReportInvoice = async (
   serverInvoices.push({
     invoiceHash,
     invoiceSerialNumber: serial,
-    reportingStatus: reportResult.value.reportingStatus,
+    reportingStatus: reportResult.value.reportingStatus ?? 'NOT_REPORTED',
     signedXml,
     timestamp: new Date().toISOString(),
   });
@@ -341,7 +341,7 @@ export const signAndReportBatch = async (
         serverInvoices.push({
           invoiceHash,
           invoiceSerialNumber: serial,
-          reportingStatus: reportResult.value.reportingStatus,
+          reportingStatus: reportResult.value.reportingStatus ?? 'NOT_REPORTED',
           signedXml,
           timestamp: new Date().toISOString(),
         });

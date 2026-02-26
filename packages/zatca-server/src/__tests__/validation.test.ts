@@ -1,6 +1,6 @@
-import { EGS } from "../egs/index.js";
-import type { EGSInfo } from "../egs/index.js";
-import { ZodValidationError } from "../schemas/index.js";
+import { EGS } from "../egs/index";
+import type { EGSInfo } from "../egs/index";
+import { ZodValidationError } from "../schemas/index";
 
 const validEGSUnit: EGSInfo = {
   branchIndustry: "Software",

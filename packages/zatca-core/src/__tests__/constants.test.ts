@@ -7,7 +7,7 @@ import {
   VATCategory,
   ExemptionReasonCode,
   BuyerIdScheme,
-} from "../constants.js";
+} from "../constants";
 
 describe("Constants", () => {
   describe("GENESIS_PREVIOUS_INVOICE_HASH", () => {

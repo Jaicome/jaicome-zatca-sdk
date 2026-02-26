@@ -1,6 +1,6 @@
-import { Calc } from "./calc.js";
-import type { Signer, SignatureResult } from "./contracts/signer.js";
-import { XMLDocument } from "./parser/index.js";
+import { Calc } from "./calc";
+import type { Signer, SignatureResult } from "./contracts/signer";
+import { XMLDocument } from "./parser/index";
 import defaultSimplifiedTaxInvoice, {
   ZATCAInvoiceTypeSchema,
   ZATCAPaymentMethodSchema,
@@ -8,14 +8,14 @@ import defaultSimplifiedTaxInvoice, {
   INVOICE_TYPE_CODES,
   PAYMENT_METHOD_CODES,
   INVOICE_CODE_VALUES,
-} from "./templates/simplified-tax-invoice-template.js";
+} from "./templates/simplified-tax-invoice-template";
 import type {
   ZATCAInvoiceLineItem,
   ZATCAInvoiceProps,
   ZATCAInvoiceType,
   ZATCAPaymentMethod,
   InvoiceCode,
-} from "./templates/simplified-tax-invoice-template.js";
+} from "./templates/simplified-tax-invoice-template";
 
 export type {
   ZATCAInvoiceLineItem,

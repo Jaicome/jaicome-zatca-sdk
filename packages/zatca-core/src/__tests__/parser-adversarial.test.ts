@@ -1,7 +1,7 @@
-import { buildInvoice } from "../api.js";
-import { XMLDocument } from "../parser/index.js";
-import { valid_simplified_invoice_xml_sample } from "../samples/index.js";
-import type { ZATCAInvoiceProps } from "../zatca-simplified-tax-invoice.js";
+import { buildInvoice } from "../api";
+import { XMLDocument } from "../parser/index";
+import { valid_simplified_invoice_xml_sample } from "../samples/index";
+import type { ZATCAInvoiceProps } from "../zatca-simplified-tax-invoice";
 
 const now = new Date();
 const issueDate = now;

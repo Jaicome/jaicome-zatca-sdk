@@ -1,5 +1,5 @@
-import { generatePhaseOneQRFromXml } from "../qr.js";
-import { XMLDocument } from "../parser/index.js";
+import { generatePhaseOneQRFromXml } from "../qr";
+import { XMLDocument } from "../parser/index";
 
 describe("generatePhaseOneQRFromXml — throws on missing required fields", () => {
   function makeValidXml(): string {

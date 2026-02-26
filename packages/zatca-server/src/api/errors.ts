@@ -1,6 +1,6 @@
 import { TaggedError } from "better-result";
 
-import type { ValidationMessage } from "./types.js";
+import type { ValidationMessage } from "./types";
 
 /**
  * Thrown when the HTTP request to ZATCA fails at the network level

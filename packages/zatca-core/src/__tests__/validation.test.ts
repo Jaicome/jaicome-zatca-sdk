@@ -1,6 +1,6 @@
-import { buildInvoice, prepareSigningInput } from "../api.js";
-import { ZodValidationError } from "../schemas/index.js";
-import type { ZATCAInvoiceProps } from "../zatca-simplified-tax-invoice.js";
+import { buildInvoice, prepareSigningInput } from "../api";
+import { ZodValidationError } from "../schemas/index";
+import type { ZATCAInvoiceProps } from "../zatca-simplified-tax-invoice";
 
 const now = new Date();
 const issueDate = now;

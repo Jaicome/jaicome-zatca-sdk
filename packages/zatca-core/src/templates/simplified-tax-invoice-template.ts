@@ -1,8 +1,8 @@
 import Mustache from "mustache";
 import { z } from "zod";
 
-import type { EGSInfo, CustomerInfo } from "../schemas/index.js";
-import { formatDate, formatTime } from "../utils/date.js";
+import type { EGSInfo, CustomerInfo } from "../schemas/index";
+import { formatDate, formatTime } from "../utils/date";
 
 // XML template for simplified tax invoice
 const template = `

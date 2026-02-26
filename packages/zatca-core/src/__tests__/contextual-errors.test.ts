@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ZodIssue } from "zod";
 
-import { ZATCAInvoicePropsSchema } from "../schemas/index.js";
+import { ZATCAInvoicePropsSchema } from "../schemas/index";
 
 /**
  * Recursively collects all error messages from Zod issues,

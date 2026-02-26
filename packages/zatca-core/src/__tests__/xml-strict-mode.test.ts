@@ -1,5 +1,5 @@
-import { XMLDocument } from "../parser/index.js";
-import { valid_simplified_invoice_xml_sample } from "../samples/index.js";
+import { XMLDocument } from "../parser/index";
+import { valid_simplified_invoice_xml_sample } from "../samples/index";
 
 describe("XMLDocument.set() — strict mode opt-in", () => {
   describe("default behavior (no options) — backward compatible", () => {

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { ZodIssue } from "zod";
 
-import { ZATCAPaymentMethodSchema } from "../templates/simplified-tax-invoice-template.js";
+import { ZATCAPaymentMethodSchema } from "../templates/simplified-tax-invoice-template";
 
 /**
  * Recursively collects all leaf error messages from Zod issues,

@@ -1,8 +1,8 @@
 import Decimal from "decimal.js";
 
-import { buildInvoice } from "../api.js";
-import { ZATCAInvoice } from "../zatca-simplified-tax-invoice.js";
-import type { ZATCAInvoiceProps } from "../zatca-simplified-tax-invoice.js";
+import { buildInvoice } from "../api";
+import { ZATCAInvoice } from "../zatca-simplified-tax-invoice";
+import type { ZATCAInvoiceProps } from "../zatca-simplified-tax-invoice";
 
 const ORIGINAL_DECIMAL_ROUNDING = Decimal.rounding;
 

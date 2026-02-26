@@ -9,7 +9,7 @@ import {
   EGSInfoSchema,
   CustomerInfoSchema,
   ZATCAInvoiceLineItemSchema,
-} from "../schemas/index.js";
+} from "../schemas/index";
 import {
   SAMPLE_SELLER,
   SAMPLE_LINE_ITEM,
@@ -19,7 +19,7 @@ import {
   SAMPLE_CREDIT_NOTE_PROPS,
   SAMPLE_CERTIFICATE,
   SAMPLE_PRIVATE_KEY,
-} from "./fixtures.js";
+} from "./fixtures";
 
 describe("Shared Test Fixtures", () => {
   describe("SAMPLE_SELLER", () => {

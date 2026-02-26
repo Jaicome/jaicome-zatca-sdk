@@ -1,5 +1,5 @@
-import { buildInvoice } from "../api.js";
-import type { ZATCAInvoiceProps } from "../zatca-simplified-tax-invoice.js";
+import { buildInvoice } from "../api";
+import type { ZATCAInvoiceProps } from "../zatca-simplified-tax-invoice";
 import { describe, expect, it } from "vitest";
 
 const GENESIS_PREVIOUS_INVOICE_HASH =

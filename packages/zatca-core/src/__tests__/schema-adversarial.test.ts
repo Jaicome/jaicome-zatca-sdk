@@ -1,10 +1,10 @@
-import { buildInvoice } from "../api.js";
-import { ZodValidationError } from "../schemas/index.js";
+import { buildInvoice } from "../api";
+import { ZodValidationError } from "../schemas/index";
 import type {
   ZATCAInvoiceProps,
   ZATCAInvoiceType,
   ZATCAPaymentMethod,
-} from "../zatca-simplified-tax-invoice.js";
+} from "../zatca-simplified-tax-invoice";
 
 interface CancelationShape {
   canceledSerialInvoiceNumber: string;

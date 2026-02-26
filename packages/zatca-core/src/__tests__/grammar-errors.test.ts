@@ -1,6 +1,6 @@
 import { describe, it, expect } from "bun:test";
-import { ZATCAInvoice } from "../zatca-simplified-tax-invoice.js";
-import type { ZATCAInvoiceProps } from "../templates/simplified-tax-invoice-template.js";
+import { ZATCAInvoice } from "../zatca-simplified-tax-invoice";
+import type { ZATCAInvoiceProps } from "../templates/simplified-tax-invoice-template";
 
 describe("Grammar and Error Message Clarity", () => {
   const baseProps: ZATCAInvoiceProps = {

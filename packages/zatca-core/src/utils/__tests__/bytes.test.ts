@@ -6,7 +6,7 @@ import {
   uint8ArrayToHex,
   hexToUint8Array,
   concatUint8Arrays,
-} from "../bytes.js";
+} from "../bytes";
 
 describe(uint8ArrayToBase64, () => {
   it("encodes known vector: empty array", () => {

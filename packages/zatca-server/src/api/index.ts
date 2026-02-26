@@ -1,14 +1,14 @@
 import { Result } from "better-result";
 
-import { cleanUpCertificateString } from "../signing/index.js";
-import type { ZatcaApiError } from "./errors.js";
-import { ApiError, NetworkError, TimeoutError } from "./errors.js";
-import { logger } from "./logger.js";
+import { cleanUpCertificateString } from "../signing/index";
+import type { ZatcaApiError } from "./errors";
+import { ApiError, NetworkError, TimeoutError } from "./errors";
+import { logger } from "./logger";
 import type {
   CertificateResponse,
   InvoiceResponse,
   IssuedCertificate,
-} from "./types.js";
+} from "./types";
 
 const settings = {
   API_VERSION: "V2",
@@ -349,11 +349,11 @@ class API {
 
 export default API;
 export type { ComplianceAPIInterface, ProductionAPIInterface };
-export type { ZatcaApiError } from "./errors.js";
-export { ApiError, NetworkError, TimeoutError } from "./errors.js";
+export type { ZatcaApiError } from "./errors";
+export { ApiError, NetworkError, TimeoutError } from "./errors";
 export type {
   CertificateResponse,
   InvoiceResponse,
   IssuedCertificate,
   ValidationMessage,
-} from "./types.js";
+} from "./types";

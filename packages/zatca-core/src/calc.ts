@@ -4,12 +4,12 @@
 
 import Decimal from "decimal.js";
 
-import type { XMLDocument } from "./parser/index.js";
-import { PAYMENT_METHOD_CODES } from "./templates/simplified-tax-invoice-template.js";
+import type { XMLDocument } from "./parser/index";
+import { PAYMENT_METHOD_CODES } from "./templates/simplified-tax-invoice-template";
 import type {
   ZATCAInvoiceLineItem,
   ZATCAInvoiceProps,
-} from "./templates/simplified-tax-invoice-template.js";
+} from "./templates/simplified-tax-invoice-template";
 
 interface CACTaxableAmount {
   taxAmount: number;

@@ -9,7 +9,7 @@ import type {
   ZATCAInvoiceProps,
   EGSInfo,
   CustomerInfo,
-} from "../zatca-simplified-tax-invoice.js";
+} from "../zatca-simplified-tax-invoice";
 
 /**
  * Sample seller/EGS information used across tests.

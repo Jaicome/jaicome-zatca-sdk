@@ -1,5 +1,5 @@
 import { describe, it, expect } from "bun:test";
-import { EGSInfoSchema, CustomerInfoSchema } from "../schemas/index.js";
+import { EGSInfoSchema, CustomerInfoSchema } from "../schemas/index";
 
 describe("VAT Number Validation", () => {
   describe("EGSInfoSchema (Seller VAT)", () => {

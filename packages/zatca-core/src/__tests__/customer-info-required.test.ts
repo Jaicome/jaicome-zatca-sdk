@@ -1,7 +1,7 @@
 import { describe, it, expect } from "bun:test";
-import { buildInvoice } from "../api.js";
-import { ZodValidationError } from "../schemas/index.js";
-import type { ZATCAInvoiceProps } from "../zatca-simplified-tax-invoice.js";
+import { buildInvoice } from "../api";
+import { ZodValidationError } from "../schemas/index";
+import type { ZATCAInvoiceProps } from "../zatca-simplified-tax-invoice";
 
 describe("customerInfo requirement for standard invoices", () => {
   const issueDate = new Date();

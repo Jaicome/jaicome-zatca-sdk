@@ -1,9 +1,9 @@
-import { buildInvoice } from "../api.js";
-import { ZodValidationError } from "../schemas/index.js";
+import { buildInvoice } from "../api";
+import { ZodValidationError } from "../schemas/index";
 import type {
   ZATCAInvoiceLineItem,
   ZATCAInvoiceProps,
-} from "../zatca-simplified-tax-invoice.js";
+} from "../zatca-simplified-tax-invoice";
 
 type SimplifiedCashInvoiceProps = Extract<
   ZATCAInvoiceProps,

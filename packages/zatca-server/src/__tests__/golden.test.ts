@@ -1,7 +1,7 @@
 import { generateKeyPairSync } from "node:crypto";
 
-import { buildInvoice, generatePhaseOneQR } from "../../../zatca-core/src/api.js";
-import type { ZATCAInvoiceProps } from "../../../zatca-core/src/zatca-simplified-tax-invoice.js";
+import { buildInvoice, generatePhaseOneQR } from "../../../zatca-core/src/api";
+import type { ZATCAInvoiceProps } from "../../../zatca-core/src/zatca-simplified-tax-invoice";
 import { generateSignedXMLString, getInvoiceHash } from "@jaicome/zatca-server";
 
 const SAMPLE_ZATCA_TEST_CERT_BODY =
