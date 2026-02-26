@@ -1,6 +1,6 @@
 {
   "name": "@jaicome/zatca-core",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0",
   "description": "ZATCA core library - portable logic for web, React Native, and Node.js",
   "keywords": [
     "e-invoicing",
