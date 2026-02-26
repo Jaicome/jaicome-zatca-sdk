@@ -25,14 +25,17 @@
   ],
   "type": "module",
   "main": "lib/index.js",
-  "types": "src/index.ts",
+  "types": "lib/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "bun": "./src/index.ts",
+      "types": "./lib/index.d.ts",
       "import": "./lib/index.js",
       "default": "./lib/index.js"
     }
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "scripts": {
     "build": "bun x tsc --project tsconfig.json",
