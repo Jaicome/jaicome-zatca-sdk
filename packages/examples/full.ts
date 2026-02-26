@@ -165,7 +165,7 @@ const main = async () => {
     console.log("Keys and CSR generated successfully");
 
     // 3. Issue compliance certificate
-    const otp = "145414";
+    const otp = "846130";
     const complianceCertResult = await egs.issueComplianceCertificate(otp);
     if (complianceCertResult.isErr()) {
       console.error(
