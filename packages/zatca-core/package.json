@@ -16,7 +16,7 @@
   "author": "Ali Alshaikh, Jaicome company",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Jaicome/zatca-xml-js",
+    "url": "https://github.com/Jaicome/jaicome-zatca-sdk",
     "directory": "packages/zatca-core"
   },
   "files": [
