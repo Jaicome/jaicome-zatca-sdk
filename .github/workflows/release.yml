@@ -1,5 +1,8 @@
 name: Release
 
+# Triggers on every push to main
+# - If changesets exist: Creates/updates Release PR
+# - If Release PR merged: Publishes to npm with OIDC provenance
 on:
   push:
     branches:
@@ -12,7 +15,7 @@ concurrency:
 permissions:
   contents: write
   pull-requests: write
-  id-token: write
+  id-token: write # Required for npm provenance
 
 jobs:
   release:
@@ -20,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Required for changesets to read git history
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -47,7 +50,10 @@ jobs:
       - name: Run tests
         run: bun run --cwd packages/zatca-server test
 
-      - name: Create Release PR or detect merged Release PR
+      # Changesets action handles two scenarios:
+      # 1. Changesets present → Create/update Release PR with version bumps
+      # 2. No changesets (Release PR was merged) → Prepare for publishing
+      - name: Version packages and create Release PR
         uses: changesets/action@v1
         id: changesets
         with:
@@ -57,16 +63,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check if versions changed
+      # Verify that package.json versions actually changed
+      # Prevents publishing on regular commits (only publish when Release PR merged)
+      - name: Detect version changes
         id: version_check
         if: steps.changesets.outputs.hasChangesets == 'false'
         run: |
           if git diff HEAD~1 HEAD --name-only | grep -q 'packages/.*/package.json'; then
             echo "changed=true" >> $GITHUB_OUTPUT
+            echo "✅ Package versions changed - will publish to npm" >> $GITHUB_STEP_SUMMARY
           else
             echo "changed=false" >> $GITHUB_OUTPUT
+            echo "⏭️ No version changes - skipping publish" >> $GITHUB_STEP_SUMMARY
           fi
 
+      # Publishing steps only execute when BOTH conditions are met:
+      # 1. No changesets present (Release PR was merged)
+      # 2. Package versions changed in this commit
       - name: Pack @jaicome/zatca-core
         if: steps.changesets.outputs.hasChangesets == 'false' && steps.version_check.outputs.changed == 'true'
         run: pnpm --filter @jaicome/zatca-core pack --pack-destination /tmp/publish
@@ -75,10 +88,16 @@ jobs:
         if: steps.changesets.outputs.hasChangesets == 'false' && steps.version_check.outputs.changed == 'true'
         run: pnpm --filter @jaicome/zatca-server pack --pack-destination /tmp/publish
 
-      - name: Publish @jaicome/zatca-core
+      - name: Publish @jaicome/zatca-core to npm
         if: steps.changesets.outputs.hasChangesets == 'false' && steps.version_check.outputs.changed == 'true'
-        run: npm publish /tmp/publish/jaicome-zatca-core-*.tgz --access public --provenance
+        run: |
+          echo "📦 Publishing @jaicome/zatca-core..." >> $GITHUB_STEP_SUMMARY
+          npm publish /tmp/publish/jaicome-zatca-core-*.tgz --access public --provenance
+          echo "✅ Published @jaicome/zatca-core" >> $GITHUB_STEP_SUMMARY
 
-      - name: Publish @jaicome/zatca-server
+      - name: Publish @jaicome/zatca-server to npm
         if: steps.changesets.outputs.hasChangesets == 'false' && steps.version_check.outputs.changed == 'true'
-        run: npm publish /tmp/publish/jaicome-zatca-server-*.tgz --access public --provenance
+        run: |
+          echo "📦 Publishing @jaicome/zatca-server..." >> $GITHUB_STEP_SUMMARY
+          npm publish /tmp/publish/jaicome-zatca-server-*.tgz --access public --provenance
+          echo "✅ Published @jaicome/zatca-server" >> $GITHUB_STEP_SUMMARY
