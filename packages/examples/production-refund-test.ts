@@ -129,7 +129,7 @@ const main = async () => {
 
     // 3. Issue compliance certificate
     console.log("📜 Step 3: Issuing compliance certificate...");
-    const otp = "112078"; // Replace with actual OTP from ZATCA portal
+    const otp = "563023"; // Replace with actual OTP from ZATCA portal
     const complianceCertResult = await egs.issueComplianceCertificate(otp);
 
     if (complianceCertResult.isErr()) {

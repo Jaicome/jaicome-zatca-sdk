@@ -65,6 +65,8 @@ exports[`golden XML snapshots for invoice variants simplified tax invoice (388/0
     </cac:PaymentMeans>
     <cac:TaxTotal>
         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="SAR">100.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
             <cac:TaxCategory>
                 <cac:TaxScheme>
                     <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5153">VAT</cbc:ID>
@@ -72,8 +74,6 @@ exports[`golden XML snapshots for invoice variants simplified tax invoice (388/0
                 <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5305">S</cbc:ID>
                 <cbc:Percent>15</cbc:Percent>
             </cac:TaxCategory>
-            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
-            <cbc:TaxableAmount currencyID="SAR">100.00</cbc:TaxableAmount>
         </cac:TaxSubtotal>
         <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
     </cac:TaxTotal>
@@ -88,6 +88,13 @@ exports[`golden XML snapshots for invoice variants simplified tax invoice (388/0
         <cbc:TaxInclusiveAmount currencyID="SAR">115.00</cbc:TaxInclusiveAmount>
     </cac:LegalMonetaryTotal>
     <cac:InvoiceLine>
+        <cbc:ID>1</cbc:ID>
+        <cbc:InvoicedQuantity unitCode="PCE">1</cbc:InvoicedQuantity>
+        <cbc:LineExtensionAmount currencyID="SAR">100.00</cbc:LineExtensionAmount>
+        <cac:TaxTotal>
+            <cbc:RoundingAmount currencyID="SAR">115.00</cbc:RoundingAmount>
+            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
+        </cac:TaxTotal>
         <cac:Item>
             <cac:ClassifiedTaxCategory>
                 <cac:TaxScheme>
@@ -101,13 +108,6 @@ exports[`golden XML snapshots for invoice variants simplified tax invoice (388/0
         <cac:Price>
             <cbc:PriceAmount currencyID="SAR">100.00000000000000</cbc:PriceAmount>
         </cac:Price>
-        <cac:TaxTotal>
-            <cbc:RoundingAmount currencyID="SAR">115.00</cbc:RoundingAmount>
-            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
-        </cac:TaxTotal>
-        <cbc:ID>1</cbc:ID>
-        <cbc:InvoicedQuantity unitCode="PCE">1</cbc:InvoicedQuantity>
-        <cbc:LineExtensionAmount currencyID="SAR">100.00</cbc:LineExtensionAmount>
     </cac:InvoiceLine>
 </Invoice>
 "
@@ -179,11 +179,13 @@ exports[`golden XML snapshots for invoice variants credit note (381/0200000) 1`]
     </cac:AccountingSupplierParty>
     <cac:AccountingCustomerParty></cac:AccountingCustomerParty>
     <cac:PaymentMeans>
-        <cbc:InstructionNote>Credit correction</cbc:InstructionNote>
         <cbc:PaymentMeansCode>10</cbc:PaymentMeansCode>
+        <cbc:InstructionNote>Credit correction</cbc:InstructionNote>
     </cac:PaymentMeans>
     <cac:TaxTotal>
         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="SAR">100.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
             <cac:TaxCategory>
                 <cac:TaxScheme>
                     <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5153">VAT</cbc:ID>
@@ -191,8 +193,6 @@ exports[`golden XML snapshots for invoice variants credit note (381/0200000) 1`]
                 <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5305">S</cbc:ID>
                 <cbc:Percent>15</cbc:Percent>
             </cac:TaxCategory>
-            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
-            <cbc:TaxableAmount currencyID="SAR">100.00</cbc:TaxableAmount>
         </cac:TaxSubtotal>
         <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
     </cac:TaxTotal>
@@ -207,6 +207,13 @@ exports[`golden XML snapshots for invoice variants credit note (381/0200000) 1`]
         <cbc:TaxInclusiveAmount currencyID="SAR">115.00</cbc:TaxInclusiveAmount>
     </cac:LegalMonetaryTotal>
     <cac:InvoiceLine>
+        <cbc:ID>1</cbc:ID>
+        <cbc:InvoicedQuantity unitCode="PCE">1</cbc:InvoicedQuantity>
+        <cbc:LineExtensionAmount currencyID="SAR">100.00</cbc:LineExtensionAmount>
+        <cac:TaxTotal>
+            <cbc:RoundingAmount currencyID="SAR">115.00</cbc:RoundingAmount>
+            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
+        </cac:TaxTotal>
         <cac:Item>
             <cac:ClassifiedTaxCategory>
                 <cac:TaxScheme>
@@ -220,13 +227,6 @@ exports[`golden XML snapshots for invoice variants credit note (381/0200000) 1`]
         <cac:Price>
             <cbc:PriceAmount currencyID="SAR">100.00000000000000</cbc:PriceAmount>
         </cac:Price>
-        <cac:TaxTotal>
-            <cbc:RoundingAmount currencyID="SAR">115.00</cbc:RoundingAmount>
-            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
-        </cac:TaxTotal>
-        <cbc:ID>1</cbc:ID>
-        <cbc:InvoicedQuantity unitCode="PCE">1</cbc:InvoicedQuantity>
-        <cbc:LineExtensionAmount currencyID="SAR">100.00</cbc:LineExtensionAmount>
     </cac:InvoiceLine>
 </Invoice>
 "
@@ -298,11 +298,13 @@ exports[`golden XML snapshots for invoice variants debit note (383/0200000) 1`] 
     </cac:AccountingSupplierParty>
     <cac:AccountingCustomerParty></cac:AccountingCustomerParty>
     <cac:PaymentMeans>
-        <cbc:InstructionNote>Debit correction</cbc:InstructionNote>
         <cbc:PaymentMeansCode>30</cbc:PaymentMeansCode>
+        <cbc:InstructionNote>Debit correction</cbc:InstructionNote>
     </cac:PaymentMeans>
     <cac:TaxTotal>
         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="SAR">100.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
             <cac:TaxCategory>
                 <cac:TaxScheme>
                     <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5153">VAT</cbc:ID>
@@ -310,8 +312,6 @@ exports[`golden XML snapshots for invoice variants debit note (383/0200000) 1`] 
                 <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5305">S</cbc:ID>
                 <cbc:Percent>15</cbc:Percent>
             </cac:TaxCategory>
-            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
-            <cbc:TaxableAmount currencyID="SAR">100.00</cbc:TaxableAmount>
         </cac:TaxSubtotal>
         <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
     </cac:TaxTotal>
@@ -326,6 +326,13 @@ exports[`golden XML snapshots for invoice variants debit note (383/0200000) 1`] 
         <cbc:TaxInclusiveAmount currencyID="SAR">115.00</cbc:TaxInclusiveAmount>
     </cac:LegalMonetaryTotal>
     <cac:InvoiceLine>
+        <cbc:ID>1</cbc:ID>
+        <cbc:InvoicedQuantity unitCode="PCE">1</cbc:InvoicedQuantity>
+        <cbc:LineExtensionAmount currencyID="SAR">100.00</cbc:LineExtensionAmount>
+        <cac:TaxTotal>
+            <cbc:RoundingAmount currencyID="SAR">115.00</cbc:RoundingAmount>
+            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
+        </cac:TaxTotal>
         <cac:Item>
             <cac:ClassifiedTaxCategory>
                 <cac:TaxScheme>
@@ -339,13 +346,6 @@ exports[`golden XML snapshots for invoice variants debit note (383/0200000) 1`] 
         <cac:Price>
             <cbc:PriceAmount currencyID="SAR">100.00000000000000</cbc:PriceAmount>
         </cac:Price>
-        <cac:TaxTotal>
-            <cbc:RoundingAmount currencyID="SAR">115.00</cbc:RoundingAmount>
-            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
-        </cac:TaxTotal>
-        <cbc:ID>1</cbc:ID>
-        <cbc:InvoicedQuantity unitCode="PCE">1</cbc:InvoicedQuantity>
-        <cbc:LineExtensionAmount currencyID="SAR">100.00</cbc:LineExtensionAmount>
     </cac:InvoiceLine>
 </Invoice>
 "
@@ -416,6 +416,8 @@ exports[`golden XML snapshots for invoice variants zero-rated invoice 1`] = `
     </cac:PaymentMeans>
     <cac:TaxTotal>
         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="SAR">125.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="SAR">0</cbc:TaxAmount>
             <cac:TaxCategory>
                 <cac:TaxScheme>
                     <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5153">VAT</cbc:ID>
@@ -425,8 +427,6 @@ exports[`golden XML snapshots for invoice variants zero-rated invoice 1`] = `
                 <cbc:TaxExemptionReason>Zero-rated supply</cbc:TaxExemptionReason>
                 <cbc:TaxExemptionReasonCode>VATEX-SA-32</cbc:TaxExemptionReasonCode>
             </cac:TaxCategory>
-            <cbc:TaxAmount currencyID="SAR">0</cbc:TaxAmount>
-            <cbc:TaxableAmount currencyID="SAR">125.00</cbc:TaxableAmount>
         </cac:TaxSubtotal>
         <cbc:TaxAmount currencyID="SAR">0.00</cbc:TaxAmount>
     </cac:TaxTotal>
@@ -441,6 +441,13 @@ exports[`golden XML snapshots for invoice variants zero-rated invoice 1`] = `
         <cbc:TaxInclusiveAmount currencyID="SAR">125.00</cbc:TaxInclusiveAmount>
     </cac:LegalMonetaryTotal>
     <cac:InvoiceLine>
+        <cbc:ID>1</cbc:ID>
+        <cbc:InvoicedQuantity unitCode="PCE">1</cbc:InvoicedQuantity>
+        <cbc:LineExtensionAmount currencyID="SAR">125.00</cbc:LineExtensionAmount>
+        <cac:TaxTotal>
+            <cbc:RoundingAmount currencyID="SAR">125.00</cbc:RoundingAmount>
+            <cbc:TaxAmount currencyID="SAR">0.00</cbc:TaxAmount>
+        </cac:TaxTotal>
         <cac:Item>
             <cac:ClassifiedTaxCategory>
                 <cac:TaxScheme>
@@ -454,13 +461,6 @@ exports[`golden XML snapshots for invoice variants zero-rated invoice 1`] = `
         <cac:Price>
             <cbc:PriceAmount currencyID="SAR">125.00000000000000</cbc:PriceAmount>
         </cac:Price>
-        <cac:TaxTotal>
-            <cbc:RoundingAmount currencyID="SAR">125.00</cbc:RoundingAmount>
-            <cbc:TaxAmount currencyID="SAR">0.00</cbc:TaxAmount>
-        </cac:TaxTotal>
-        <cbc:ID>1</cbc:ID>
-        <cbc:InvoicedQuantity unitCode="PCE">1</cbc:InvoicedQuantity>
-        <cbc:LineExtensionAmount currencyID="SAR">125.00</cbc:LineExtensionAmount>
     </cac:InvoiceLine>
 </Invoice>
 "
@@ -531,6 +531,8 @@ exports[`golden XML snapshots for invoice variants exempt invoice 1`] = `
     </cac:PaymentMeans>
     <cac:TaxTotal>
         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="SAR">80.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="SAR">0</cbc:TaxAmount>
             <cac:TaxCategory>
                 <cac:TaxScheme>
                     <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5153">VAT</cbc:ID>
@@ -540,8 +542,6 @@ exports[`golden XML snapshots for invoice variants exempt invoice 1`] = `
                 <cbc:TaxExemptionReason>Exempt supply</cbc:TaxExemptionReason>
                 <cbc:TaxExemptionReasonCode>VATEX-SA-29</cbc:TaxExemptionReasonCode>
             </cac:TaxCategory>
-            <cbc:TaxAmount currencyID="SAR">0</cbc:TaxAmount>
-            <cbc:TaxableAmount currencyID="SAR">80.00</cbc:TaxableAmount>
         </cac:TaxSubtotal>
         <cbc:TaxAmount currencyID="SAR">0.00</cbc:TaxAmount>
     </cac:TaxTotal>
@@ -556,6 +556,13 @@ exports[`golden XML snapshots for invoice variants exempt invoice 1`] = `
         <cbc:TaxInclusiveAmount currencyID="SAR">80.00</cbc:TaxInclusiveAmount>
     </cac:LegalMonetaryTotal>
     <cac:InvoiceLine>
+        <cbc:ID>1</cbc:ID>
+        <cbc:InvoicedQuantity unitCode="PCE">1</cbc:InvoicedQuantity>
+        <cbc:LineExtensionAmount currencyID="SAR">80.00</cbc:LineExtensionAmount>
+        <cac:TaxTotal>
+            <cbc:RoundingAmount currencyID="SAR">80.00</cbc:RoundingAmount>
+            <cbc:TaxAmount currencyID="SAR">0.00</cbc:TaxAmount>
+        </cac:TaxTotal>
         <cac:Item>
             <cac:ClassifiedTaxCategory>
                 <cac:TaxScheme>
@@ -569,13 +576,6 @@ exports[`golden XML snapshots for invoice variants exempt invoice 1`] = `
         <cac:Price>
             <cbc:PriceAmount currencyID="SAR">80.00000000000000</cbc:PriceAmount>
         </cac:Price>
-        <cac:TaxTotal>
-            <cbc:RoundingAmount currencyID="SAR">80.00</cbc:RoundingAmount>
-            <cbc:TaxAmount currencyID="SAR">0.00</cbc:TaxAmount>
-        </cac:TaxTotal>
-        <cbc:ID>1</cbc:ID>
-        <cbc:InvoicedQuantity unitCode="PCE">1</cbc:InvoicedQuantity>
-        <cbc:LineExtensionAmount currencyID="SAR">80.00</cbc:LineExtensionAmount>
     </cac:InvoiceLine>
 </Invoice>
 "
@@ -646,6 +646,8 @@ exports[`golden XML snapshots for invoice variants multi-line-item invoice 1`] =
     </cac:PaymentMeans>
     <cac:TaxTotal>
         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="SAR">100.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
             <cac:TaxCategory>
                 <cac:TaxScheme>
                     <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5153">VAT</cbc:ID>
@@ -653,10 +655,10 @@ exports[`golden XML snapshots for invoice variants multi-line-item invoice 1`] =
                 <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5305">S</cbc:ID>
                 <cbc:Percent>15</cbc:Percent>
             </cac:TaxCategory>
-            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
-            <cbc:TaxableAmount currencyID="SAR">100.00</cbc:TaxableAmount>
         </cac:TaxSubtotal>
         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="SAR">120.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="SAR">6.00</cbc:TaxAmount>
             <cac:TaxCategory>
                 <cac:TaxScheme>
                     <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5153">VAT</cbc:ID>
@@ -664,10 +666,10 @@ exports[`golden XML snapshots for invoice variants multi-line-item invoice 1`] =
                 <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5305">S</cbc:ID>
                 <cbc:Percent>5</cbc:Percent>
             </cac:TaxCategory>
-            <cbc:TaxAmount currencyID="SAR">6.00</cbc:TaxAmount>
-            <cbc:TaxableAmount currencyID="SAR">120.00</cbc:TaxableAmount>
         </cac:TaxSubtotal>
         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="SAR">25.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="SAR">0</cbc:TaxAmount>
             <cac:TaxCategory>
                 <cac:TaxScheme>
                     <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5153">VAT</cbc:ID>
@@ -677,8 +679,6 @@ exports[`golden XML snapshots for invoice variants multi-line-item invoice 1`] =
                 <cbc:TaxExemptionReason>Out of scope</cbc:TaxExemptionReason>
                 <cbc:TaxExemptionReasonCode>VATEX-SA-OOS</cbc:TaxExemptionReasonCode>
             </cac:TaxCategory>
-            <cbc:TaxAmount currencyID="SAR">0</cbc:TaxAmount>
-            <cbc:TaxableAmount currencyID="SAR">25.00</cbc:TaxableAmount>
         </cac:TaxSubtotal>
         <cbc:TaxAmount currencyID="SAR">21.00</cbc:TaxAmount>
     </cac:TaxTotal>
@@ -693,6 +693,13 @@ exports[`golden XML snapshots for invoice variants multi-line-item invoice 1`] =
         <cbc:TaxInclusiveAmount currencyID="SAR">266.00</cbc:TaxInclusiveAmount>
     </cac:LegalMonetaryTotal>
     <cac:InvoiceLine>
+        <cbc:ID>1</cbc:ID>
+        <cbc:InvoicedQuantity unitCode="PCE">1</cbc:InvoicedQuantity>
+        <cbc:LineExtensionAmount currencyID="SAR">100.00</cbc:LineExtensionAmount>
+        <cac:TaxTotal>
+            <cbc:RoundingAmount currencyID="SAR">115.00</cbc:RoundingAmount>
+            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
+        </cac:TaxTotal>
         <cac:Item>
             <cac:ClassifiedTaxCategory>
                 <cac:TaxScheme>
@@ -706,15 +713,15 @@ exports[`golden XML snapshots for invoice variants multi-line-item invoice 1`] =
         <cac:Price>
             <cbc:PriceAmount currencyID="SAR">100.00000000000000</cbc:PriceAmount>
         </cac:Price>
-        <cac:TaxTotal>
-            <cbc:RoundingAmount currencyID="SAR">115.00</cbc:RoundingAmount>
-            <cbc:TaxAmount currencyID="SAR">15.00</cbc:TaxAmount>
-        </cac:TaxTotal>
-        <cbc:ID>1</cbc:ID>
-        <cbc:InvoicedQuantity unitCode="PCE">1</cbc:InvoicedQuantity>
-        <cbc:LineExtensionAmount currencyID="SAR">100.00</cbc:LineExtensionAmount>
     </cac:InvoiceLine>
     <cac:InvoiceLine>
+        <cbc:ID>2</cbc:ID>
+        <cbc:InvoicedQuantity unitCode="PCE">2</cbc:InvoicedQuantity>
+        <cbc:LineExtensionAmount currencyID="SAR">120.00</cbc:LineExtensionAmount>
+        <cac:TaxTotal>
+            <cbc:RoundingAmount currencyID="SAR">126.00</cbc:RoundingAmount>
+            <cbc:TaxAmount currencyID="SAR">6.00</cbc:TaxAmount>
+        </cac:TaxTotal>
         <cac:Item>
             <cac:ClassifiedTaxCategory>
                 <cac:TaxScheme>
@@ -728,15 +735,15 @@ exports[`golden XML snapshots for invoice variants multi-line-item invoice 1`] =
         <cac:Price>
             <cbc:PriceAmount currencyID="SAR">60.00000000000000</cbc:PriceAmount>
         </cac:Price>
-        <cac:TaxTotal>
-            <cbc:RoundingAmount currencyID="SAR">126.00</cbc:RoundingAmount>
-            <cbc:TaxAmount currencyID="SAR">6.00</cbc:TaxAmount>
-        </cac:TaxTotal>
-        <cbc:ID>2</cbc:ID>
-        <cbc:InvoicedQuantity unitCode="PCE">2</cbc:InvoicedQuantity>
-        <cbc:LineExtensionAmount currencyID="SAR">120.00</cbc:LineExtensionAmount>
     </cac:InvoiceLine>
     <cac:InvoiceLine>
+        <cbc:ID>3</cbc:ID>
+        <cbc:InvoicedQuantity unitCode="PCE">1</cbc:InvoicedQuantity>
+        <cbc:LineExtensionAmount currencyID="SAR">25.00</cbc:LineExtensionAmount>
+        <cac:TaxTotal>
+            <cbc:RoundingAmount currencyID="SAR">25.00</cbc:RoundingAmount>
+            <cbc:TaxAmount currencyID="SAR">0.00</cbc:TaxAmount>
+        </cac:TaxTotal>
         <cac:Item>
             <cac:ClassifiedTaxCategory>
                 <cac:TaxScheme>
@@ -750,13 +757,6 @@ exports[`golden XML snapshots for invoice variants multi-line-item invoice 1`] =
         <cac:Price>
             <cbc:PriceAmount currencyID="SAR">25.00000000000000</cbc:PriceAmount>
         </cac:Price>
-        <cac:TaxTotal>
-            <cbc:RoundingAmount currencyID="SAR">25.00</cbc:RoundingAmount>
-            <cbc:TaxAmount currencyID="SAR">0.00</cbc:TaxAmount>
-        </cac:TaxTotal>
-        <cbc:ID>3</cbc:ID>
-        <cbc:InvoicedQuantity unitCode="PCE">1</cbc:InvoicedQuantity>
-        <cbc:LineExtensionAmount currencyID="SAR">25.00</cbc:LineExtensionAmount>
     </cac:InvoiceLine>
 </Invoice>
 "

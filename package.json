@@ -28,11 +28,11 @@
   ],
   "type": "module",
   "scripts": {
-    "build": "npm run build --workspaces",
+    "build": "bun run --cwd packages/zatca-core build && bun run --cwd packages/zatca-server build && bun run --cwd packages/docs build",
     "clean": "rm -rf lib packages/*/lib",
     "example": "tsc --project tsconfig.json && node lib/full.js",
-    "test": "npm run test --workspaces",
-    "lint": "npx prettier@2.8.8 --write .",
+    "test": "bun run --cwd packages/zatca-core test && bun run --cwd packages/zatca-server test",
+    "lint": "bun x prettier@2.8.8 --write .",
     "check-boundaries": "bash scripts/check-boundaries.sh",
     "check": "ultracite check",
     "fix": "ultracite fix",
@@ -60,8 +60,11 @@
     "oxfmt": "^0.35.0",
     "oxlint": "^1.50.0",
     "oxlint-tsgolint": "^0.15.0",
-    "typescript": "^4.8.3",
+    "typescript": "^5.3.3",
     "ultracite": "7.2.3",
     "vitest": "^1.0.0"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
   }
 }

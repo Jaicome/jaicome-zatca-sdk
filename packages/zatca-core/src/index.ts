@@ -7,7 +7,7 @@ export * from "./parser/index.js";
 export * from "./qr.js";
 export * from "./samples/index.js";
 export * from "./schemas/index.js";
-export * from "./templates/csr_template.js";
+export * from "./templates/csr-template.js";
 export * from "./templates/invoice-billing-reference-template.js";
 export * from "./templates/simplified-tax-invoice-template.js";
 export * from "./templates/ubl-extension-signed-properties-template.js";
