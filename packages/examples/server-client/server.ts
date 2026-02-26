@@ -200,101 +200,21 @@ export const onboardEGS = async (otp: string): Promise<OnboardResult> => {
   // 1. Initialize EGS
   egs = new EGS(egsInfo, "simulation");
 
-  // 2. Generate Keys & CSR
-  console.log("[SERVER] Generating keys and CSR...");
-  await egs.generateNewKeysAndCSR("Server-Client Example");
-
-  // 3. Issue compliance certificate
+  // 2-7. Onboard EGS (generates keys, issues certificates, runs compliance checks)
   console.log("[SERVER] Issuing compliance certificate...");
   console.log(`[SERVER] Received OTP from client: ${otp.slice(0, 3)}***`); // Masked for security
-  const complianceCertResult = await egs.issueComplianceCertificate(otp);
-  if (complianceCertResult.isErr()) {
-    throw new Error(
-      `Failed to issue compliance certificate: ${complianceCertResult.error}`
-    );
-  }
-  const compliance_request_id = complianceCertResult.value;
-  console.log("[SERVER] Compliance certificate issued");
-
-  // 4. Create NodeSigner
-  signer = new NodeSigner(egs.getComplianceCertificate()!);
-
-  // 5. Build and sign all 6 compliance check invoices
-  console.log("[SERVER] Building and signing 6 compliance check invoices...");
-  const complianceChecks: Partial<
-    Record<ZATCAComplianceStep, ComplianceCheckPayload>
-  > = {};
-  const complianceStepExecutionOrder: readonly ZATCAComplianceStep[] = [
-    "standard-debit-note-compliant",
-    "standard-compliant",
-    "standard-credit-note-compliant",
-    "simplified-debit-note-compliant",
-    "simplified-compliant",
-    "simplified-credit-note-compliant",
-  ];
-
-  let previousHash = GENESIS_PREVIOUS_INVOICE_HASH;
-  let previousSerial = "EGS1-886431145-100";
-
-  for (const [index, step] of complianceStepExecutionOrder.entries()) {
-    const invoice = new ZATCAInvoice({
-      acceptWarning: true,
-      props: buildInvoicePropsForComplianceStep(
-        step,
-        index + 1,
-        previousHash,
-        previousSerial
-      ),
-      signer: signer!,
-    });
-
-    const result = await invoice.sign(
-      egs.getPrivateKey()!
-    );
-    const signedInvoiceString = result.signedXml;
-    const { invoiceHash } = result;
-
-    complianceChecks[step] = { invoiceHash, signedInvoiceString };
-    previousHash = invoiceHash;
-    previousSerial = `EGS1-886431145-${101 + index}`;
-
-    console.log(`[SERVER] Compliance step ${index + 1}/6: ${step} signed`);
-  }
-
-  // 6. Run compliance checks
-  console.log("[SERVER] Running compliance checks...");
-  const complianceResultsResult =
-    await egs.runComplianceChecksForProduction(complianceChecks);
-  if (complianceResultsResult.isErr()) {
-    throw new Error(
-      `Compliance checks failed: ${complianceResultsResult.error}`
-    );
-  }
-  const complianceResults = complianceResultsResult.value;
-  REQUIRED_COMPLIANCE_STEPS.forEach((step) => {
-    const stepResult = complianceResults[step];
-    console.log(
-      `[SERVER] Compliance step ${step}: ${stepResult?.validationResults?.status}`
-    );
+  const onboardResult = await egs.onboard({
+    solutionName: "Server-Client Example",
+    otp,
   });
+  console.log("[SERVER] EGS onboarding complete. Production certificate issued.");
 
-  // 7. Issue production certificate
-  console.log("[SERVER] Issuing production certificate...");
-  const productionResult = await egs.issueProductionCertificate(
-    compliance_request_id
-  );
-  if (productionResult.isErr()) {
-    throw new Error(
-      `Failed to issue production certificate: ${productionResult.error}`
-    );
-  }
-  console.log(
-    "[SERVER] EGS onboarding complete. Production certificate issued."
-  );
+  // Create NodeSigner with production certificate
+  signer = new NodeSigner(egs.getProductionCertificate()!);
 
   return {
-    invoiceCounterStart: 7,
-    previousInvoiceHash: previousHash,
+    invoiceCounterStart: onboardResult.nextInvoiceCounter,
+    previousInvoiceHash: onboardResult.lastInvoiceHash,
   };
 };
 

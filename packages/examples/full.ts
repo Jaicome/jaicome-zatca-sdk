@@ -160,118 +160,31 @@ const main = async () => {
     // 1. Initialize EGS unit
     const egs = new EGS(egsunit, "simulation");
 
-    // 2. Generate Keys & CSR
-    await egs.generateNewKeysAndCSR("Jaicome ZATCA Test");
-    console.log("Keys and CSR generated successfully");
-
-    // 3. Issue compliance certificate
-    const otp = "846130";
-    const complianceCertResult = await egs.issueComplianceCertificate(otp);
-    if (complianceCertResult.isErr()) {
-      console.error(
-        "Failed to issue compliance certificate:",
-        complianceCertResult.error
-      );
-      return;
-    }
-    const compliance_request_id = complianceCertResult.value;
-    console.log(
-      "Compliance certificate issued with request ID:",
-      compliance_request_id
-    );
-
-    // 4. Create NodeSigner using compliance certificate
-    const signer = new NodeSigner(egs.getComplianceCertificate()!);
-
-    const complianceChecks: Partial<
-      Record<ZATCAComplianceStep, ComplianceCheckPayload>
-    > = {};
-    const complianceStepExecutionOrder: readonly ZATCAComplianceStep[] = [
-      "standard-debit-note-compliant",
-      "standard-compliant",
-      "standard-credit-note-compliant",
-      "simplified-debit-note-compliant",
-      "simplified-compliant",
-      "simplified-credit-note-compliant",
-    ];
-    const serialByStep = {} as Record<ZATCAComplianceStep, string>;
-    let previousHash = GENESIS_PREVIOUS_INVOICE_HASH;
-    let previousSerial = "EGS1-886431145-100";
-
-    for (const [index, step] of complianceStepExecutionOrder.entries()) {
-      const invoice = new ZATCAInvoice({
-        acceptWarning: true,
-        props: buildInvoicePropsForComplianceStep(
-          step,
-          index + 1,
-          previousHash,
-          previousSerial
-        ),
-        signer,
-      });
-
-      const result = await invoice.sign(
-        egs.getPrivateKey()!
-      );
-      const signedInvoiceString = result.signedXml;
-      const { invoiceHash } = result;
-      complianceChecks[step] = { invoiceHash, signedInvoiceString };
-      serialByStep[step] = `EGS1-886431145-${101 + index}`;
-      previousHash = invoiceHash;
-      previousSerial = serialByStep[step];
-
-      fs.writeFileSync(
-        path.join(outputDir, `invoice_${step}.xml`),
-        signedInvoiceString,
-        "utf8"
-      );
-      console.log(`✅ Signed invoice for ${step} generated`);
-    }
-
-    const complianceResultsResult =
-      await egs.runComplianceChecksForProduction(complianceChecks);
-    if (complianceResultsResult.isErr()) {
-      console.error("Compliance checks failed:", complianceResultsResult.error);
-      return;
-    }
-    const complianceResults = complianceResultsResult.value;
-    REQUIRED_COMPLIANCE_STEPS.forEach((step) => {
-      const stepResult = complianceResults[step];
-      console.log(
-        `Compliance step ${step}:`,
-        stepResult?.validationResults?.status
-      );
+    // 1-6. Onboard EGS (generates keys, issues certificates, runs compliance checks)
+    const otp = "677145";
+    const onboardResult = await egs.onboard({
+      solutionName: "Jaicome ZATCA Test",
+      otp,
     });
+    console.log("EGS onboarding completed successfully");
+    console.log("Last invoice hash:", onboardResult.lastInvoiceHash);
+    console.log("Next invoice counter:", onboardResult.nextInvoiceCounter);
 
-    const productionResult = await egs.issueProductionCertificate(
-      compliance_request_id
-    );
-    if (productionResult.isErr()) {
-      console.error(
-        "Failed to issue production certificate:",
-        productionResult.error
-      );
-      return;
-    }
-    const production_request_id = productionResult.value;
-    console.log(
-      "Production certificate issued with request ID:",
-      production_request_id
-    );
+    // 7. Create NodeSigner using production certificate
+    const signer = new NodeSigner(egs.getProductionCertificate()!);
 
+    // 8. Report a production invoice
     const reportInvoice = new ZATCAInvoice({
       acceptWarning: true,
       props: buildInvoicePropsForComplianceStep(
         "simplified-compliant",
-        7,
-        previousHash,
-        previousSerial
+        onboardResult.nextInvoiceCounter,
+        onboardResult.lastInvoiceHash,
+        `EGS1-886431145-${100 + onboardResult.nextInvoiceCounter}`
       ),
       signer,
     });
-    const reportResult = await reportInvoice.sign(
-      egs.getPrivateKey()!
-    );
+    const reportResult = await reportInvoice.sign(egs.getPrivateKey()!);
     const signedInvoiceString = reportResult.signedXml;
     const { invoiceHash } = reportResult;
     const reportedInvoiceResult = await egs.reportInvoice(

@@ -122,122 +122,31 @@ const main = async () => {
     const egs = new EGS(egsunit, "simulation");
     console.log("✅ EGS initialized\n");
 
-    // 2. Generate Keys & CSR
-    console.log("🔑 Step 2: Generating keys and CSR...");
-    await egs.generateNewKeysAndCSR("Production Refund Test Solution");
-    console.log("✅ Keys and CSR generated\n");
-
-    // 3. Issue compliance certificate
-    console.log("📜 Step 3: Issuing compliance certificate...");
-    const otp = "657515"; // Replace with actual OTP from ZATCA portal
-    const complianceCertResult = await egs.issueComplianceCertificate(otp);
-
-    if (complianceCertResult.isErr()) {
-      console.error(
-        "❌ Failed to issue compliance certificate:",
-        complianceCertResult.error
-      );
-      return;
-    }
-
-    const compliance_request_id = complianceCertResult.value;
-    console.log(
-      "✅ Compliance certificate issued (Request ID:",
-      compliance_request_id,
-      ")\n"
-    );
-
-    // 4. Run compliance checks (required before production certificate)
-    console.log("🔍 Step 4: Running compliance checks...");
-    const signer = new NodeSigner(egs.getComplianceCertificate()!);
-
-    const complianceChecks: Partial<
-      Record<ZATCAComplianceStep, ComplianceCheckPayload>
-    > = {};
-    const complianceStepExecutionOrder: readonly ZATCAComplianceStep[] = [
-      "standard-debit-note-compliant",
-      "standard-compliant",
-      "standard-credit-note-compliant",
-      "simplified-debit-note-compliant",
-      "simplified-compliant",
-      "simplified-credit-note-compliant",
-    ];
-    const serialByStep = {} as Record<ZATCAComplianceStep, string>;
-    let previousHash = GENESIS_PREVIOUS_INVOICE_HASH;
-    let previousSerial = "PROD-TEST-COMPLIANCE-100";
-
-    for (const [index, step] of complianceStepExecutionOrder.entries()) {
-      const invoice = new ZATCAInvoice({
-        acceptWarning: true,
-        props: buildInvoicePropsForComplianceStep(
-          step,
-          index + 1,
-          previousHash,
-          previousSerial
-        ),
-        signer,
-      });
-
-      const result = await invoice.sign(
-        egs.getPrivateKey()!
-      );
-      const signedInvoiceString = result.signedXml;
-      const { invoiceHash } = result;
-      complianceChecks[step] = { invoiceHash, signedInvoiceString };
-      serialByStep[step] = `PROD-TEST-COMPLIANCE-${101 + index}`;
-      previousHash = invoiceHash;
-      previousSerial = serialByStep[step];
-
-      console.log(`  ✅ Compliance check invoice for ${step} generated`);
-    }
-
-    const complianceResultsResult =
-      await egs.runComplianceChecksForProduction(complianceChecks);
-    if (complianceResultsResult.isErr()) {
-      console.error(
-        "❌ Compliance checks failed:",
-        complianceResultsResult.error
-      );
-      return;
-    }
-    const complianceResults = complianceResultsResult.value;
-    REQUIRED_COMPLIANCE_STEPS.forEach((step) => {
-      const stepResult = complianceResults[step];
-      console.log(
-        `  ✅ Compliance step ${step}:`,
-        stepResult?.validationResults?.status
-      );
+    // 2-5. Onboard EGS (generates keys, issues certificates, runs compliance checks)
+    console.log("🔑 Step 2: Onboarding EGS...");
+    const otp = "247128"; // Replace with actual OTP from ZATCA portal
+    const onboardResult = await egs.onboard({
+      solutionName: "Production Refund Test Solution",
+      otp,
     });
+    console.log("✅ EGS onboarding completed");
+    console.log("   Last invoice hash:", onboardResult.lastInvoiceHash);
+    console.log("   Next invoice counter:", onboardResult.nextInvoiceCounter);
     console.log();
 
-    // 5. Issue production certificate
-    console.log("🏭 Step 5: Issuing production certificate...");
-    const productionResult = await egs.issueProductionCertificate(
-      compliance_request_id
-    );
-    if (productionResult.isErr()) {
-      console.error(
-        "❌ Failed to issue production certificate:",
-        productionResult.error
-      );
-      return;
-    }
-    const production_request_id = productionResult.value;
-    console.log(
-      "✅ Production certificate issued (Request ID:",
-      production_request_id,
-      ")\n"
-    );
+    // Create NodeSigner using production certificate
+    const signer = new NodeSigner(egs.getProductionCertificate()!);
+
 
     // 6. Create and sign the first invoice (1 SAR + 15% VAT)
     console.log("📄 Step 6: Creating first invoice (1 SAR + 15% VAT)...");
 
     const firstInvoiceProps: ZATCAInvoiceProps = {
       egsInfo: egsunit,
-      invoiceCounterNumber: 7,
+      invoiceCounterNumber: onboardResult.nextInvoiceCounter,
       invoiceSerialNumber: "PROD-TEST-001",
       issueDate,
-      previousInvoiceHash: previousHash, // Chain from last compliance check invoice
+      previousInvoiceHash: onboardResult.lastInvoiceHash, // Chain from last compliance check invoice
       lineItems: [lineItem1SAR],
       crnNumber: "1234567890",
       invoiceType: InvoiceType.INVOICE,
@@ -310,7 +219,7 @@ const main = async () => {
 
     const refundInvoiceProps: ZATCAInvoiceProps = {
       egsInfo: egsunit,
-      invoiceCounterNumber: 8,
+      invoiceCounterNumber: onboardResult.nextInvoiceCounter + 1,
       invoiceSerialNumber: "PROD-TEST-002",
       issueDate,
       previousInvoiceHash: firstInvoiceHash, // Chain to first invoice

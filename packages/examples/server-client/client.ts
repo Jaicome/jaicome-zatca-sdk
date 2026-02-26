@@ -17,7 +17,7 @@ import {
 import type { OnboardResult, SingleReportResult } from "./server";
 
 // Get OTP from environment variable or use default for testing
-const ZATCA_OTP = "853518";
+const ZATCA_OTP = "374807";
 
 // ============================================================================
 // CONSTANTS
