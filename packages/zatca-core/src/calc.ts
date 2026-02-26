@@ -45,13 +45,13 @@ const constructLineItemTotals = (
 
   // UBL 2.1 ClassifiedTaxCategory order: cbc:ID, cbc:Percent, cac:TaxScheme
   const VAT = {
-    "cac:TaxScheme": {
-      "cbc:ID": "VAT",
-    },
     "cbc:ID": lineItem.vatPercent ? "S" : lineItem.vatCategory?.code,
     "cbc:Percent": lineItem.vatPercent
       ? (lineItem.vatPercent * 100).toString()
       : 0,
+    "cac:TaxScheme": {
+      "cbc:ID": "VAT",
+    },
   };
   cacClassifiedTaxCategories.push(VAT);
 
@@ -64,6 +64,7 @@ const constructLineItemTotals = (
     lineDiscounts += discount.amount;
     // UBL 2.1 AllowanceCharge order: ChargeIndicator, AllowanceChargeReason, Amount, BaseAmount
     cacAllowanceCharges.push({
+      "cbc:ChargeIndicator": "false",
       "cbc:AllowanceChargeReason": discount.reason,
       "cbc:Amount": {
         "#text": new Decimal(discount.amount).toFixed(14),
@@ -73,7 +74,6 @@ const constructLineItemTotals = (
         "#text": lineItem.taxExclusivePrice,
         "@_currencyID": "SAR",
       },
-      "cbc:ChargeIndicator": "false",
     });
   });
 
@@ -93,14 +93,14 @@ const constructLineItemTotals = (
 
   // UBL 2.1 InvoiceLine/TaxTotal order: cbc:TaxAmount, cbc:RoundingAmount
   cacTaxTotal = {
+    "cbc:TaxAmount": {
+      "#text": new Decimal(lineItemTotalTaxes).toFixed(2),
+      "@_currencyID": "SAR",
+    },
     "cbc:RoundingAmount": {
       "#text": new Decimal(
         lineExtensionAmount.plus(lineItemTotalTaxes)
       ).toFixed(2),
-      "@_currencyID": "SAR",
-    },
-    "cbc:TaxAmount": {
-      "#text": new Decimal(lineItemTotalTaxes).toFixed(2),
       "@_currencyID": "SAR",
     },
   };
@@ -148,18 +148,18 @@ const constructLineItem = (
       "cac:TaxTotal": cacTaxTotal,
       // UBL 2.1 Item order: cbc:Name, cac:ClassifiedTaxCategory
       "cac:Item": {
-        "cac:ClassifiedTaxCategory": cacClassifiedTaxCategories,
         "cbc:Name": lineItem.name,
+        "cac:ClassifiedTaxCategory": cacClassifiedTaxCategories,
       },
       // UBL 2.1 Price order: cbc:PriceAmount, cac:AllowanceCharge
       "cac:Price": {
-        "cac:AllowanceCharge": cacAllowanceCharges,
         "cbc:PriceAmount": {
           "#text": new Decimal(lineItem.taxExclusivePrice)
             .minus(new Decimal(lineDiscounts))
             .toFixed(14),
           "@_currencyID": "SAR",
         },
+        "cac:AllowanceCharge": cacAllowanceCharges,
       },
     },
   };
@@ -242,6 +242,14 @@ const constructTaxTotal = (
         },
         // UBL 2.1 TaxCategory order: cbc:ID, cbc:Percent, cbc:TaxExemptionReasonCode, cbc:TaxExemptionReason, cac:TaxScheme
         "cac:TaxCategory": {
+          "cbc:ID": {
+            "#text": key,
+            "@_schemeAgencyID": 6,
+            "@_schemeID": "UN/ECE 5305",
+          },
+          "cbc:Percent": 0,
+          "cbc:TaxExemptionReasonCode": zeroTaxTotals[key].reasonCode,
+          "cbc:TaxExemptionReason": zeroTaxTotals[key].reason,
           "cac:TaxScheme": {
             "cbc:ID": {
               "#text": "VAT",
@@ -249,14 +257,6 @@ const constructTaxTotal = (
               "@_schemeID": "UN/ECE 5153",
             },
           },
-          "cbc:ID": {
-            "#text": key,
-            "@_schemeAgencyID": 6,
-            "@_schemeID": "UN/ECE 5305",
-          },
-          "cbc:Percent": 0,
-          "cbc:TaxExemptionReason": zeroTaxTotals[key].reason,
-          "cbc:TaxExemptionReasonCode": zeroTaxTotals[key].reasonCode,
         },
       });
     }
@@ -358,6 +358,12 @@ const constructTaxTotal = (
       },
       // UBL 2.1 TaxCategory order: cbc:ID, cbc:Percent, cac:TaxScheme
       "cac:TaxCategory": {
+        "cbc:ID": {
+          "#text": "S",
+          "@_schemeAgencyID": 6,
+          "@_schemeID": "UN/ECE 5305",
+        },
+        "cbc:Percent": 15,
         "cac:TaxScheme": {
           "cbc:ID": {
             "#text": "VAT",
@@ -365,12 +371,6 @@ const constructTaxTotal = (
             "@_schemeID": "UN/ECE 5153",
           },
         },
-        "cbc:ID": {
-          "#text": "S",
-          "@_schemeAgencyID": 6,
-          "@_schemeID": "UN/ECE 5305",
-        },
-        "cbc:Percent": 15,
       },
     });
   }
@@ -387,6 +387,12 @@ const constructTaxTotal = (
       },
       // UBL 2.1 TaxCategory order: cbc:ID, cbc:Percent, cac:TaxScheme
       "cac:TaxCategory": {
+        "cbc:ID": {
+          "#text": "S",
+          "@_schemeAgencyID": 6,
+          "@_schemeID": "UN/ECE 5305",
+        },
+        "cbc:Percent": 5,
         "cac:TaxScheme": {
           "cbc:ID": {
             "#text": "VAT",
@@ -394,12 +400,6 @@ const constructTaxTotal = (
             "@_schemeID": "UN/ECE 5153",
           },
         },
-        "cbc:ID": {
-          "#text": "S",
-          "@_schemeAgencyID": 6,
-          "@_schemeID": "UN/ECE 5305",
-        },
-        "cbc:Percent": 5,
       },
     });
   }
@@ -409,11 +409,11 @@ const constructTaxTotal = (
     cacTaxTotal: [
       {
         // UBL 2.1 TaxTotal order: cbc:TaxAmount, cac:TaxSubtotal
-        "cac:TaxSubtotal": cacTaxSubtotal.concat(zeroTaxSubtotal),
         "cbc:TaxAmount": {
           "#text": new Decimal(taxesTotal).toFixed(2),
           "@_currencyID": "SAR",
         },
+        "cac:TaxSubtotal": cacTaxSubtotal.concat(zeroTaxSubtotal),
       },
       {
         "cbc:TaxAmount": {
@@ -441,7 +441,11 @@ const constructLegalMonetaryTotal = (
       "#text": new Decimal(total_lineExtensionAmount).toFixed(2),
       "@_currencyID": "SAR",
     },
-    "cbc:PayableAmount": {
+    "cbc:TaxExclusiveAmount": {
+      "#text": roundingNumber(acceptWarning, taxExclusiveAmount),
+      "@_currencyID": "SAR",
+    },
+    "cbc:TaxInclusiveAmount": {
       "#text": new Decimal(taxInclusiveAmount).toFixed(2),
       "@_currencyID": "SAR",
     },
@@ -449,11 +453,7 @@ const constructLegalMonetaryTotal = (
       "#text": 0,
       "@_currencyID": "SAR",
     },
-    "cbc:TaxExclusiveAmount": {
-      "#text": roundingNumber(acceptWarning, taxExclusiveAmount),
-      "@_currencyID": "SAR",
-    },
-    "cbc:TaxInclusiveAmount": {
+    "cbc:PayableAmount": {
       "#text": new Decimal(taxInclusiveAmount).toFixed(2),
       "@_currencyID": "SAR",
     },
