@@ -63,11 +63,21 @@ export class ZodValidationError extends Error {
  * `city`, and `postalZone` for compliance.
  */
 export const EGSLocationSchema = z.object({
-  building: z.string().optional(),
+  building: z
+    .string()
+    .optional()
+    .refine((val) => !val || /^\d{4}$/.test(val), {
+      message: "Building number (KSA-17) must be exactly 4 digits",
+    }),
   city: z.string().optional(),
   citySubdivision: z.string().optional(),
   plotIdentification: z.string().optional(),
-  postalZone: z.string().optional(),
+  postalZone: z
+    .string()
+    .optional()
+    .refine((val) => !val || /^\d{5}$/.test(val), {
+      message: "Postal code (BT-38) must be exactly 5 digits",
+    }),
   street: z.string().optional(),
 });
 /**
@@ -85,14 +95,24 @@ export type EGSLocation = z.infer<typeof EGSLocationSchema>;
  */
 export const CustomerInfoSchema = z.object({
   additionalStreet: z.string().optional(),
-  building: z.string().optional(),
+  building: z
+    .string()
+    .optional()
+    .refine((val) => !val || /^\d{4}$/.test(val), {
+      message: "Building number (KSA-17) must be exactly 4 digits",
+    }),
   buyerName: z.string().min(1),
   city: z.string().optional(),
   citySubdivision: z.string().optional(),
   countrySubEntity: z.string().optional(),
   customerCrnNumber: z.string().optional(),
   plotIdentification: z.string().optional(),
-  postalZone: z.string().optional(),
+  postalZone: z
+    .string()
+    .optional()
+    .refine((val) => !val || /^\d{5}$/.test(val), {
+      message: "Postal code (BT-38) must be exactly 5 digits",
+    }),
   street: z.string().optional(),
   vatNumber: z
     .string()
