@@ -12,7 +12,6 @@ import {
   defaultUBLExtensions,
   defaultUBLExtensionsSignedProperties,
   defaultUBLExtensionsSignedPropertiesForSigning,
-  formatQRTimestamp,
 } from "@jaicome/zatca-core";
 
 import { generateQR } from "../qr/index";
@@ -220,11 +219,13 @@ export const generateSignedXMLString = ({
   log("Info", "Signer", `QR: ${qr}`);
 
   // Set Signed properties
+  const issueDate = invoice_xml.get("Invoice/cbc:IssueDate")?.[0];
+  const issueTime = invoice_xml.get("Invoice/cbc:IssueTime")?.[0];
   const signed_properties_props = {
     certificate_hash: cert_info.hash,
     certificate_issuer: cert_info.issuer,
     certificate_serial_number: cert_info.serial_number,
-    sign_timestamp: formatQRTimestamp(new Date()),
+    sign_timestamp: `${issueDate}T${issueTime}`,
   };
   const ubl_signature_signed_properties_xml_string_for_signing =
     defaultUBLExtensionsSignedPropertiesForSigning(signed_properties_props);
