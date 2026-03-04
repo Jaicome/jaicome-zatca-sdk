@@ -80,7 +80,7 @@ export const SAMPLE_LINE_ITEMS: ZATCAInvoiceLineItem[] = [
  * Sample customer information for invoices with buyer details.
  */
 export const SAMPLE_CUSTOMER_INFO: CustomerInfo = {
-  building: "00",
+  building: "0000",
   buyerName: "Sample Buyer",
   city: "Jeddah",
   citySubdivision: "Downtown",

@@ -117,6 +117,7 @@ const constructLineItemTotals = (
 
 const constructLineItem = (
   lineItem: ZATCAInvoiceLineItem,
+  index: number,
   acceptWarning: boolean
 ) => {
   const {
@@ -136,7 +137,7 @@ const constructLineItem = (
     },
     // UBL 2.1 InvoiceLine order: cbc:ID, cbc:InvoicedQuantity, cbc:LineExtensionAmount, cac:TaxTotal, cac:Item, cac:Price
     lineItemXml: {
-      "cbc:ID": lineItem.id,
+      "cbc:ID": String(index + 1),
       "cbc:InvoicedQuantity": {
         "#text": lineItem.quantity,
         "@_unitCode": "PCE",
@@ -492,12 +493,13 @@ export const Calc = (
     }
   });
 
-  lineItems.forEach((line_item) => {
+  lineItems.forEach((line_item, index) => {
     line_item.taxExclusivePrice = Number(
       new Decimal(line_item.taxExclusivePrice).toFixed(14)
     );
     const { lineItemXml, lineItemTotals } = constructLineItem(
       line_item,
+      index,
       acceptWarning
     );
     totalTaxes += lineItemTotals.taxesTotal;
