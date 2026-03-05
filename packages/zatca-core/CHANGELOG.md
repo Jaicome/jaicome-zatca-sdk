@@ -1,5 +1,11 @@
 # @jaicome/zatca-core
 
+## 1.0.3
+
+### Patch Changes
+
+- 95ddb63: Skip v1.0.2 (publish blocked) and release v1.0.3 with all accumulated fixes
+
 ## 1.0.2
 
 ### Patch Changes

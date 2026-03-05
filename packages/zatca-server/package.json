@@ -1,6 +1,6 @@
 {
   "name": "@jaicome/zatca-server",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "ZATCA server library - Node.js only (signing, EGS, API integration)",
   "keywords": [
     "api",

@@ -1,5 +1,13 @@
 # @jaicome/zatca-server
 
+## 1.0.3
+
+### Patch Changes
+
+- 95ddb63: Skip v1.0.2 (publish blocked) and release v1.0.3 with all accumulated fixes
+- Updated dependencies [95ddb63]
+  - @jaicome/zatca-core@1.0.3
+
 ## 1.0.2
 
 ### Patch Changes
