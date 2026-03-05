@@ -1,5 +1,11 @@
 # @jaicome/zatca-core
 
+## 1.0.4
+
+### Patch Changes
+
+- Bump to v1.0.4 to resolve npm registry conflict with v1.0.3
+
 ## 1.0.3
 
 ### Patch Changes
