@@ -59,7 +59,7 @@ jobs:
             echo "This PR does not include any changesets. If this PR introduces changes that affect users, please add a changeset:" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo '```bash' >> $GITHUB_STEP_SUMMARY
-            echo 'npx changeset' >> $GITHUB_STEP_SUMMARY
+            echo 'pnpm changeset' >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
           fi
 
