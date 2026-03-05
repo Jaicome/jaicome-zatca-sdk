@@ -1,5 +1,11 @@
 # @jaicome/zatca-core
 
+## 1.0.2
+
+### Patch Changes
+
+- 0f06cdb: Test changeset workflow - this is a test to verify the changeset detection and workflow is working correctly
+
 ## 1.0.1
 
 ### Patch Changes
