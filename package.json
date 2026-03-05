@@ -36,7 +36,8 @@
     "check-boundaries": "bash scripts/check-boundaries.sh",
     "check": "ultracite check",
     "fix": "ultracite fix",
-    "prepare": "husky"
+    "prepare": "husky",
+    "release": "bun run build && pnpm changeset publish"
   },
   "dependencies": {
     "@fidm/x509": "^1.2.1",
